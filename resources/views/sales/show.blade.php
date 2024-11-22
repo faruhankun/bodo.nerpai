@@ -5,7 +5,7 @@
 
     <div class="mb-4">
         <h3>General Information</h3>
-        <p><strong>Customer Name:</strong> {{ $sale->customer_name }}</p>
+        <p><strong>Customer Name:</strong> {{ $sale->customer->name }}</p>
         <p><strong>Sale Date:</strong> {{ $sale->sale_date }}</p>
         <p><strong>Warehouse:</strong> {{ $sale->warehouse->name }}</p>
         <p><strong>Status:</strong> {{ ucfirst($sale->status) }}</p>

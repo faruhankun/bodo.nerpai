@@ -8,13 +8,14 @@ use App\Models\Product;
 use App\Models\Warehouse;
 use App\Models\Expedition;
 use App\Models\OutboundRequest;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 
 class SalesController extends Controller
 {
     public function index(Request $request)
 	{
-		$query = Sale::with(['products.salesProducts', 'warehouse'])->orderBy('sale_date', 'desc');
+		$query = Sale::with(['products.salesProducts', 'warehouse', 'customer'])->orderBy('sale_date', 'desc');
 
 		// Optional: Filter by status
 		if ($request->has('status')) {
@@ -31,13 +32,14 @@ class SalesController extends Controller
 		$warehouses = Warehouse::all();
 		$products = Product::all();
 		$expeditions = Expedition::all(); // Fetch expeditions
-		return view('sales.create', compact('warehouses', 'products', 'expeditions'));
+		$customers = Customer::all();
+		return view('sales.create', compact('warehouses', 'products', 'expeditions', 'customers'));
 	}
 
 	public function store(Request $request)
 	{
 		$validated = $request->validate([
-			'customer_name' => 'required|string|max:255',
+			'customer_id' => 'required|integer',
 			'sale_date' => 'required|date',
 			'warehouse_id' => 'required|exists:warehouses,id',
 			'products' => 'required|array', // Expecting products as an array
@@ -49,7 +51,7 @@ class SalesController extends Controller
 
 		// Create sale
 		$sale = Sale::create([
-			'customer_name' => $validated['customer_name'],
+			'customer_id' => $validated['customer_id'],
 			'sale_date' => $validated['sale_date'],
 			'warehouse_id' => $validated['warehouse_id'],
 			'total_amount' => collect($validated['products'])->sum(function ($product) {
@@ -76,7 +78,7 @@ class SalesController extends Controller
 
 	public function show($id)
 	{
-		$sale = Sale::with(['products', 'warehouse', 'expedition'])->findOrFail($id);
+		$sale = Sale::with(['products', 'warehouse', 'expedition', 'customer'])->findOrFail($id);
 		return view('sales.show', compact('sale'));
 	}
 
@@ -84,18 +86,19 @@ class SalesController extends Controller
 	public function edit($id)
 	{
 		$sale = Sale::with('products')->findOrFail($id);
+		$customers = Customer::all();
 		$warehouses = Warehouse::all();
 		$products = Product::all();
 		$expeditions = Expedition::all(); // Fetch expeditions
 		$outboundRequests = OutboundRequest::all(); // Fetch OutboundRequest
-		return view('sales.edit', compact('sale', 'warehouses', 'products', 'expeditions', 'outboundRequests'));
+		return view('sales.edit', compact('sale', 'warehouses', 'products', 'expeditions', 'outboundRequests', 'customers'));
 	}
 
 
 	public function update(Request $request, $id)
 	{
 		$validated = $request->validate([
-			'customer_name' => 'required|string|max:255',
+			'customer_id' => 'required|integer',
 			'sale_date' => 'required|date',
 			'warehouse_id' => 'required|exists:warehouses,id',
 			'products' => 'required|array', // Validate products as an array
@@ -109,7 +112,7 @@ class SalesController extends Controller
 
 		$sale = Sale::findOrFail($id);
 		$sale->update([
-			'customer_name' => $validated['customer_name'],
+			'customer_id' => $validated['customer_id'],
 			'sale_date' => $validated['sale_date'],
 			'warehouse_id' => $validated['warehouse_id'],
 			'expedition_id' => $validated['expedition_id'], // Update expedition in the same call

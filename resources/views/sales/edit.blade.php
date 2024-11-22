@@ -8,8 +8,12 @@
         @method('PUT')
         
         <div class="form-group">
-            <label for="customer_name">Customer Name</label>
-            <input type="text" name="customer_name" class="form-control" value="{{ $sale->customer_name }}" required>
+            <label for="customer_id">Select Customer</label>
+            <select name="customer_id" id="customer_id" class="form-control" required>
+                @foreach($customers as $customer)
+                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                @endforeach
+            </select>
         </div>
         
         <div class="form-group">
@@ -89,10 +93,13 @@
             <label for="status">Sales Status</label>
             <input type="text" class="form-control" name="status" value="{{ $sale->status }}" readonly>
         </div>
-		<div class="form-group">
-            <label for="status_outbound">Outbound Status</label>
-            <input type="text" class="form-control" value="{{ $outboundRequests[count($outboundRequests)-1]->status }}" readonly>
-        </div>
+
+        @if (count($outboundRequests) > 0)
+            <div class="form-group">
+                <label for="status_outbound">Outbound Status</label>
+                <input type="text" class="form-control" value="{{ $outboundRequests[count($outboundRequests)-1]->status }}" readonly>
+            </div>
+        @endif
 		
         <!-- Action Buttons -->
         <h3>Actions</h3>
