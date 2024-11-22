@@ -33,7 +33,7 @@
         <tbody>
             @foreach($sales as $sale)
                 <tr>
-                    <td>{{ $sale->customer_name }}</td>
+					<td>{{ $sale->customer->name ?? "" }}</td>
                     <td>{{ $sale->sale_date }}</td>
                     <td>{{ $sale->warehouse->name }}</td>
                     <td>${{ $sale->total_amount }}</td>

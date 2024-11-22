@@ -7,8 +7,12 @@
         @csrf
 
         <div class="form-group">
-            <label for="customer_name">Customer Name</label>
-            <input type="text" name="customer_name" class="form-control" required>
+            <label for="customer_id">Select Customer</label>
+            <select name="customer_id" id="customer_id" class="form-control" required>
+                @foreach($customers as $customer)
+                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                @endforeach
+            </select>
         </div>
 
         <div class="form-group">

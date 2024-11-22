@@ -8,6 +8,7 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\CustomerController;
 
 Route::resource('products', ProductController::class);
 
@@ -49,6 +50,9 @@ Route::get('/outbound_requests/{outboundRequest}/reject', [OutboundRequestContro
 
 
 Route::resource('suppliers', SupplierController::class);
+
+
+Route::resource('customers', CustomerController::class);
 
 
 Route::get('/dashboard', function () {
