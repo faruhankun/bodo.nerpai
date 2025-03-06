@@ -2,8 +2,8 @@
 
 namespace App\Models\Store;
 
-use App\Models\Customer;
 use App\Models\Company\Store;
+use App\Models\Company\Customer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
