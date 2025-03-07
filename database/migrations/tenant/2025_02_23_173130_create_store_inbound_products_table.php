@@ -16,16 +16,19 @@ return new class extends Migration
             $table->id();
 
             // Foreign keys
-            $table->foreignId('store_inbound_id')->nullable()->constrained('store_inbounds', 'id')->onDelete('set null');
-            $table->foreignId('store_product_id')->nullable()->constrained('store_products', 'id')->onDelete('set null');
+            $table->foreignId('store_inbound_id')->nullable()->constrained('store_inbounds', 'id')->onDelete('cascade');
+            $table->foreignId('store_product_id')->nullable()->constrained('store_products', 'id')->onDelete('cascade');
             $table->foreignId('warehouse_location_id')->nullable()->constrained('warehouse_locations', 'id')->onDelete('set null');
 
             // Attributes
+            $table->decimal('cost_per_unit', 20, 2)->default(0);
+            $table->decimal('total_cost', 25, 2)->default(0);
             $table->integer('quantity');
             $table->text('notes')->nullable();
 
             // Timestamps
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

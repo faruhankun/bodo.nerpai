@@ -36,8 +36,8 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <x-input-label for="status">Consignee Name (opsional)</x-input-label>
-                                    <x-input-input name="status" value="{{ $shipment_confirmation->status }}"></x-input-input>
+                                    <x-input-label for="consignee_name">Consignee Name (opsional)</x-input-label>
+                                    <x-input-input name="consignee_name" value="{{ $shipment_confirmation->consignee_name }}"></x-input-input>
                                 </div>
 
                                 <div class="form-group">

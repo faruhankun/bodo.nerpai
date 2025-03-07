@@ -17,7 +17,7 @@ return new class extends Migration
 
             // Foreign keys
             $table->foreignId('store_id')->constrained('stores', 'id')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('products', 'id');
+            $table->foreignId('store_product_id')->constrained('store_products', 'id')->onDelete('cascade');
             $table->foreignId('warehouse_location_id')->nullable()->constrained('warehouse_locations', 'id')->onDelete('set null');
 
             // Attributes
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->integer('quantity')->default(0);
             $table->integer('reserved_quantity')->default(0);
             $table->integer('in_transit_quantity')->default(0);
+            $table->decimal('cost_per_unit', 20, 2)->default(0);
 
             // Timestamps
             $table->timestamps();

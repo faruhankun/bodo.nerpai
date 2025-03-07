@@ -12,15 +12,18 @@ class StorePosProduct extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'store_pos_products';
-    protected $timestamps = true;
+    public $timestamps = true;
 
     protected $fillable = [
         'store_pos_id',
         'store_product_id',
         'quantity',
         'price',
+        'discount',
         'subtotal',
-        'notes'
+        'cost_per_unit',
+        'total_cost',
+        'notes',
     ];
 
     protected $casts = [
@@ -28,12 +31,12 @@ class StorePosProduct extends Model
         'subtotal' => 'decimal:2',
     ];
 
-    public function storePos(): BelongsTo
+    public function store_pos(): BelongsTo
     {
         return $this->belongsTo(StorePos::class);
     }
 
-    public function storeProduct(): BelongsTo
+    public function store_product(): BelongsTo
     {
         return $this->belongsTo(StoreProduct::class);
     }

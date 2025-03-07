@@ -14,7 +14,7 @@ class StoreWarehouse extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'store_warehouses';
-    protected $timestamps = true;
+    public $timestamps = true;
 
     protected $fillable = [
         'store_id',

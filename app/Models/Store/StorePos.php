@@ -14,41 +14,50 @@ class StorePos extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'store_pos';
-    protected $timestamps = true;
+    public $timestamps = true;
 
     protected $fillable = [
+        'number',
         'store_id',
         'store_customer_id',
         'store_employee_id',
-        'pos_date',
+        'date',
         'total_amount',
         'tax_amount',
         'payment_method',
+        'payment_amount',
         'status',
-        'notes'
+        'notes',
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
         'tax_amount' => 'decimal:2',
+        'date' => 'date',
     ];
+
+    public function generatePosNumber(): string
+    {
+        $this->number = 'POS_' . $this->date->format('Y-m-d') . '_' . $this->id;
+        return $this->number;
+    }
 
     public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);
     }
 
-    public function storeCustomer(): BelongsTo
+    public function store_customer(): BelongsTo
     {
         return $this->belongsTo(StoreCustomer::class);
     }
 
-    public function storeEmployee(): BelongsTo
+    public function store_employee(): BelongsTo
     {
         return $this->belongsTo(StoreEmployee::class);
     }
 
-    public function storePosProducts(): HasMany
+    public function store_pos_products(): HasMany
     {
         return $this->hasMany(StorePosProduct::class);
     }

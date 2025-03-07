@@ -14,18 +14,20 @@ return new class extends Migration
         Schema::create('store_pos', function (Blueprint $table) {
             // Primary key
             $table->id();
+            $table->string('number')->nullable()->unique();
 
             // Foreign keys
-            $table->foreignId('store_id')->nullable()->constrained('stores', 'id')->onDelete('set null');
+            $table->foreignId('store_id')->nullable()->constrained('stores', 'id')->onDelete('cascade');
             $table->foreignId('store_customer_id')->nullable()->constrained('store_customers', 'id')->onDelete('set null');
             $table->foreignId('store_employee_id')->nullable()->constrained('store_employees', 'id')->onDelete('set null');
 
             // Attributes
-            $table->date('pos_date');
-            $table->decimal('total_amount', 20, 2)->nullable()->default(0);
+            $table->date('date');
             $table->decimal('tax_amount', 20, 2)->nullable()->default(0);
-            $table->string('payment_method')->nullable()->default('cash');
-            $table->string('status')->default('paid');
+            $table->decimal('total_amount', 25, 2)->nullable()->default(0);
+            $table->string('payment_method')->nullable()->default('CASH');
+            $table->decimal('payment_amount', 25, 2)->nullable()->default(0);
+            $table->string('status')->default('PAID');
             $table->text('notes')->nullable();
 
             // Timestamps

@@ -132,6 +132,7 @@
                                     <x-table-th>Consignee</x-table-th>
                                     <x-table-th>Received Time</x-table-th>
                                     <x-table-th>Team</x-table-th>
+                                    <x-table-th>Consignee Name</x-table-th>
                                     <x-table-th>Notes</x-table-th>
                                     <x-table-th>Actions</x-table-th>
                                 </tr>
@@ -143,6 +144,7 @@
                                         <x-table-td>{{ $shipment_confirmation->consignee_type }} : {{ $shipment->consignee->name }}</x-table-td>
                                         <x-table-td>{{ $shipment_confirmation->received_time ?? 'N/A' }}</x-table-td>
                                         <x-table-td>{{ $shipment_confirmation->employee->companyuser->user->name }}</x-table-td>
+                                        <x-table-td>{{ $shipment_confirmation->consignee_name ?? 'N/A' }}</x-table-td>
                                         <x-table-td>{{ $shipment_confirmation->notes }}</x-table-td>
                                         <x-table-td>
                                             <div class="flex items-center space-x-2">

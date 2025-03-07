@@ -128,57 +128,6 @@ class InboundController extends Controller
         return redirect()->route('warehouse_inbounds.index')
             ->with('success', 'Inbound request updated successfully.');
     }
-	
-
-	// Helper function to calculate remaining quantities for a new inbound request
-	private function getRemainingQuantities($inboundRequest)
-	{
-		$requestedQuantities = ($inboundRequest->requested_quantities);
-		$receivedQuantities = ($inboundRequest->received_quantities);
-
-		$remainingQuantities = [];
-		foreach ($requestedQuantities as $productId => $quantity) {
-			$receivedQty = $receivedQuantities[$productId] ?? 0;
-			if ($quantity > $receivedQty) {
-				$remainingQuantities[$productId] = $quantity - $receivedQty;
-			}
-		}
-
-		return $remainingQuantities;
-	}
-
-	// Helper function to update purchase status based on inbound requests
-	private function updatePurchaseStatus($purchaseId)
-	{
-		$purchase = Purchase::with('inbounds')->findOrFail($purchaseId);
-		$inbounds = $purchase->inbounds;
-
-		if ($inbounds->every(fn($ir) => $ir->status === 'Completed')) {
-			// All inbound requests are completed
-			$purchase->status = 'Completed';
-		} elseif ($inbounds->contains('status', 'Quantity Discrepancy')) {
-			// If any request has a quantity discrepancy
-			$purchase->status = 'Quantity Discrepancy';
-		} elseif ($inbounds->contains('status', 'In Transit') && $inbounds->contains('status', 'Completed')) {
-			// There’s at least one completed request, but some are still in transit
-			$purchase->status = 'Pending Additional Shipment';
-		} elseif ($inbounds->every(fn($ir) => $ir->arrival_date)) {
-			// All inbound received are completed
-			$purchase->status = 'Received - Pending Verification';
-		} else {
-			// Default to "In Transit" if none of the above conditions are met
-			$purchase->status = 'In Transit';
-		}
-
-		$purchase->save();
-	}
-
-
-	public function complete($id)
-	{
-		$inboundRequest = Inbound::with('purchase.products')->findOrFail($id);
-		return view('warehouse_inbounds.complete', compact('inboundRequest'));
-	}
 
 
 

@@ -13,7 +13,7 @@ class StoreOutboundProduct extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'store_outbound_products';
-    protected $timestamps = true;
+    public $timestamps = true;
 
     protected $fillable = [
         'store_outbound_id',

@@ -10,20 +10,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\Company\ShipmentConfirmation;
+
 class StoreInbound extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'store_inbounds';
-    protected $timestamps = true;
+    public $timestamps = true;
 
     protected $fillable = [
+        'number',
         'store_id',
-        'shipment_id',
+        'shipment_confirmation_id',
         'store_employee_id',
+        'date',
         'notes',
         'status',
-        'inbound_date'
     ];
 
     public function store(): BelongsTo
@@ -31,18 +34,18 @@ class StoreInbound extends Model
         return $this->belongsTo(Store::class);
     }
 
-    public function shipment(): BelongsTo
-    {
-        return $this->belongsTo(Shipment::class);
-    }
-
-    public function storeEmployee(): BelongsTo
+    public function store_employee(): BelongsTo
     {
         return $this->belongsTo(StoreEmployee::class);
     }
 
-    public function storeInboundProducts(): HasMany
+    public function store_inbound_products(): HasMany
     {
         return $this->hasMany(StoreInboundProduct::class);
+    }
+
+    public function shipment_confirmation(): BelongsTo
+    {
+        return $this->belongsTo(ShipmentConfirmation::class);
     }
 }

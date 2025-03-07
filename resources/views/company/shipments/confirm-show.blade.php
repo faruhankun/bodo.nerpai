@@ -87,11 +87,19 @@
                     <h3 class="text-lg font-bold my-3">Actions</h3>
                     <div>
                         <div class="flex justify mt-4">
-                            <form action="{{ route('warehouse_inbounds.action', ['warehouse_inbounds'=> '0','shipment_confirmation' => $shipment_confirmation->id, 'action' => 'INB_REQUEST']) }}" method="POST">
-                                @csrf
-                                @method('POST')
-                                <x-primary-button type="submit">Request Inbound to Warehouse</x-primary-button>
-                            </form>
+                            @if ($shipment->consignee_type == 'WH')
+                                <form action="{{ route('warehouse_inbounds.action', ['warehouse_inbounds'=> '0','shipment_confirmation' => $shipment_confirmation->id, 'action' => 'INB_REQUEST']) }}" method="POST">
+                                    @csrf
+                                    @method('POST')
+                                    <x-primary-button type="submit">Request Inbound to Warehouse</x-primary-button>
+                                </form>
+                            @elseif ($shipment->consignee_type == 'ST')
+                                <form action="{{ route('store_inbounds.action', ['id'=> '0','shipment_confirmation' => $shipment_confirmation->id, 'action' => 'INB_REQUEST']) }}" method="POST">
+                                    @csrf
+                                    @method('POST')
+                                    <x-primary-button type="submit">Request Inbound to Store</x-primary-button>
+                                </form>
+                            @endif
                         </div>
                     </div>
 

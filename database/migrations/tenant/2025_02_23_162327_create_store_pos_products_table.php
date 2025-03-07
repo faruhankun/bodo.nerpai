@@ -16,13 +16,16 @@ return new class extends Migration
             $table->id();
 
             // Foreign keys
-            $table->foreignId('store_pos_id')->nullable()->constrained('store_pos', 'id')->onDelete('set null');
-            $table->foreignId('store_product_id')->nullable()->constrained('store_products', 'id')->onDelete('set null');
+            $table->foreignId('store_pos_id')->nullable()->constrained('store_pos', 'id')->onDelete('cascade');
+            $table->foreignId('store_product_id')->nullable()->constrained('store_products', 'id')->onDelete('cascade');
 
             // Attributes
-            $table->integer('quantity');
-            $table->decimal('price', 20, 2);
-            $table->decimal('subtotal', 20, 2);
+            $table->integer('quantity')->default(1);
+            $table->decimal('price', 20, 2)->default(0);
+            $table->decimal('subtotal', 25, 2)->default(0);
+            $table->decimal('discount', 20, 2)->default(0);
+            $table->decimal('cost_per_unit', 20, 2)->default(0);
+            $table->decimal('total_cost', 25, 2)->default(0);
             $table->text('notes')->nullable();
 
             // Timestamps

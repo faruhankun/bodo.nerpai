@@ -15,7 +15,7 @@ class StoreCustomer extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'store_customers';
-    protected $timestamps = true;
+    public $timestamps = true;
 
     protected $fillable = [
         'store_id',

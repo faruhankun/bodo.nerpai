@@ -15,6 +15,8 @@ use App\Models\Company\Store;
 use App\Models\Company\InventoryTransfer;
 use App\Models\Company\Outbound;
 
+use App\Models\Store\StorePos;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -46,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
             'ST' => Store::class,
             'ITF' => InventoryTransfer::class,
             'OUTB' => Outbound::class,
+            'POS' => StorePos::class,
         ]);
 	}
 }

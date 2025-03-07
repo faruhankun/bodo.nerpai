@@ -4,7 +4,7 @@ namespace App\Models\Store;
 
 use App\Models\Product;
 use App\Models\Company\Store;
-use App\Models\WarehouseLocation;
+use App\Models\Company\WarehouseLocation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,16 +14,17 @@ class StoreInventory extends Model
     use HasFactory;
 
     protected $table = 'store_inventories';
-    protected $timestamps = true;
+    public $timestamps = true;
 
     protected $fillable = [
         'store_id',
-        'product_id',
+        'store_product_id',
         'warehouse_location_id',
         'expire_date',
         'quantity',
         'reserved_quantity',
-        'in_transit_quantity'
+        'in_transit_quantity',
+        'cost_per_unit',
     ];
 
     public function store(): BelongsTo
@@ -31,12 +32,12 @@ class StoreInventory extends Model
         return $this->belongsTo(Store::class);
     }
 
-    public function product(): BelongsTo
+    public function store_product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(StoreProduct::class);
     }
 
-    public function warehouseLocation(): BelongsTo
+    public function warehouse_location(): BelongsTo
     {
         return $this->belongsTo(WarehouseLocation::class);
     }
