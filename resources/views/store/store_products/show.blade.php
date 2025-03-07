@@ -1,4 +1,8 @@
-<x-store-layout>
+@php
+    $layout = session('layout');
+@endphp
+
+<x-dynamic-component :component="'layouts.' . $layout">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Store Product Details') }}
@@ -64,4 +68,4 @@
             </div>
         </div>
     </div>
-</x-store-layout>
+</x-dynamic-component>
