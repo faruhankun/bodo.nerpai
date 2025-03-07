@@ -15,7 +15,7 @@ class StoreProduct extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'store_products';
-    protected $timestamps = true;
+    public $timestamps = true;
 
     protected $fillable = [
         'store_id',
