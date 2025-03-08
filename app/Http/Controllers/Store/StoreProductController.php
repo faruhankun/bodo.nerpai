@@ -22,7 +22,10 @@ class StoreProductController extends Controller
         $store_id = Session::get('company_store_id');
         $store_products = StoreProduct::with('store', 'product')->where('store_id', $store_id)->get();
 
-        $products = Product::all()->where('status', 'Active');
+        $products = Product::where('status', 'Active')
+            ->whereDoesntHave('storeProducts', function ($query) use ($store_id) {
+                $query->where('store_id', $store_id);
+            })->get();
 
         return view('store.store_products.index', compact('store_products', 'products'));
     }

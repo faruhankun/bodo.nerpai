@@ -17,7 +17,7 @@
         <div class="form-group mb-4">
             <x-input-label for="store_price" class="block text-sm font-medium text-gray-700">Store Price</x-input-label>
             <x-text-input type="number" name="store_price" class="w-full" id="store_price"
-                :value="$products->first()->price"></x-text-input>
+                :value="$products->first()->price ?? 0"></x-text-input>
         </div>
 
         <div class="form-group mb-4">
