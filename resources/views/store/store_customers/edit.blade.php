@@ -1,4 +1,4 @@
-<x-modal-edit trigger="Update Store Customers" title="Add Store Customers">
+<x-modal-edit trigger="Update Store Customers" title="Update Store Customers">
     <form action="{{ route('store_customers.update', $store_customer->id) }}" method="POST">
         @csrf
         @method('PUT')
