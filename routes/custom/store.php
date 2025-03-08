@@ -14,6 +14,7 @@ use App\Http\Controllers\Store\StorePosController;
 
 use App\Http\Controllers\Store\StoreInventoryController;
 use App\Http\Controllers\Store\StoreInboundController;
+use App\Http\Controllers\Store\StoreCustomerController;
 
 Route::middleware([
     'auth',
@@ -31,7 +32,7 @@ Route::middleware([
     Route::resource('store_restocks', StoreRestockController::class);
     Route::delete('store_restocks/{id}/cancel', [StoreRestockController::class, 'cancelRequest'])->name('store_restocks.cancel');
 
-    Route::resource('store_customers', StorePermissionController::class);
+    Route::resource('store_customers', StoreCustomerController::class);
 
     Route::resource('store_pos', StorePosController::class);
     Route::get('store_pos/{id}/print', [StorePosController::class, 'printPos'])->name('store_pos.print');
