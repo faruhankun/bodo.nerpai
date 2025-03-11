@@ -349,6 +349,13 @@
                         @if(session('employee'))
                             <li>
                                 <x-sidebar-item icon="icon-checklist-paper" 
+                                                    route="accounts.index" 
+                                                    text="Accounts">
+                                    Reports
+                                </x-sidebar-item>
+                            </li>
+                            <li>
+                                <x-sidebar-item icon="icon-checklist-paper" 
                                                     route="payments.index" 
                                                     text="Payments">
                                     Reports

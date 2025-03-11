@@ -27,7 +27,7 @@ use App\Http\Controllers\Company\OutboundController;
 
 use App\Http\Controllers\Company\ShipmentController;
 use App\Http\Controllers\Company\CourierController;
-
+use App\Http\Controllers\Company\Finance\AccountController;
 use App\Http\Controllers\Company\ReportController;
 use App\Http\Controllers\Company\Finance\PaymentController;
 use App\Http\Controllers\Company\Finance\PayableController;
@@ -94,6 +94,7 @@ Route::middleware(['auth',
     Route::post('payables/{id}/action/{action}', [PayableController::class, 'handleAction'])->name('payables.action');
     Route::resource('receivables', ReceivableController::class);
     Route::post('receivables/{id}/action/{action}', [ReceivableController::class, 'handleAction'])->name('receivables.action');
+    Route::resource('accounts', AccountController::class);
 
     Route::resource("reports", ReportController::class);
 });
