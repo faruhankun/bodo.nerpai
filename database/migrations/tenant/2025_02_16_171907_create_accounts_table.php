@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('status')->default('active');
             $table->decimal('balance', 25, 2)->default(0);
+            $table->text('notes')->nullable();
 
             // Timestamps
             $table->timestamps();
