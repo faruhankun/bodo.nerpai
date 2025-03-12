@@ -10,8 +10,8 @@ use Illuminate\Validation\Rules\Enum;
 
 enum Status: string
 {
-    case Active = 'Active';
-    case Inactive = 'Inactive';
+    case Active = 'active';
+    case Inactive = 'inactive';
 }
 
 class AccountController extends Controller

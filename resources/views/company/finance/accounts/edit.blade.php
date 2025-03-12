@@ -40,8 +40,8 @@
                 class="block text-sm font-medium text-gray-700">Status</x-input-label>
             <x-input-select name="status" id="status-for-{{ $edit_account->id }}" class="mt-1 block w-full"
                 x-model="status" required>
-                <x-select-option value="Active" :selected="$edit_account->status === 'Active'">Active</x-select-option>
-                <x-select-option value="Inactive" :selected="$edit_account->status === 'Inactive'">Inactive</x-select-option>
+                <x-select-option value="active" :selected="$edit_account->status === 'active'">Active</x-select-option>
+                <x-select-option value="inactive" :selected="$edit_account->status === 'inactive'">Inactive</x-select-option>
             </x-input-select>
         </div>
         <div class="form-group mb-4">
