@@ -1,5 +1,10 @@
 @php
     $layout = session('layout');
+
+    $payment_methods = $payment_methods;
+    if($store_pos->payment_method) {
+        $payment_method = $payment_methods->where('id', $store_pos->payment_method)->first();
+    }
 @endphp
 
 <x-dynamic-component :component="'layouts.' . $layout">
@@ -17,7 +22,7 @@
                         <x-div-box-show title="Store POS Date">{{ $store_pos->date?->format('Y-m-d') ?? 'N/A' }}</x-div-box-show>
                         
                         <x-div-box-show title="Store Cashier">{{ $store_pos->store_employee?->employee->companyuser->user->name ?? 'N/A' }}</x-div-box-show>
-                        <x-div-box-show title="Payment Method">{{ $store_pos->payment_method ?? 'N/A' }}</x-div-box-show>
+                        <x-div-box-show title="Payment Method">{{ $payment_method?->name ?? 'N/A' }}</x-div-box-show>
                         <x-div-box-show title="Total Amount">Rp{{ number_format($store_pos->total_amount ?? 0, 2) }}</x-div-box-show>
 
                         <x-div-box-show title="Status">

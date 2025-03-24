@@ -193,12 +193,12 @@ class ShipmentController extends Controller
         $shipment_source = $shipment->transaction_type;
         $products = $shipment->transaction->products;
         if($shipment_source == 'OUTB'){
-            $products = $shipment->transaction->outbound_products;
+            $items = $shipment->transaction->items;
 
-            if($products->isNotEmpty()){
-                foreach($products as $product){
-                    $shipment_confirmation->products()->attach($product->id, [
-                        'quantity' => $product->quantity,
+            if($items->isNotEmpty()){
+                foreach($items as $item){
+                    $shipment_confirmation->products()->attach($item->item->product_id, [
+                        'quantity' => $item->quantity,
                         'condition' => 'SC_OK',
                     ]);
                 }

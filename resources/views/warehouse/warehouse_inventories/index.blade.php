@@ -3,7 +3,7 @@
         <div class="max-w-7xl my-10 mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                <h3 class="text-lg font-bold dark:text-white">Manage Inventory</h3>
+                <h3 class="text-2xl font-bold dark:text-white">Manage Inventory</h3>
                 <p class="text-sm dark:text-gray-200 mb-6">Create, edit, and manage your inventories listings.</p>
 
                     <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 mb-4">
@@ -12,11 +12,9 @@
                         <a href="{{ route('inventory.adjust') }}" class="ml-2">
                                 <x-secondary-button :route="route('inventory.adjust')">Adjust Inventory</x-secondary-button>
                             </a>
-                            <a href="{{ route('inventory.history') }}" class="ml-2">
-                                <x-secondary-button :route="route('inventory.history')">Inventory History</x-secondary-button>
+                            <a href="{{ route('warehouse_inventories.movement_index') }}" class="ml-2">
+                                <x-secondary-button :route="route('warehouse_inventories.movement_index')">Inventory Movements</x-secondary-button>
                             </a>
-                           
-                    
                         </div>
                     </div>
 

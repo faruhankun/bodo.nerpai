@@ -4,7 +4,7 @@ namespace App\Models\Company;
 
 use App\Models\Store\StoreInboundProduct;
 use App\Models\Store\StoreInventory;
-use App\Models\Store\StoreOutboundProduct;
+use App\Models\Store\StoreOutboundItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -38,9 +38,9 @@ class WarehouseLocation extends Model
 		return $this->hasMany(StoreInboundProduct::class);
 	}
 
-	public function storeOutboundProducts(): HasMany
+	public function storeOutboundItems(): HasMany
 	{
-		return $this->hasMany(StoreOutboundProduct::class);
+		return $this->hasMany(StoreOutboundItem::class);
 	}
 
 

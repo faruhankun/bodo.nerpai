@@ -23,7 +23,7 @@ class StoreController extends Controller
         $employee = Employee::with('store')->find($employeeId);
         $stores = $employee->store;
 
-        return view('stores.index', compact('stores'));
+        return view('company.stores.index', compact('stores'));
     }
 
     /**
@@ -42,7 +42,7 @@ class StoreController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:255',
             'name' => 'required|string|max:255',
-            'address' => 'nullable|string|max:255',
+            // 'address' => 'nullable|string|max:255',
         ]);
 
         $store = Store::updateOrCreate(

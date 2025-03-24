@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('outbound_products', function (Blueprint $table) {
+        Schema::table('outbound_items', function (Blueprint $table) {
             $table->foreignId('warehouse_location_id')->nullable()->constrained('warehouse_locations');
         });
 
@@ -33,8 +33,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('outbound_products', function (Blueprint $table) {
-            $table->dropForeign('outbound_products_warehouse_location_id_foreign');
+        Schema::table('outbound_items', function (Blueprint $table) {
+            $table->dropForeign('outbound_items_warehouse_location_id_foreign');
             $table->dropColumn('warehouse_location_id');
         });
 

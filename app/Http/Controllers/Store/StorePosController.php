@@ -14,6 +14,9 @@ use App\Models\Store\StoreInventoryMovement;
 use App\Models\Customer;
 use App\Models\Company\Product;
 use App\Models\Company\Courier;
+use App\Models\Company\Finance\Account;
+
+use App\Services\Company\Finance\JournalEntryService;
 
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -48,7 +51,9 @@ class StorePosController extends Controller
 		$store_employee = StoreEmployee::where('store_id', $store_id)
 										->findOrFail(session('company_store_employee_id'));
 
-		return view('store.store_pos.create', compact('store_customers', 'store_products', 'store_employee'));
+		$payment_methods = Account::where('type_id', 1)->get();         // Kas & Bank
+
+		return view('store.store_pos.create', compact('store_customers', 'store_products', 'store_employee', 'payment_methods'));
 	}
 
 	public function store(Request $request)
@@ -87,8 +92,10 @@ class StorePosController extends Controller
 		]);
 		$pos->generatePosNumber();
         
+		
 		// Create Sales Products
         $total_amount = 0;
+		$discount_amount = 0;
 		$product_to_inventory_movements = [];
 		foreach ($validated['products'] as $product) {
             StorePosProduct::create([
@@ -104,6 +111,7 @@ class StorePosController extends Controller
             ]);
 
             $total_amount += $product['subtotal'];
+			$discount_amount += ($product['discount'] / 100) * $product['quantity'] * $product['price'];
 
 			$product_to_inventory_movements[] = [
 				'store_id' => $store_id,
@@ -127,20 +135,62 @@ class StorePosController extends Controller
 			// update inventory
 			$inventory_movement->postMovementtoStoreInventory();
 		}
-        
+
         $pos->total_amount = $total_amount;
+		$data['discount_amount'] = $discount_amount;
+		
+		// input pendapatan
+		$this->postingJournalStorePos($pos, $data);
+		
         $pos->save();
 
-		// Update Inventory
-
 		return redirect()->route('store_pos.show', $pos->id)->with('success', "POS {$pos->number} created successfully.");
+	}
+
+
+	public function postingJournalStorePos($pos, $data = []){
+		$journalServices = app(JournalEntryService::class);
+		if(!isset($data['discount_amount'])) $data['discount_amount'] = 0;
+
+		$details = [
+			[
+				'account_id' => $pos->payment_method,							// Kas / Bank
+				'debit' => $pos->payment_amount,
+			],
+			[
+				'account_id' => get_company_setting('comp.account_revenue'),	// Pendapatan
+				'credit' => $pos->total_amount + $data['discount_amount'],
+			],
+		];
+
+		if($data['discount_amount'] > 0){
+			$details[] = [
+				'account_id' => get_company_setting('comp.account_discount_sales'),		// Diskon
+				'debit' => $data['discount_amount'],
+			];
+		}
+
+		$journalServices->addJournalEntry([
+				'created_by' => $pos->store_employee->employee->id,
+				'date' => $pos->date,
+				'source_type' => 'POS',
+				'source_id' => $pos->id,
+				'type' => 'POS',
+				'description' => "POS {$pos->number}",
+				'total' => $pos->total_amount + $data['discount_amount'],
+			],
+			$details
+		);
 	}
 
 
 	public function show($id)
 	{
 		$store_pos = StorePos::with(['store_customer', 'store_employee', 'store_pos_products'])->findOrFail($id);
-		return view('store.store_pos.show', compact('store_pos'));
+
+		$payment_methods = Account::where('type_id', 1)->get();         // Kas & Bank
+
+		return view('store.store_pos.show', compact('store_pos', 'payment_methods'));
 	}
 
 
@@ -169,7 +219,7 @@ class StorePosController extends Controller
 	{
 		$store_pos = StorePos::with(['store_customer', 'store_employee', 'store_pos_products'])->findOrFail($id);
 		
-		$pdf = Pdf::loadView('invoices.pos_receipt', compact('store_pos'));
+		$pdf = Pdf::loadView('company.invoices.pos_receipt', compact('store_pos'));
 		
 		return $pdf->stream('pos.pdf');
 	}

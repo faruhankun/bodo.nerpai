@@ -13,6 +13,8 @@ class MainSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            CompanySettingSeeder::class,
+
             CourierSeeder::class,
 
             AssetTypeSeeder::class,

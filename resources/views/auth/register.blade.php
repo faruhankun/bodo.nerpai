@@ -17,13 +17,27 @@
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
+        <div class="mt-4 relative">
             <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+            <div class="relative">
+                <x-text-input id="password" class="block mt-1 w-full"
+                                type="password"
+                                name="password"
+                                required autocomplete="new-password" />
+
+                <!-- Tombol Toggle Password -->
+                <button type="button" onclick="togglePassword()" 
+                        class="absolute inset-y-0 right-0 flex items-center pr-5 mr-2">
+                    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" 
+                        class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" 
+                        fill="currentColor">
+                        <path fill-rule="evenodd" 
+                            d="M10 3C5 3 1 8 1 10s4 7 9 7 9-5 9-7-4-7-9-7zm0 2a5 5 0 100 10A5 5 0 0010 5zm0 2a3 3 0 110 6 3 3 0 010-6z" 
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -50,3 +64,22 @@
         </div>
     </form>
 </x-guest-layout>
+
+<script>
+    function togglePassword() {
+        let passwordInput = document.getElementById('password');
+        let eyeIcon = document.getElementById('eyeIcon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.innerHTML = `<path fill-rule="evenodd" 
+                                 d="M10 3C5 3 1 8 1 10s4 7 9 7 9-5 9-7-4-7-9-7zm0 2a5 5 0 100 10A5 5 0 0010 5z" 
+                                 clip-rule="evenodd" />`;
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.innerHTML = `<path fill-rule="evenodd" 
+                                 d="M10 3C5 3 1 8 1 10s4 7 9 7 9-5 9-7-4-7-9-7zm0 2a5 5 0 100 10A5 5 0 0010 5zm0 2a3 3 0 110 6 3 3 0 010-6z" 
+                                 clip-rule="evenodd" />`;
+        }
+    }
+</script>

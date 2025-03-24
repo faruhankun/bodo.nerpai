@@ -32,21 +32,6 @@ class StoreInboundController extends Controller
         return view('store.store_inbounds.index', compact('inbounds', 'shipments_incoming'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
     /**
      * Display the specified resource.
@@ -58,21 +43,7 @@ class StoreInboundController extends Controller
         return view('store.store_inbounds.show', compact('inbound'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
 
     public function handleAction(Request $request, $inbounds, $action) {
 		if($inbounds != '0') 
@@ -99,9 +70,21 @@ class StoreInboundController extends Controller
 		$shipment_confirmation = ShipmentConfirmation::with('products', 'shipment')->findOrFail($shipment_confirmation);
 		$products = $shipment_confirmation->products;
 		$shipment = $shipment_confirmation->shipment;
+        $source = $shipment->transaction;
         $store_employee = StoreEmployee::where('store_id', $shipment->consignee_id)
                                         ->where('employee_id', $shipment_confirmation->employee_id)
                                         ->first();
+        
+                                        // cost per unit
+        $source_cost_per_unit = [];
+        if($shipment->transaction_type == 'OUTB') {
+            $items = $source->items;
+            $source_cost_per_unit = $items->mapWithKeys(function ($item) {
+                return [$item->item->product_id => $item->cost_per_unit];
+            });
+        }
+
+
 
 		$inbound = StoreInbound::create([
 			'store_id' => $shipment->consignee_id,
@@ -113,6 +96,7 @@ class StoreInboundController extends Controller
 
         $storeProductMap = StoreProduct::whereIn('product_id', $products->pluck('id'))
                                         ->pluck('id', 'product_id');
+
         
         $inbound_product = [];
 		foreach($products as $product){
@@ -129,7 +113,7 @@ class StoreInboundController extends Controller
                 'store_product_id' => $storeProductMap[$product->id],
                 'quantity' => $product->pivot->quantity,
                 'store_location_id' => null,
-                'cost_per_unit' => $product->pivot->cost_per_unit ?? 0,
+                'cost_per_unit' => $source_cost_per_unit[$product->id] ?? 0,
                 'total_cost' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -148,11 +132,12 @@ class StoreInboundController extends Controller
 	}
 
 	public function completeInbound($inbound) {
-		$inbound->status = 'INB_COMPLETED';
-		$inbound->save();
-
 		// input inbound products to warehouse & inventory
 		$this->inputInboundProductsToStore($inbound);
+
+
+        $inbound->status = 'INB_COMPLETED';
+		$inbound->save();
 
 		return redirect()->route('store_inbounds.show', $inbound->id)->with('success', "Inbound {$inbound->id} is Completed :D");
 	}

@@ -71,7 +71,7 @@
                             </div>
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                             
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                            <!-- <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                                 <div class="form-group">
                                     <div class="border rounded-lg p-4 mt-4">
                                         <h2 class="text-lg font-bold mb-2">Metode Pembayaran</h2>
@@ -94,7 +94,6 @@
                                     <div class="border rounded-lg p-4 mt-4" id="payment-details">
                                         <h2 class="text-lg font-bold mb-2">Detail Pembayaran</h2>
 
-                                        <!-- Input Amount Paid -->
                                         <div id="cash-payment" class="hidden">
                                             <label for="amount-paid" class="block font-bold">Jumlah Uang</label>
                                             <input type="number" id="amount-paid" class="form-input w-full px-2 py-1" min="0">
@@ -102,10 +101,40 @@
                                             <input type="text" id="change" class="form-input w-full px-2 py-1 bg-gray-200" readonly>
                                         </div>
 
-                                        <!-- Upload Bukti Transfer -->
                                         <div id="transfer-proof" class="hidden">
                                             <label for="payment-proof" class="block font-bold">Upload Bukti Transfer</label>
                                             <input type="file" id="payment-proof" class="form-input w-full px-2 py-1">
+                                        </div>    
+                                    </div>
+                                </div>
+                            </div> -->
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                                <div class="form-group">
+                                    <div class="border rounded-lg p-4 mt-4">
+                                        <h2 class="text-lg font-bold mb-2">Metode Pembayaran</h2>
+                                        <x-input-select name="payment_method" id="payment-method" class="form-select w-full px-2 py-1" required>
+                                            <option value="">-- Select Payment Method --</option>
+                                            @foreach ($payment_methods as $method)
+                                                <option value="{{ $method->id }}">{{ $method->name }}</option>
+                                            @endforeach
+                                        </x-input-select>
+
+                                        <div>
+                                            <br>
+                                            <label for="payment_amount" class="block font-bold">Jumlah Tagihan: </label> 
+                                            <x-input-input type="number" name="payment_amount" id="payment_amount" class="form-input w-full px-2 py-1" min="0"></x-input-input>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="border rounded-lg p-4 mt-4" id="payment-details">
+                                        <h2 class="text-lg font-bold mb-2">Detail Pembayaran</h2>
+
+                                        <!-- Upload Bukti Transfer -->
+                                        <div id="transfer-proof">
+                                            <label for="payment-proof" class="block font-bold">Upload Bukti Transfer</label>
+                                            <input type="file" id="payment-proof" name="payment_proof" class="form-input w-full px-2 py-1">
                                         </div>    
                                     </div>
                                 </div>
@@ -203,7 +232,7 @@
 
             row.find(".item-weight").val(weight);
             row.find(".item-price").val(price);
-            row.find(".item-cost").val(price);
+            row.find(".item-cost").val(cost);
             row.find(".item-location").val(location);
             
             updateSubtotal(row);
@@ -261,15 +290,15 @@
         $("#payment-method").change(function() {
             let selectedMethod = $(this).val();
             
-            $("#cash-payment, #transfer-proof").addClass("hidden");
+            // $("#cash-payment, #transfer-proof").addClass("hidden");
 
-            if (selectedMethod === "CASH") {
-                $("#cash-payment").removeClass("hidden");
-            } else if (selectedMethod === "TF_BANK" || selectedMethod === "QRIS") {
-                $("#transfer-proof").removeClass("hidden");
-                $("#amount-paid").val("");
-                $("#change").val("");
-            }
+            // if (selectedMethod === "CASH") {
+            //     $("#cash-payment").removeClass("hidden");
+            // } else if (selectedMethod === "TF_BANK" || selectedMethod === "QRIS") {
+            //     $("#transfer-proof").removeClass("hidden");
+            //     $("#amount-paid").val("");
+            //     $("#change").val("");
+            // }
 
             $("#payment_amount").val(parseFloat($("#total-amount").text()) || 0);
         });

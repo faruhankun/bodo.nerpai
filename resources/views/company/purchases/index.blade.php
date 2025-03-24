@@ -52,13 +52,12 @@
 									<x-table-td>
 										<div class="flex items-center gap-3 justify-end">
 											<x-button-show :route="route('purchases.show', $purchase->id)" />
-											@if ($purchase->status == 'PO_PLANNED' ||
-												$purchase->status == 'PO_REQUEST_TO_SUPPLIER')
-												<x-button-edit :route="route('purchases.edit', $purchase->id)" />
+											@if ($purchase->status == 'PO_PLANNED')
+												<x-button-delete :route="route('purchases.destroy', $purchase->id)" />
+											@else
+												<x-button-add :route="route('purchases.duplicate', $purchase->id)" text="Copy"/>
 											@endif
-											<x-button-delete :route="route('purchases.destroy', $purchase->id)" />
 										</div>
-									<x-button-add :route="route('purchases.duplicate', $purchase->id)" text="Copy"/>
 									</x-table-td>
 								</x-table-tr>
 							@endforeach

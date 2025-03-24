@@ -41,9 +41,6 @@
                                     <x-table-td class="flex justify-center items-center gap-2">
                                         <div class="flex items-center space-x-2">
                                             <x-button-show :route="route('inventory_transfers.show', $transfer->id)" />
-                                            @if($layout == 'company')
-                                                <x-button-edit :route="route('inventory_transfers.edit', $transfer->id)" />   
-                                            @endif
                                         </div>
                                     </x-table-td>
                                 </tr>

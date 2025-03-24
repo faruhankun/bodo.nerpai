@@ -21,7 +21,7 @@ class StoreEmployeeController extends Controller
         $employees_without_store = Employee::all()
                             ->whereNotIn('id', $store_employees->pluck('employee_id'));
         $store_roles = StoreRole::all();
-        return view('store_employees.index', compact('store_employees', 'employees_without_store', 'store_roles'));
+        return view('store.store_employees.index', compact('store_employees', 'employees_without_store', 'store_roles'));
     }
 
     /**
@@ -29,7 +29,7 @@ class StoreEmployeeController extends Controller
      */
     public function create()
     {
-        return view('store_employees.create');
+        return view('store.store_employees.create');
     }
 
     /**

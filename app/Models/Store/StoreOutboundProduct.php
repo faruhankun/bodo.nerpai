@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class StoreOutboundProduct extends Model
+class StoreOutboundItem extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'store_outbound_products';
+    protected $table = 'store_outbound_items';
     public $timestamps = true;
 
     protected $fillable = [

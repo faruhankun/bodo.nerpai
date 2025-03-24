@@ -2,18 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Space\ProfileController;
 
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Space\UserController;
 
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\Space\RoleController;
+use App\Http\Controllers\Space\PermissionController;
 
-use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\Space\CompanyController;
 
 use App\Http\Controllers\Company\StoreController;
 
 use App\Http\Controllers\Company\WarehouseController;
+
+use App\Http\Controllers\Company\Client\MigrateClientController;
 
 use App\Http\Middleware\AppMiddleware;
 use App\Http\Middleware\CompanyMiddleware;
@@ -23,7 +25,7 @@ Route::get('/', function () {
 });
 
 Route::get('/lobby', function () {
-    return view('lobby');
+    return view('space.lobby');
 })->middleware(['auth', 'verified'])->name('lobby');
 
 // App
@@ -72,6 +74,12 @@ Route::middleware(['auth',
 
     Route::post('warehouses/switch/{warehouses}', [WarehouseController::class, 'switchWarehouse'])->name('warehouses.switch'); 
     Route::get('warehuses/exit/{route}', [WarehouseController::class, 'exitWarehouse'])->name('warehouses.exit');
+
+
+
+    
+    // file migrate client
+    Route::resource('migrate_client', MigrateClientController::class);
 });
 
 

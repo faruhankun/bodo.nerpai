@@ -11,6 +11,8 @@ use App\Models\Company\Finance\Receivable;
 
 class Customer extends Model
 {
+    protected $connection = 'tenant';
+
     use HasFactory;
 
     public $timestamps = true;

@@ -21,9 +21,6 @@
                             <a href="{{ route('sales.create') }}">
                                 <x-button-add :route="route('sales.create')" text="Tambah Sales Order" />
                             </a>
-                            <!-- <a href="{{ route('customer_complaints.index') }}" class="ml-2">
-                                <x-secondary-button :route="route('customer_complaints.index')">Customer Complaint</x-secondary-button>
-                            </a> -->
                         </div>
                     </div>
 

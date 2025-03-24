@@ -49,13 +49,13 @@
                     'route' => "dashboard-warehouse",
                     'text' => 'Warehouse Permissions',
                 ],
+                'warehouse_settings' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "warehouse_settings.show",
+                    'route_params' => session('company_warehouse_id'),
+                    'text' => 'Warehouse Settings',
+                ],
             ]
-        ],
-        'Settings' => [
-            'icon' => 'icon-sidebar',
-            'route' => "warehouse_settings.show",
-            'route_params' => session('company_warehouse_id'),
-            'text' => 'Warehouse Settings',
         ],
         'Exit' => [
             'icon' => 'icon-arrow-right',

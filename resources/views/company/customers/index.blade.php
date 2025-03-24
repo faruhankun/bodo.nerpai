@@ -14,7 +14,7 @@
                             <x-button-add :route="route('customers.create')" text="Tambah Customer" />
                         </div>
                     </div>
-                    <x-table-table id="search-table">
+                    <x-table-table id="customersTable">
                         <x-table-thead >
                             <tr>
                                 <x-table-th>ID</x-table-th>
@@ -27,26 +27,6 @@
                                 <x-table-th>Actions</x-table-th>
                             </tr>
                         </x-table-thead>
-                        <x-table-tbody>
-                            @foreach ($customers as $customer)
-                                <tr>
-                                    <x-table-td>{{ $customer->id }}</x-table-td>
-                                    <x-table-td>{{ $customer->name }}</x-table-td>
-                                    <x-table-td>{{ $customer->email }}</x-table-td>
-                                    <x-table-td>{{ $customer->phone_number }}</x-table-td>
-                                    <x-table-td>{{ $customer->address }}</x-table-td>
-                                    <x-table-td>{{ $customer->status }}</x-table-td>
-                                    <x-table-td>{{ $customer->created_at }}</x-table-td>
-                                    <x-table-td class="flex justify-center items-center gap-2">
-                                        <div class="flex items-center space-x-2">
-                                            <x-button-show :route="route('customers.show', $customer->id)" />
-                                            <x-button-edit :route="route('customers.edit', $customer->id)" />
-                                            <x-button-delete :route="route('customers.destroy', $customer->id)" />
-                                        </div>
-                                    </x-table-td>
-                                </tr>
-                            @endforeach
-                        </x-table-tbody>
                     </x-table-table>
                 </div>
             </div>
@@ -54,3 +34,23 @@
     </div>
     
 </x-company-layout>
+
+<script>
+$(document).ready(function() {
+    $('#customersTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('customers.data') }}",
+        columns: [
+            { data: 'id' },
+            { data: 'name' },
+            { data: 'email' },
+            { data: 'phone_number' },
+            { data: 'address' },
+            { data: 'status' },
+            { data: 'created_at' },
+            { data: 'actions', orderable: false, searchable: false }
+        ]
+    });
+});
+</script>

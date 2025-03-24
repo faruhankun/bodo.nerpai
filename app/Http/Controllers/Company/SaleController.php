@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Company;
 
-use App\Models\Company\Sale;
-use App\Models\SalesProduct;
+use App\Http\Controllers\Controller;
+
+use App\Models\Company\Sale\Sale;
+use App\Models\Company\Sale\SaleItems;
+use App\Models\Company\Sale\SaleInvoice;
+
 use App\Models\Company\Product;
 use App\Models\Company\Warehouse;
 use App\Models\Company\Courier;
@@ -11,13 +15,17 @@ use App\Models\Company\Customer;
 use App\Models\Employee;
 use App\Models\CustomerComplaint;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
-use App\Models\Company\SaleInvoice;
-use App\Models\Company\Outbound;
-use App\Models\Company\OutboundProduct;
+use App\Models\Warehouse\Outbound;
+use App\Models\Warehouse\OutboundItem;
+
+use App\Models\Company\Inventory\Inventory;
+use App\Models\Company\Inventory\InventoryMovement;
 
 use App\Models\Space\Company;
+
+// services
+use App\Services\Company\Finance\JournalEntryService;
 
 class SaleController extends Controller
 {
@@ -31,12 +39,9 @@ class SaleController extends Controller
 	public function create()
 	{
 		$warehouses = Warehouse::all();
-		$products = Product::all();
-		$couriers = Courier::all(); // Fetch couriers
 		$customers = Customer::all();
-		$companies = Company::all();
 
-		return view('company.sales.create', compact('warehouses', 'products', 'couriers', 'customers', 'companies'));
+		return view('company.sales.create', compact('warehouses', 'customers'));
 	}
 
 	public function store(Request $request)
@@ -45,11 +50,6 @@ class SaleController extends Controller
 			'customer_id' => 'required|exists:customers,id',
 			'date' => 'required|date',
 			'warehouse_id' => 'required|exists:warehouses,id',
-			'products' => 'required|array', // Expecting products as an array
-			'products.*.product_id' => 'required|exists:products,id',
-			'products.*.quantity' => 'required|integer|min:1',
-			'products.*.price' => 'required|numeric|min:0',
-			'products.*.note' => 'nullable|string', // Note for each product
 		]);
 		
 		$employee = session('employee');
@@ -62,31 +62,18 @@ class SaleController extends Controller
 			'consignee_id' => $validated['customer_id'],
 			'warehouse_id' => $validated['warehouse_id'],
 			'employee_id' => $employee->id,
-			'total_amount' => collect($validated['products'])->sum(function ($product) {
-				return $product['quantity'] * $product['price'];
-			}),
 			'status' => 'SO_OFFER',
 		]);
 		$sale->generateSoNumber();
 		$sale->save();
 
-		// Create Sales Products
-		foreach ($validated['products'] as $product) {
-			$sale->products()->attach($product['product_id'], [
-				'quantity' => $product['quantity'],
-				'price' => $product['price'],
-				'total_cost' => $product['quantity'] * $product['price'],
-				'notes' => $product['note'] ?? null,
-			]);
-		}
-
-		return redirect()->route('sales.index')->with('success', "Sale {$sale->so_number} created successfully.");
+		return redirect()->route('sales.edit', $sale->id)->with('success', "Sale {$sale->so_number} created successfully.");
 	}
 
 
 	public function show($id)
 	{
-		$sale = Sale::with(['products', 'invoices', 'courier', 'outbounds'])->findOrFail($id);
+		$sale = Sale::with(['items', 'invoices', 'courier', 'outbounds', 'shipments'])->findOrFail($id);
 
 		return view('company.sales.show', compact('sale'));
 	}
@@ -94,14 +81,15 @@ class SaleController extends Controller
 
 	public function edit($id)
 	{
-		$sale = Sale::with('products')->findOrFail($id);
+		$sale = Sale::with('items')->findOrFail($id);
 		$customers = Customer::all();
 		$warehouses = Warehouse::all();
-		$products = Product::all();
-		$couriers = Courier::all(); // Fetch couriers
-		$companies = Company::all();
 
-		return view('company.sales.edit', compact('sale', 'warehouses', 'products', 'couriers', 'customers', 'companies'));
+		$items = Product::all();
+		$couriers = Courier::all(); // Fetch couriers
+		$items = Inventory::all();
+
+		return view('company.sales.edit', compact('sale', 'warehouses', 'couriers', 'customers', 'items'));
 	}
 
 
@@ -111,19 +99,20 @@ class SaleController extends Controller
 			'date' => 'required|date',
 			'customer_id' => 'required|exists:customers,id',
 			'warehouse_id' => 'required|exists:warehouses,id',
-			'products' => 'required|array', // Validate products as an array
-			'products.*.product_id' => 'required|exists:products,id',
-			'products.*.quantity' => 'required|integer|min:1',
-			'products.*.price' => 'required|numeric|min:0',
-			'products.*.notes' => 'nullable|string', // Handle product notes
+			'items' => 'required|array', // Validate items as an array
+			'items.*.item_type' => 'required|string',
+			'items.*.item_id' => 'required|integer',
+			'items.*.quantity' => 'required|integer|min:1',
+			'items.*.discount' => 'nullable|numeric|min:0',
+			'items.*.price' => 'required|numeric|min:0',
+			'items.*.notes' => 'nullable|string', // Handle product notes
 			'courier_id' => 'nullable|exists:couriers,id', // Validate courier
 			'shipping_fee_discount' => 'nullable|numeric|min:0',
 			'estimated_shipping_fee' => 'nullable|numeric|min:0',
 		]);
-
 		$employee = session('employee');
 		
-		$sale = Sale::findOrFail($id);
+		$sale = Sale::with('items')->findOrFail($id);
 		$sale->update($validated);
 
 		$sale->consignee_type = 'CUST';
@@ -131,27 +120,70 @@ class SaleController extends Controller
 
 		$sale->generateSoNumber();
 
-		// Sync products with updated quantities, prices, and notes
-		$totalAmount = 0;
-		$productData = [];
-		foreach ($validated['products'] as $product) {
-			$total_cost = $product['quantity'] * $product['price'];
-			$productData[$product['product_id']] = [
-				'quantity' => $product['quantity'],
-				'price' => $product['price'],
-				'total_cost' => $total_cost,
-				'notes' => $product['notes'] ?? null, // Handle notes
-			];
-			$totalAmount += $total_cost;
-		}
-		$sale->products()->sync($productData);
+		// Sync items with updated quantities, prices, and notes
+		$this->SyncSaleItems($request, $sale);
 
 		// Update total amount
-		$sale->update(['total_amount' => $totalAmount]);
 		$sale->save();
 
 		return redirect()->route('sales.show', $sale->id)->with('success', "Sale {$sale->so_number} updated successfully.");
 	}
+
+	public function SyncSaleItems($request, $sale){
+        $sale_items = [];
+		$total_amount = 0;
+
+
+        // build transfer items
+        if(isset($request->items)){
+            foreach ($request->items as $item) {
+				$inventory = Inventory::findOrFail($item['item_id']);
+
+                $sale_items[] = [
+                    'sale_id' => $sale->id,
+                    'item_type' => $item['item_type'],
+                    'item_id' => $inventory->product->id,
+					'inventory_id' => $inventory->id,
+                    'quantity' => $item['quantity'],
+					'discount' => $item['discount'],
+					'price' => $item['price'],
+					'cost_per_unit' => $inventory->cost_per_unit,
+					'total_cost' => $item['quantity'] * $inventory->cost_per_unit,
+                    'notes' => $item['notes'],
+                ];
+
+				$total_amount += $item['quantity'] * $item['price'] * (1 - ($item['discount'] / 100));
+            }
+        }
+
+
+
+        // Sync 
+        if(is_null($request->items)) {
+            $request->items = [];
+        }
+        $request_item_ids = array_column($request->items, 'item_id');
+
+        // delete items that are not in the request
+        $sale->items()->whereNotIn('item_id', $request_item_ids)->delete();
+
+		foreach($sale_items as $item){
+			$sale->items()->updateOrCreate([
+					'sale_id' => $sale->id,
+					'item_type' => $item['item_type'],
+					'item_id' => $item['item_id'],
+				], $item
+			);
+		}
+        // $sale->items()->upsert($sale_items,
+        //     ['sale_id', 'item_type', 'item_id'],
+        //     ['inventory_id', 'quantity', 'discount', 'price', 'notes']
+        // );
+
+		$sale->total_amount = $total_amount;
+        $sale->save();
+    }
+
 
 
 	public function destroy($id)
@@ -183,7 +215,7 @@ class SaleController extends Controller
 				$this->paymentCompletion($sale);
 				break;
 			case 'SO_COMPLETED':
-				$this->completeSale($sale);
+				return $this->completeSale($sale);
 				break;
 			default:
 				abort(404);
@@ -206,7 +238,7 @@ class SaleController extends Controller
 			'date' => date('Y-m-d'),
 			'cost_products' => $sale->total_amount,
 			'cost_packing' => 0,
-			'cost_freight' => $sale->estimated_shipping_fee,
+			'cost_freight' => $sale->estimated_shipping_fee - $sale->shipping_fee_discount,
 			'total_amount' => $sale->total_amount,
 			'status' => 'unconfirmed',
 		]);
@@ -257,16 +289,19 @@ class SaleController extends Controller
         $outbound->generateNumber();
         $outbound->save();
         
-        if(isset($sale->products)) {
-            foreach ($sale->products as $product) {
-                OutboundProduct::create([
-                    'outbound_id' => $outbound->id,
-                    'product_id' => $product->pivot->product_id,
-                    'quantity' => $product->pivot->quantity,
-                    'cost_per_unit' => $product->pivot->price,
-                    'warehouse_location_id' => '1',
-                ]);
-            }
+        if(isset($sale->items)) {
+			$outbound_items = [];
+            foreach ($sale->items as $item) {
+				$outbound_items[] = [
+					'outbound_id' => $outbound->id,
+					'inventory_id' => $item->inventory_id,
+					'quantity' => $item->quantity,
+					'cost_per_unit' => $item->cost_per_unit,
+					'total_cost' => $item->total_cost,
+					'notes' => $item->notes,
+				];
+			}
+			$outbound->items()->createMany($outbound_items);
         }
     }
 
@@ -275,6 +310,8 @@ class SaleController extends Controller
     }
 
 	public function paymentCompletion($sale){
+		// notify customer
+
 		$sale->status = 'SO_PAYMENT_COMPLETION';
 
 		$sale->save();
@@ -282,8 +319,84 @@ class SaleController extends Controller
 
 	public function completeSale($sale)
 	{	
-		$sale->status = 'SO_COMPLETED';
+		// update stock in warehouse, etc
+		$data = [];
+		$data = $this->inputCogsFromWarehouse($sale);
+		$this->inputRevenueSale($sale, $data);
 
+		$sale->status = 'SO_COMPLETED';
 		$sale->save();
+
+		return redirect()->route('sales.show', $sale->id)->with('success', "Sale {$sale->number} completed successfully.");
+	}
+
+	
+	public function inputCogsFromWarehouse($sale) 
+	{
+		$sale_items = $sale->items;
+
+		$data['inventory_value'] = 0;
+		$data['discount_amount'] = 0;
+		foreach($sale_items as $item) {
+			if($item->item_type == 'PRD') {
+				$inventory_movement = InventoryMovement::create([
+					'product_id' => $item->item_id,
+					'warehouse_id' => $sale->warehouse_id,
+					'warehouse_location_id' => $item->warehouse_location_id,
+					'quantity' => $item->quantity,
+					'cost_per_unit' => $item->cost_per_unit,
+					'employee_id' => $sale->employee_id,
+					'source_type' => 'SO',
+					'source_id' => $sale->id,
+				]);
+	
+				// posting cogs
+				$inventory_movement->postCogs();
+	
+				// update inventory
+				$inventory_movement->postMovement();
+			}
+
+			$data['inventory_value'] += $item->quantity * $item->cost_per_unit;
+			$data['discount_amount'] += $item->quantity * $item->price * ($item->discount / 100);
+		}
+		
+		return $data;
+	}
+
+	public function inputRevenueSale($sale, $data = []) 
+	{
+		// create journal revenue
+		$journalService = app(JournalEntryService::class);
+		if(!isset($data['discount_amount'])) $data['discount_amount'] = 0;
+
+		$details = [
+			[
+				'account_id' => get_company_setting('comp.account_unearned_revenue'),	// Kas / Bank
+				'debit' => $sale->total_amount,
+			],
+			[
+				'account_id' => get_company_setting('comp.account_revenue'),	// Pendapatan
+				'credit' => $sale->total_amount + $data['discount_amount'],
+			],
+		];
+
+		if($data['discount_amount'] > 0){
+			$details[] = [
+				'account_id' => get_company_setting('comp.account_discount_sales'),		// Diskon
+				'debit' => $data['discount_amount'],
+			];
+		}
+
+		$journalService->addJournalEntry([
+				'created_by' => $sale->employee_id,
+				'source_type' => 'SO',
+				'source_id' => $sale->id,
+				'date' => date('Y-m-d'),
+				'type' => 'SO',
+				'description' => 'SO Revenue',
+				'total' => $sale->total_amount + $data['discount_amount'],
+			], $details
+		);
 	}
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company\Customer;
 use Illuminate\Http\Request;
 
+use Yajra\DataTables\Facades\DataTables;
 
 class CustomerController extends Controller
 {
@@ -16,7 +17,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customers = Customer::all();
+        $customers = Customer::paginate(10);
         return view('company.customers.index', compact('customers'));
     }
 
@@ -121,5 +122,16 @@ class CustomerController extends Controller
         $customer = Customer::find($id);
         $sales = $customer->sales;
         return view('company.customers.sales', compact('customer', 'sales'));
+    }
+
+
+    public function getCustomersData(){
+        $customers = Customer::query();
+        return DataTables::of($customers)
+            ->addColumn('actions', function ($customer) {
+                return view('company.customers.partials.actions', compact('customer'))->render();
+            })
+            ->rawColumns(['actions'])
+            ->make(true);
     }
 }

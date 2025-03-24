@@ -21,7 +21,8 @@
                         <x-div-box-show title="Type">{{ $payment->type }}</x-div-box-show>
                         <x-div-box-show title="Payment Method">{{ $payment_method?->name ?? 'N/A' }}</x-div-box-show>
                         <x-div-box-show title="Total Amount">Rp{{ number_format($payment->total_amount, 2) }}</x-div-box-show>
-                        <x-div-box-show title="Source">{{ $payment?->source_type ?? 'N/A' }} : {{ $payment->source?->name ?? 'N/A' }}</x-div-box-show>
+                        <x-div-box-show title="Source">{{ $payment?->source_type ?? 'N/A' }} : 
+                                                        {{ $payment->source?->name ?? $payment->source?->number ?? 'N/A' }}</x-div-box-show>
                         <x-div-box-show title="Status">{{ ucfirst($payment->status) }}</x-div-box-show>
                         <x-div-box-show title="Notes">{{ $payment->notes ?? 'N/A' }}</x-div-box-show>
                     </div>
@@ -51,8 +52,8 @@
                                         <x-table-td>{{ $detail->invoice_type }} : {{ $detail->invoice?->number }}</x-table-td>
                                         <x-table-td>{{ $detail->invoice?->date?->format('Y-m-d') ?? 'N/A' }}</x-table-td>
                                         <x-table-td>{{ $detail->invoice?->due_date?->format('Y-m-d') ?? 'N/A' }}</x-table-td>
-                                        <x-table-td>Rp{{ number_format($detail->invoice?->total_amount, 2) }}</x-table-td>
-                                        <x-table-td>Rp{{ number_format($detail->invoice?->balance, 2) }}</x-table-td>
+                                        <x-table-td>Rp{{ number_format($detail->amount, 2) }}</x-table-td>
+                                        <x-table-td>Rp{{ number_format($detail->balance, 2) }}</x-table-td>
                                         <x-table-td>{{ $detail->invoice?->status }}</x-table-td>
                                         <x-table-td>{{ $detail->invoice?->notes }}</x-table-td>
                                         <x-table-td>
@@ -95,6 +96,13 @@
                                                     <option value="{{ $method->id }}">{{ $method->name }}</option>
                                                 @endforeach
                                             </x-input-select>
+
+                                            @if ($payment->source->account)
+                                                <div>
+                                                    <br>
+                                                    <label for="account" class="block font-bold">Account: {{ $payment->source->account->name }} </label>
+                                                </div>
+                                            @endif
 
                                             <div>
                                                 <br>

@@ -55,7 +55,8 @@
                             @foreach($item['dropdown_items'] as $route => $dropdown_item)
                                 <li>
                                     <x-sidebar-item :icon="$dropdown_item['icon'] ?? ''" 
-                                                    :route="$dropdown_item['route']" 
+                                                    :route="$dropdown_item['route']"
+                                                    :route_params="$dropdown_item['route_params'] ?? ''"
                                                     :text="$dropdown_item['text']">
                                         {{ $dropdown_item['text'] }}
                                     </x-sidebar-item>

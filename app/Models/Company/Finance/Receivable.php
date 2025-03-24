@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use App\Models\Company\SaleInvoice;
+use App\Models\Company\Sale\SaleInvoice;
 use App\Models\Company\Customer;
 
 class Receivable extends Model

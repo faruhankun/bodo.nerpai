@@ -41,8 +41,8 @@ class StoreOutbound extends Model
         return $this->belongsTo(StoreEmployee::class);
     }
 
-    public function storeOutboundProducts(): HasMany
+    public function storeOutboundItems(): HasMany
     {
-        return $this->hasMany(StoreOutboundProduct::class);
+        return $this->hasMany(StoreOutboundItem::class);
     }
 }

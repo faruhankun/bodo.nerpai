@@ -96,6 +96,7 @@ class AccountSeeder extends Seeder
             ['id' => 57, 'code' => '6-60116', 'name' => 'Penyusutan - Mesin & Peralatan', 'type_id' => 14, 'parent_id' => null, 'status' => 1, 'balance' => 0],
             ['id' => 58, 'code' => '7-70101', 'name' => 'Pendapatan Lainnya', 'type_id' => 15, 'parent_id' => null, 'status' => 1, 'balance' => 0],
             ['id' => 59, 'code' => '8-80101', 'name' => 'Penyesuaian Persediaan', 'type_id' => 16, 'parent_id' => null, 'status' => 1, 'balance' => 0],
+            ['id' => 60, 'code' => '6-60117', 'name' => 'Biaya Logistik Pengiriman', 'type_id' => 14, 'parent_id' => null, 'status' => 1, 'balance' => 0],
         ];
 
         foreach ($accounts as $account) {

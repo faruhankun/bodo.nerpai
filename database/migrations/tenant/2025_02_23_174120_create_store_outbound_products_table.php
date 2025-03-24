@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('store_outbound_products', function (Blueprint $table) {
+        Schema::create('store_outbound_items', function (Blueprint $table) {
             // Primary key
             $table->id();
 
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('store_outbound_products');
+        Schema::dropIfExists('store_outbound_items');
     }
 };

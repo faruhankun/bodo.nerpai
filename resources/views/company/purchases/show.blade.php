@@ -223,6 +223,11 @@
                     <x-secondary-button>
                         <a href="{{ route('purchases.index') }}">Back to List</a>
                     </x-secondary-button>
+                    @if($purchase->status == 'PO_PLANNED' || $purchase->status == 'PO_REQUEST_TO_SUPPLIER')
+                        <x-primary-button>
+                            <a href="{{ route('purchases.edit', $purchase->id) }}">Edit Purchase</a>
+                        </x-primary-button>
+                    @endif
                 </div>
             </div>
         </div>

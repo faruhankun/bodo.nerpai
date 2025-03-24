@@ -45,14 +45,14 @@
                             </tr>
                         </x-table-thead>
                         <x-table-tbody>
-                            @foreach ($inbound->store_inbound_products as $index => $store_product)
+                            @foreach ($inbound->store_inbound_products as $index => $inbound_product)
                                 <x-table-tr>
-                                    <x-table-td>{{ $store_product->id }}</x-table-td>
-                                    <x-table-td>{{ $store_product->id }} : {{ $store_product->store_product->product->name }}</x-table-td>
-                                    <x-table-td>{{ $store_product->quantity }}</x-table-td>
-                                    <x-table-td>{{ $store_product->store_product->price * 0.5 }}</x-table-td>
-                                    <x-table-td>{{ $store_product->notes ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $store_product->store_location?->print_location() ?? 'N/A' }}</x-table-td>
+                                    <x-table-td>{{ $inbound_product->id }}</x-table-td>
+                                    <x-table-td>{{ $inbound_product->id }} : {{ $inbound_product->store_product->product->name }}</x-table-td>
+                                    <x-table-td>{{ $inbound_product->quantity }}</x-table-td>
+                                    <x-table-td>{{ number_format($inbound_product->cost_per_unit ?? 0, 2) }}</x-table-td>
+                                    <x-table-td>{{ $inbound_product->notes ?? 'N/A' }}</x-table-td>
+                                    <x-table-td>{{ $inbound_product->store_location?->print_location() ?? 'N/A' }}</x-table-td>
                                     <x-table-td>
                                         <div class="flex items-center space-x-2">
                                         </div>

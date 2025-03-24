@@ -10,6 +10,8 @@ use App\Models\Company\Finance\PaymentDetail;
 use App\Models\Company\Finance\JournalEntry;
 use App\Models\Company\Finance\Account;
 
+use App\Services\Company\Finance\JournalEntryService;
+
 class PaymentController extends Controller
 {
     /**
@@ -17,26 +19,11 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payments = Payment::all();
+        $payments = Payment::orderBy('updated_at', 'desc')->get();
 
         return view('company.finance.payments.index', compact('payments'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
     /**
      * Display the specified resource.
@@ -47,30 +34,6 @@ class PaymentController extends Controller
         $payment_methods = Account::where('type_id', 1)->get();         // Kas & Bank
 
         return view('company.finance.payments.show', compact('payment', 'payment_methods'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 
 
@@ -95,6 +58,7 @@ class PaymentController extends Controller
 
     public function paymentProcess($payment){
         $payment->status = 'PYM_PROCESS';
+
         $payment->save();
     }
 
@@ -128,6 +92,10 @@ class PaymentController extends Controller
                 $detail->invoice->receivable->status = 'paid';
                 $detail->invoice->receivable->balance += $detail->amount;
                 $detail->invoice->receivable->save();
+            } else if($payment->type == 'EXP'){
+                $detail->invoice->status = 'paid';
+                $detail->invoice->payment_method = $payment->payment_method;
+                $detail->invoice->save();
             }
         }
     }
@@ -136,15 +104,9 @@ class PaymentController extends Controller
     public function addPaymenttoJournal($payment)
     {
         $employee = session('employee');
-        $journal_entry = JournalEntry::create([
-            'date' => date('Y-m-d'),
-            'description' => 'payment ' . $payment->number,
-            'type' => 'PYM',
-            'source_type' => 'PYM',
-            'source_id' => $payment->id,
-            'created_by' => $employee->id,
-            'total' => $payment->total_amount,
-        ]);
+
+        // journal entry
+        $journalServices = app(JournalEntryService::class);
 
         // journal details
         $details = [];
@@ -153,17 +115,13 @@ class PaymentController extends Controller
                 $details = [
                     // Debit Hutang Usaha
                     [
-                        'journal_entry_id' => $journal_entry->id,
-                        'account_id' => 22,                          // uang muka, 7
+                        'account_id' => get_company_setting('comp.account_payables'),                          // akun hutang usaha
                         'debit' => $payment->total_amount,
-                        'credit' => 0,
                     ],
         
                     // Kredit Kas & Bank
                     [
-                        'journal_entry_id' => $journal_entry->id,
                         'account_id' => $payment->payment_method,     // Payment method
-                        'debit' => 0,
                         'credit' => $payment->total_amount,
                     ],
                 ];
@@ -172,29 +130,47 @@ class PaymentController extends Controller
                 $details = [
                     // Debit Kas & Bank
                     [
-                        'journal_entry_id' => $journal_entry->id,
                         'account_id' => $payment->payment_method,     // payment method
                         'debit' => $payment->total_amount,
-                        'credit' => 0,
                     ],
         
                     // Kredit Piutang Usaha
                     [
-                        'journal_entry_id' => $journal_entry->id,
-                        'account_id' => 4,                              // akun piutang usaha
-                        'debit' => 0,
+                        'account_id' => get_company_setting('comp.account_receivables'),                              // akun piutang usaha
+                        'credit' => $payment->total_amount,
+                    ],
+                ];
+                break;
+            case 'EXP':
+                $details = [
+                    // Debit Biaya
+                    [
+                        'account_id' => $payment->source->account_id,                              // akun biaya
+                        'debit' => $payment->total_amount,
+                    ],
+        
+                    // Kredit Kas & Bank
+                    [
+                        'account_id' => $payment->payment_method,     // payment method
                         'credit' => $payment->total_amount,
                     ],
                 ];
                 break;
             default: ;
         }
-        $journal_entry->journal_entry_details()->createMany($details);
 
-        // post journal to GL
-        $journal_entry->postJournalEntrytoGeneralLedger();
-
-        $journal_entry->generateNumber();
-        $journal_entry->save();
+        // add journal entry
+        $journalServices->addJournalEntry(
+            [
+                'date' => date('Y-m-d'),
+                'description' => 'payment ' . $payment->number,
+                'type' => 'PYM',
+                'source_type' => 'PYM',
+                'source_id' => $payment->id,
+                'created_by' => $employee->id,
+                'total' => $payment->total_amount,
+            ], 
+            $details
+        );
     }
 }

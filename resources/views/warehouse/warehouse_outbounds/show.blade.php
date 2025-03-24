@@ -53,15 +53,15 @@
                             </tr>
                         </x-table-thead>
                         <x-table-tbody>
-                            @foreach ($outbound->outbound_products as $outbound_product)
+                            @foreach ($outbound->items as $item)
                                 <x-table-tr>
-                                    <x-table-td>{{ $outbound_product->id }}</x-table-td>
-                                    <x-table-td>{{ $outbound_product->product->id }} : {{ $outbound_product->product->name }}</x-table-td>
-                                    <x-table-td>{{ $outbound_product->quantity }}</x-table-td>
-                                    <x-table-td>{{ $outbound_product->stock ?? 0 }}</x-table-td>
-                                    <x-table-td>{{ $outbound_product->cost_per_unit }}</x-table-td>
-                                    <x-table-td>{{ $outbound_product->warehouse_location?->print_location() ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $outbound_product->notes ?? 'N/A' }}</x-table-td>
+                                    <x-table-td>{{ $item->id }}</x-table-td>
+                                    <x-table-td>{{ $item->item->product->id }} : {{ $item->item->product->name }}</x-table-td>
+                                    <x-table-td>{{ $item->quantity }}</x-table-td>
+                                    <x-table-td>{{ $item->item->quantity ?? 0 }}</x-table-td>
+                                    <x-table-td>{{ $item->cost_per_unit }}</x-table-td>
+                                    <x-table-td>{{ $item->item->warehouse_location?->print_location() ?? 'N/A' }}</x-table-td>
+                                    <x-table-td>{{ $item->notes ?? 'N/A' }}</x-table-td>
                                     <x-table-td>
                                         <div class="flex items-center space-x-2">
                                         </div>

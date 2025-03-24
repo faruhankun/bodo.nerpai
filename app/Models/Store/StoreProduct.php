@@ -49,8 +49,8 @@ class StoreProduct extends Model
         return $this->hasMany(StoreInboundProduct::class);
     }
 
-    public function storeOutboundProducts(): HasMany
+    public function storeOutboundItems(): HasMany
     {
-        return $this->hasMany(StoreOutboundProduct::class);
+        return $this->hasMany(StoreOutboundItem::class);
     }
 }

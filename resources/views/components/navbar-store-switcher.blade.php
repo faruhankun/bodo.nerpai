@@ -11,7 +11,11 @@
     </button>
     <div x-show="open" @click.outside="open = false"
     class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 dark:bg-gray-700">
-        @foreach (\App\Models\Company\Store::all() as $store)
+        @php
+            $_employee = \App\Models\Employee::with('store')->find(session('employee')->id);
+            $_navbar_stores = $_employee->store;
+        @endphp
+        @foreach ($_navbar_stores as $store)
             <form method="POST" action="{{ route('stores.switch', $store->id) }}">
             @csrf
                 <button type="submit" name="store_id" value="{{ $store->id }}"

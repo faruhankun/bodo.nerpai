@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use App\Models\Company\StoreLocation;
+use App\Models\Store\StoreLocation;
 
 class StoreInboundProduct extends Model
 {

@@ -15,7 +15,7 @@ class StoreRoleController extends Controller
     public function index()
     {
         $store_roles = StoreRole::with('permissions')->get();
-        return view('store_roles.index', compact('store_roles'));
+        return view('store.store_roles.index', compact('store_roles'));
     }
     
     public function create()

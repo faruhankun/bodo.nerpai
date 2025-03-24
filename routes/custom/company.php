@@ -3,42 +3,55 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CompanyMiddleware;
 
-use App\Http\Controllers\CompanyUserController;
-use App\Http\Controllers\CompanyRoleController;
-use App\Http\Controllers\CompanyPermissionController;
+use App\Http\Controllers\Company\CompanySettingController;
 
-use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\Company\CompanyUserController;
+use App\Http\Controllers\Company\CompanyRoleController;
+use App\Http\Controllers\Company\CompanyPermissionController;
+
+use App\Http\Controllers\Company\EmployeeController;
+
 
 use App\Http\Controllers\Company\PurchaseController;
 use App\Http\Controllers\Company\PurchaseInvoiceController;
 use App\Http\Controllers\Company\SupplierController;
 
+
 use App\Http\Controllers\Company\SaleController;
 use App\Http\Controllers\Company\SaleInvoiceController;
 use App\Http\Controllers\Company\CustomerController;
-use App\Http\Controllers\CustomerComplaintController;
 
-use App\Http\Controllers\ProductController;
+
+use App\Http\Controllers\Company\ProductController;
 use App\Http\Controllers\Company\WarehouseLocationController;
 use App\Http\Controllers\Company\InventoryTransferController;
+
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\Warehouse\InboundController;
 use App\Http\Controllers\Warehouse\OutboundController;
+use App\Http\Controllers\Company\InventoryController;
 
 use App\Http\Controllers\Company\ShipmentController;
 use App\Http\Controllers\Company\CourierController;
+
+
 use App\Http\Controllers\Company\Finance\AccountController;
+
 use App\Http\Controllers\Company\Finance\JournalEntryController;
-use App\Http\Controllers\Company\ReportController;
 use App\Http\Controllers\Company\Finance\PaymentController;
 use App\Http\Controllers\Company\Finance\PayableController;
 use App\Http\Controllers\Company\Finance\ReceivableController;
+use App\Http\Controllers\Company\Finance\ExpenseController;
+use App\Http\Controllers\Company\ReportController;
 
 // Company
 Route::middleware([
     'auth',
     CompanyMiddleware::class,
 ])->group(function () {
+    // CompanySettings
+    Route::resource('company_settings', CompanySettingController::class);
+
     Route::resource('company_users', CompanyUserController::class);
     Route::delete('/company_users/cancelInvite/{id}', [CompanyUserController::class, 'cancelInvite'])->name('company_users.cancelInvite');
 
@@ -55,15 +68,13 @@ Route::middleware([
     Route::post('purchases/{purchases}/action/{action}', [PurchaseController::class, 'handleAction'])->name('purchases.action');
     Route::get('purchases/{id}/duplicate', [PurchaseController::class, 'duplicate'])->name('purchases.duplicate');
     Route::resource('suppliers', SupplierController::class);
-
-
+    route::get('/customers/data', [CustomerController::class, 'getCustomersData'])->name('customers.data');
     route::resource("customers", CustomerController::class);
+
+
+
     Route::resource('sales', SaleController::class);
     Route::post('sales/{id}/action/{action}', [SaleController::class, 'handleAction'])->name('sales.action');
-    Route::resource('customer_complaints', CustomerComplaintController::class);
-    Route::put('customer_complaints/{customer_complaint}/resolve', [CustomerComplaintController::class, 'resolve'])->name('customer_complaints.resolve');
-
-
 
     route::resource("products", ProductController::class);
     route::resource("warehouse_locations", WarehouseLocationController::class);
@@ -71,9 +82,6 @@ Route::middleware([
     route::resource("inventory_transfers", InventoryTransferController::class);
     Route::post('inventory_transfers/{id}/action/{action}', [InventoryTransferController::class, 'handleAction'])->name('inventory_transfers.action');
     Route::post('inventory_transfers/storeRequest', [InventoryTransferController::class, 'storeRequest'])->name('inventory_transfers.storeRequest');
-
-    route::resource("inbounds", InboundController::class);
-    route::resource("outbounds", OutboundController::class);
     Route::resource('inventory', InventoryController::class)->except(['show']);
     Route::get('/inventory/adjust', [InventoryController::class, 'adjust'])->name('inventory.adjust');
     Route::get('/inventory/history', [InventoryController::class, 'history'])->name('inventory.history');
@@ -101,6 +109,8 @@ Route::middleware([
     Route::post('receivables/{id}/action/{action}', [ReceivableController::class, 'handleAction'])->name('receivables.action');
     Route::resource('accounts', AccountController::class);
     Route::resource("journal_entries", JournalEntryController::class);
+    Route::resource('expenses', ExpenseController::class);
+    Route::post('expenses/{id}/action/{action}', [ExpenseController::class, 'handleAction'])->name('expenses.action');
 
     Route::resource("reports", ReportController::class);
 });

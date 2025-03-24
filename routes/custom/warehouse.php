@@ -22,6 +22,7 @@ Route::middleware([
     Route::resource('warehouse_roles', WarehouseController::class);
     Route::resource('warehouse_permissions', WarehouseController::class);
 
+    Route::get('/warehouse_inventories/movement_index', [WarehouseInventoryController::class, 'movement_index'])->name('warehouse_inventories.movement_index');
     Route::resource('warehouse_inventories', WarehouseInventoryController::class);
 
     Route::resource('warehouse_inbounds', InboundController::class);

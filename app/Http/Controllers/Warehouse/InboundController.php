@@ -8,8 +8,8 @@ use App\Models\Company\InboundProducts;
 use App\Models\Company\Purchase;
 use App\Models\User;
 use App\Models\Location;
-use App\Models\Company\Inventory;
-use App\Models\Company\InventoryMovement;
+use App\Models\Company\Inventory\Inventory;
+use App\Models\Company\Inventory\InventoryMovement;
 use App\Models\Company\Shipment;
 use App\Models\Company\Warehouse;
 use App\Models\Company\ShipmentConfirmation;
@@ -175,11 +175,11 @@ class InboundController extends Controller
 			'created_by' => $inbound->employee_id,
 		], [
 			[
-				'account_id' => 5,                  // inventory
+				'account_id' => get_company_setting('comp.account_inventories'),                  // inventory
 				'debit' => $inventory_value,
 			],
 			[
-				'account_id' => 7,                  // uang muka supplier
+				'account_id' => get_company_setting('comp.account_downpayment_supplier'),		// uang muka supplier
 				'credit' => $inventory_value,
 				'notes' => 'uang muka supplier',
 			],

@@ -77,11 +77,11 @@ class StoreInventoryMovement extends Model
             'total' => $cogs_entry->total_cost,
         ], [
             [
-                'account_id' => 36,                 // beban pokok pendapatan
+                'account_id' => get_company_setting('comp.account_cogs'),                 // beban pokok pendapatan
                 'debit' => $cogs_entry->total_cost,
             ],
             [
-                'account_id' => 5,                  // inventory
+                'account_id' => get_company_setting('comp.account_inventories'),                  // inventory
                 'credit' => $cogs_entry->total_cost,
             ]
         ]);

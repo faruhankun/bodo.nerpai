@@ -1,3 +1,7 @@
+@php
+    $sale_shipments_confirmed = true;
+@endphp
+
 <x-company-layout>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -10,46 +14,62 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                         <x-div-box-show title="SO Number">{{ $sale->number }}</x-div-box-show>
                         <x-div-box-show title="Sale Date">{{ $sale->date }}</x-div-box-show>
-                        <x-div-box-show title="Status">{{ ucfirst($sale->status) }}</x-div-box-show>
-                        <x-div-box-show title="Consignee">{{ $sale?->consignee_type ?? 'N/A' }} : {{ $sale->consignee?->name ?? 'N/A' }}</x-div-box-show>
-                        <x-div-box-show title="Warehouse">{{ $sale->warehouse->name }}</x-div-box-show>
                         <x-div-box-show title="Admin">{{ $sale->employee->companyuser->user->name ?? 'N/A' }}</x-div-box-show>
-                        <x-div-box-show title="Customer Notes">{{ $sale->customer_notes ?? 'N/A' }}</x-div-box-show>
+                        <x-div-box-show title="Total Amount">{{ number_format($sale->total_amount, 2) }}</x-div-box-show>
+                        <x-div-box-show title="Warehouse">{{ $sale->warehouse->name }}</x-div-box-show>
+                        <x-div-box-show title="Consignee">{{ $sale?->consignee_type ?? 'N/A' }} : {{ $sale->consignee?->name ?? 'N/A' }}</x-div-box-show>
+                        <x-div-box-show title="Status">{{ ucfirst($sale->status) }}</x-div-box-show>
                         <x-div-box-show title="Admin Notes">{{ $sale->admin_notes ?? 'N/A' }}</x-div-box-show>
-                    </div>
-                    <!-- <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div> -->
-                    
-                    <h3 class="text-lg font-bold my-3">Products</h3>
-                    <div class="overflow-x-auto mb-6">
-                        <x-table-table class="table table-bordered">
-                            <x-table-thead>
-                                <tr>
-                                    <x-table-th>Product</x-table-th>
-                                    <x-table-th>Quantity</x-table-th>
-                                    <x-table-th>Price</x-table-th>
-                                    <x-table-th>Note</x-table-th>
-                                </tr>
-                            </x-table-thead>
-                            <tbody>
-                                @foreach($sale->products as $product)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $product->name }}</x-table-td>
-                                        <x-table-td>{{ $product->pivot->quantity }}</x-table-td>
-                                        <x-table-td>${{ number_format($product->pivot->price, 2) }}</x-table-td>
-                                        <x-table-td>{{ $product->pivot->note ?? 'N/A' }}</x-table-td>
-                                    </x-table-tr>
-                                @endforeach
-                            </tbody>
-                        </x-table-table>
+                        <x-div-box-show title="Customer Notes">{{ $sale->customer_notes ?? 'N/A' }}</x-div-box-show>
                     </div>
                     <!-- <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div> -->
                     
 
+
+                    <h3 class="text-lg font-bold mt-6">Items</h3>
+                    <x-table-table id="search-table">
+                        <x-table-thead>
+                            <tr>
+                                <x-table-th>#</x-table-th>
+                                <x-table-th>Item</x-table-th>
+                                <x-table-th>Inventory</x-table-th>
+                                <x-table-th>Quantity</x-table-th>
+                                <x-table-th>Discount</x-table-th>
+                                <x-table-th>Price</x-table-th>
+                                <x-table-th>Cost</x-table-th>
+                                <x-table-th>Notes</x-table-th>
+                                <x-table-th>Actions</x-table-th>
+                            </tr>
+                        </x-table-thead>
+                        <x-table-tbody>
+                            @foreach ($sale->items as $index => $item)
+                                <x-table-tr>
+                                    <x-table-td>{{ $item->item_id }}</x-table-td>
+                                    <x-table-td>{{ $item->item_type }} : {{ $item->item?->name ?? 'N/A'}}</x-table-td>
+                                    <x-table-td>{{ $item->inventory?->warehouse_location?->print_location ?? 'N/A'}}</x-table-td>
+                                    <x-table-td>{{ $item->quantity ?? 'N/A'}}</x-table-td>
+                                    <x-table-td>{{ number_format($item->discount ?? 0, 2) }}%</x-table-td>
+                                    <x-table-td>Rp{{ number_format($item->price ?? 0, 2) }}</x-table-td>
+                                    <x-table-td>Rp{{ number_format($item->cost_per_unit ?? 0, 2) }}</x-table-td>
+                                    <x-table-td>{{ $item->notes ?? 'N/A' }}</x-table-td>
+                                    <x-table-td>
+                                        <div class="flex items-center space-x-2">
+                                        </div>
+                                    </x-table-td>
+                                </x-table-tr>
+                            @endforeach
+                        </x-table-tbody>
+                    </x-table-table>
+                    <div class="mb-3 mt-1 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
+                    
+
+
                     <h3 class="text-lg font-bold my-3">Shipment Details</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                         <x-div-box-show title="Courier">{{ $sale->courier?->name ?? 'N/A' }}</x-div-box-show>
-                        <x-div-box-show title="Estimated Shipping Fee">${{ number_format($sale->estimated_shipping_fee, 2) }}</x-div-box-show>
-                        <x-div-box-show title="Packing Fee">${{ number_format($sale->packing_fee, 2) }}</x-div-box-show>
+                        <x-div-box-show title="Estimated Shipping Fee">{{ number_format($sale->estimated_shipping_fee, 2) }}</x-div-box-show>
+                        <x-div-box-show title="Shipping Discount">{{ number_format($sale->shipping_fee_discount, 2) }}</x-div-box-show>
+                        <x-div-box-show title="Packing Fee">{{ number_format($sale->packing_fee, 2) }}</x-div-box-show>
                     </div>
                     <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                     
@@ -93,6 +113,8 @@
                     </div>
                     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 
+
+
                     <!-- Outbound Section -->
                     <h3 class="text-lg font-bold mt-6">Outbounds</h3>
                     <x-table-table id="search-table">
@@ -125,63 +147,98 @@
                     </x-table-table>
                     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 
+
+
+                    <!-- Shipment Section -->
+                    <h3 class="text-lg font-bold my-3">Shipments</h3>
+                    <div class="overflow-x-auto">
+                        <x-table-table>
+                            <x-table-thead>
+                                <tr>
+                                    <x-table-th>ID</x-table-th>
+                                    <x-table-th>Pengirim</x-table-th>
+                                    <x-table-th>Penerima</x-table-th>
+                                    <x-table-th>Transaksi</x-table-th>
+                                    <x-table-th>Tanggal</x-table-th>
+                                    <x-table-th>Status</x-table-th>
+                                    <x-table-th>Notes</x-table-th>
+                                    <x-table-th>Actions</x-table-th>
+                                </tr>
+                            </x-table-thead>
+                            <x-table-tbody>
+                                @foreach ($outbound->shipments as $shipment)
+                                    @php
+                                        $sale_shipments_confirmed = $shipment->status === 'SHP_DELIVERY_CONFIRMED';
+                                    @endphp
+
+                                    <x-table-tr>
+                                        <x-table-td>{{ $shipment->id }}</x-table-td>
+                                        <x-table-td>{{ $shipment->shipper_type }} : {{ $shipment->shipper?->name }}</x-table-td>
+                                        <x-table-td>{{ $shipment->consignee_type }} : {{ $shipment->consignee?->name }}</x-table-td>
+                                        <x-table-td>{{ $shipment->transaction_type }} : {{ $shipment->transaction?->number }}</x-table-td>
+                                        <x-table-td>{{ $shipment->ship_date }}</x-table-td>
+                                        <x-table-td>{{ $shipment->status }}</x-table-td>
+                                        <x-table-td>{{ $shipment->notes }}</x-table-td>
+                                        <x-table-td>
+                                            <div class="flex items-center space-x-2">
+                                                <x-button-show :route="route('shipments.show', $shipment->id)" />
+                                                <x-button-edit :route="route('shipments.edit', $shipment->id)" />
+                                            </div>
+                                        </x-table-td>
+                                    </x-table-tr>
+                                @endforeach
+                            </x-table-tbody>
+                        </x-table-table>
+                    </div>
+                    <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
+
+
+
                     <!-- Action Section -->
                     <h3 class="text-lg font-bold my-3">Actions</h3>
                     <div>
-                        @if ($sale->status == 'SO_OFFER')
-                        <div class="flex justify mt-4">
-                            <form action="{{ route('sales.action', ['id' => $sale->id, 'action' => 'SO_REQUEST']) }}" method="POST">
-                                @csrf
-                                @method('POST')
-                                <x-primary-button type="submit">Kirim Penjualan ke Customer</x-primary-button>
-                            </form>
-                        </div>
-                        @elseif ($sale->status == 'SO_REQUEST')
-                        <div class="flex justify-end m-4">
-                        <form action="{{ route('sales.action', ['id' => $sale->id, 'action' => 'SO_CONFIRMED']) }}" method="POST">
-                                @csrf
-                                @method('POST')
-                                <x-primary-button type="submit">Input Invoice untuk Customer</x-primary-button>
-                            </form>
-                        </div>
-                        @endif
+                        @php
+                            switch ($sale->status) {
+                                case 'SO_OFFER':
+                                    $action = 'SO_REQUEST';
+                                    $submit_text = 'Kirim Penjualan ke Customer';
+                                    break;
+                                case 'SO_REQUEST':
+                                    $action = 'SO_CONFIRMED';
+                                    $submit_text = 'Input Invoice untuk Customer';
+                                    break;
+                                case 'SO_CONFIRMED':
+                                    $action = 'SO_DP_CONFIRMED';
+                                    $submit_text = 'Konfirmasi Pembayaran/DP Lunas dari Customer';
+                                    break;
+                                case 'SO_DP_CONFIRMED':
+                                    $action = 'SO_OUTBOUND_REQUEST';
+                                    $submit_text = 'Request Outbound Gudang';
+                                    break;
+                        
 
-                        @if ($sale->status == 'SO_CONFIRMED')
-                        <div class="flex justify mt-4">
-                            <form action="{{ route('sales.action', ['id' => $sale->id, 'action' => 'SO_DP_CONFIRMED']) }}" method="POST">
-                                @csrf
-                                @method('POST')
-                                <x-primary-button type="submit">Konfirmasi Pembayaran/DP Lunas dari Customer</x-primary-button>
-                            </form>
-                        </div>
-                        @endif
+                                case 'SO_PAYMENT_COMPLETION':
+                                    $action = 'SO_COMPLETED';
+                                    $submit_text = 'Completed Sales Order';
+                                    break;
+                                default:
+                                    $action = '';
+                                    $submit_text = '';
+                            }
 
-                        @if ($sale->status == 'SO_DP_CONFIRMED')
+                            if($sale_shipments_confirmed && $sale->status == 'SO_OUTBOUND_REQUEST')
+                            {
+                                $action = 'SO_PAYMENT_COMPLETION';
+                                $submit_text = 'Koordinasi Pembayaran Pelunasan dari Customer';
+                            }
+                        @endphp
+                        
+                        @if($action != '')
                         <div class="flex justify mt-4">
-                            <form action="{{ route('sales.action', ['id' => $sale->id, 'action' => 'SO_OUTBOUND_REQUEST']) }}" method="POST">
+                            <form action="{{ route('sales.action', ['id' => $sale->id, 'action' => $action]) }}" method="POST">
                                 @csrf
                                 @method('POST')
-                                <x-primary-button type="submit">Request Outbound Gudang</x-primary-button>
-                            </form>
-                        </div>
-                        @endif
-
-                        @if ($sale->status == 'SO_OUTBOUND_REQUEST')
-                        <div class="flex justify mt-4">
-                            <form action="{{ route('sales.action', ['id' => $sale->id, 'action' => 'SO_PAYMENT_COMPLETION']) }}" method="POST">
-                                @csrf
-                                @method('POST')
-                                <x-primary-button type="submit">Koordinasi Pembayaran Pelunasan</x-primary-button>
-                            </form>
-                        </div>
-                        @endif
-
-                        @if ($sale->status == 'SO_PAYMENT_COMPLETION')
-                        <div class="flex justify mt-4">
-                            <form action="{{ route('sales.action', ['id' => $sale->id, 'action' => 'SO_COMPLETED']) }}" method="POST">
-                                @csrf
-                                @method('POST')
-                                <x-primary-button type="submit">Completed Sales Order</x-primary-button>
+                                <x-primary-button type="submit">{{ $submit_text }}</x-primary-button>
                             </form>
                         </div>
                         @endif

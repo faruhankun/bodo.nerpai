@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Warehouse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use App\Models\Company\Inventory;
 use App\Models\Company\Warehouse;
+
+use App\Models\Company\Inventory\Inventory;
+use App\Models\Company\Inventory\InventoryMovement;
 
 class WarehouseInventoryController extends Controller
 {
@@ -24,51 +26,16 @@ class WarehouseInventoryController extends Controller
         return view('warehouse.warehouse_inventories.index', compact('inventories'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    
+    public function movement_index()
     {
-        //
-    }
+        $warehouse = Warehouse::findOrFail(session('company_warehouse_id'));
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $inventory_movements = InventoryMovement::with(['product', 'warehouse', 'warehouse_location'])
+                                ->where('warehouse_id', $warehouse->id)
+                                ->orderBy('created_at', 'desc')
+                                ->get();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('warehouse.warehouse_inventories.movement_index', compact('inventory_movements'));
     }
 }

@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use App\Models\Company\SaleInvoice;
+use App\Models\Company\Sale\SaleInvoice;
+
 use App\Models\Company\Finance\Receivable;
 use App\Models\Company\Finance\JournalEntry;
+
+// services
+use App\Services\Company\Finance\JournalEntryService;
 
 class SaleInvoiceController extends Controller
 {
@@ -19,21 +23,7 @@ class SaleInvoiceController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+ 
 
     /**
      * Display the specified resource.
@@ -143,41 +133,32 @@ class SaleInvoiceController extends Controller
     {
         $employee = session('employee');
 
-        $journal_entry = JournalEntry::create([
-            'date' => date('Y-m-d'),
-            'sale_invoice_id' => $invoice->id,
-            'total_amount' => $invoice->total_amount,
-            'description' => 'pendapatan dimuka',
-            'type' => 'AR',
+        $journalService = app(JournalEntryService::class);
+        $journalService->addJournalEntry([
+            'created_by' => $employee->id,
             'source_type' => 'SOI',
             'source_id' => $invoice->id,
-            'created_by' => $employee->id,
-        ]);
-
-        $details = [
-            // Debit Uang Muka
+            'date' => date('Y-m-d'),
+            'type' => 'AR',
+            'description' => 'pendapatan diterima di muka',
+            'total' => $invoice->total_amount,
+        ], [
             [
-                'journal_entry_id' => $journal_entry->id,
-                'account_id' => 4,                          // piutang usaha, 4
+                'account_id' => get_company_setting('comp.account_receivables'),                         // piutang usaha, 4
                 'debit' => $invoice->total_amount,
-                'credit' => 0,
             ],
-
-            // Kredit Hutang
             [
-                'journal_entry_id' => $journal_entry->id,
-                'account_id' => 24,                          // pendapatan diterima di muka, 24
-                'debit' => 0,
-                'credit' => $invoice->total_amount,
+                'account_id' => get_company_setting('comp.account_unearned_revenue'),                  // pendapatan diterima di muka, 24
+                'credit' => $invoice->cost_products,
             ],
-        ];
-
-        $journal_entry->journal_entry_details()->createMany($details);
-
-        // post journal to GL
-        $journal_entry->postJournalEntrytoGeneralLedger();
-
-        $journal_entry->generateNumber();
-        $journal_entry->save();
+            [
+                'account_id' => get_company_setting('comp.account_vat_output'),                          // ppn keluaran
+                'credit' => $invoice->vat_input,
+            ],
+            [
+                'account_id' => get_company_setting('comp.account_logistics_distribution'),                  // biaya pengiriman dari customer
+                'credit' => $invoice->cost_freight + $invoice->cost_packing + $invoice->cost_insurance,
+            ],
+        ]);
     }
 }

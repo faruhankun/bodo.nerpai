@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rules\Enum;
 
-enum Status: string
-{
-    case Active = 'Active';
-    case Inactive = 'Inactive';
-}
+// enum Status: string
+// {
+//     case Active = 'Active';
+//     case Inactive = 'Inactive';
+// }
 
 class StoreProductController extends Controller
 {

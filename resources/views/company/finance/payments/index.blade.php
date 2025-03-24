@@ -36,7 +36,8 @@
                                     <x-table-td>{{ $payment->number }}</x-table-td>
                                     <x-table-td>{{ $payment->type }}</x-table-td>
                                     <x-table-td>{{ $payment->date?->format('Y-m-d') }}</x-table-td>
-                                    <x-table-td>{{ $payment->source_type }} : {{ $payment->source?->name }}</x-table-td>
+                                    <x-table-td>{{ $payment->source_type }} : 
+                                                {{ $payment->source?->name ?? $payment->source?->number }}</x-table-td>
                                     <x-table-td>Rp{{ number_format($payment->total_amount, 2) }}</x-table-td>
                                     <x-table-td>{{ $payment->status }}</x-table-td>
                                     <x-table-td>{{ $payment->notes }}</x-table-td>
