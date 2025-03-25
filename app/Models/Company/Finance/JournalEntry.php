@@ -76,9 +76,22 @@ class JournalEntry extends Model
         foreach ($this->journal_entry_details as $detail) {
             $account = Account::findOrFail($detail->account_id);
 
-            if($account){
+            if ($account) {
                 $account->balance += $detail->debit * $account->account_type->debit;
                 $account->balance += $detail->credit * $account->account_type->credit;
+                $account->save();
+            }
+        }
+    }
+
+    public function reversePostJournalEntrytoGeneralLedger()
+    {
+        foreach ($this->journal_entry_details as $detail) {
+            $account = Account::findOrFail($detail->account_id);
+
+            if ($account) {
+                $account->balance -= $detail->debit * $account->account_type->debit;
+                $account->balance -= $detail->credit * $account->account_type->credit;
                 $account->save();
             }
         }

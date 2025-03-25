@@ -333,6 +333,13 @@
                             </li>
                             <li>
                                 <x-sidebar-item icon="icon-checklist-paper" 
+                                                    route="journal_entries.index" 
+                                                    text="Journal Entries">
+                                    Reports
+                                </x-sidebar-item>
+                            </li>
+                            <li>
+                                <x-sidebar-item icon="icon-checklist-paper" 
                                                     route="payments.index" 
                                                     text="Payments">
                                     Reports
