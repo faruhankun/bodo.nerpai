@@ -16,8 +16,10 @@ class RolePermissionSeeder extends Seeder
     {
         // Define permissions
         $permissions = [
-            'company sidebar',
-            'user sidebar',
+            'players sidebar',
+            'persons sidebar',
+            'companies sidebar',
+            'users sidebar',
             'roles sidebar',
             'permissions sidebar',
             
@@ -26,6 +28,12 @@ class RolePermissionSeeder extends Seeder
             'crud user',
             
             'companies',
+            'persons',
+            'players',
+            'users',
+            'roles',
+            'permissions',
+
             'crud company',
 
             'crud permissions',
@@ -42,22 +50,31 @@ class RolePermissionSeeder extends Seeder
 
             ],
             'User' => [
-                'company sidebar',
+                'companies sidebar',
 
                 'companies',
+                
                 'crud company',
             ],
             'Admin' => [
-                'company sidebar',
-                'user sidebar',
+                'players sidebar',
+                'persons sidebar',
+                'companies sidebar',
+                'users sidebar',
                 'roles sidebar',
                 'permissions sidebar',
                 
                 'crud roles',
-
+                
                 'crud user',
-
+                
                 'companies',
+                'persons',
+                'players',
+                'users',
+                'roles',
+                'permissions',
+
                 'crud company',
 
                 'crud permissions',

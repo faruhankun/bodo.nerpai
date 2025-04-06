@@ -25,6 +25,8 @@ Route::get('/', function () {
 });
 
 Route::get('/lobby', function () {
+    session(['layout' => 'lobby']);
+
     return view('space.lobby');
 })->middleware(['auth', 'verified'])->name('lobby');
 

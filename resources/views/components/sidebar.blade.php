@@ -53,14 +53,20 @@
                         @endphp
                         <ul class="mt-1 space-y-1 ms-6 {{ $ul_show }}" id="{{ $item['dropdown_id'] }}">
                             @foreach($item['dropdown_items'] as $route => $dropdown_item)
-                                <li>
-                                    <x-sidebar-item :icon="$dropdown_item['icon'] ?? ''" 
-                                                    :route="$dropdown_item['route']"
-                                                    :route_params="$dropdown_item['route_params'] ?? ''"
-                                                    :text="$dropdown_item['text']">
-                                        {{ $dropdown_item['text'] }}
-                                    </x-sidebar-item>
-                                </li>
+                                @php 
+                                    $dropdown_item['auth'] = isset($dropdown_item['auth']) ? $dropdown_item['auth'] : true;
+                                @endphp
+                                
+                                @if($dropdown_item['auth'])
+                                    <li>
+                                        <x-sidebar-item :icon="$dropdown_item['icon'] ?? ''" 
+                                                        :route="$dropdown_item['route']"
+                                                        :route_params="$dropdown_item['route_params'] ?? ''"
+                                                        :text="$dropdown_item['text']">
+                                            {{ $dropdown_item['text'] }}
+                                        </x-sidebar-item>
+                                    </li>
+                                @endif
                             @endforeach
                         </ul>
                     @else

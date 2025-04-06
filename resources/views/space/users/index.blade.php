@@ -14,12 +14,13 @@
                             <x-button-add :route="route('users.create')" text="Add user" />
                         </div>
                     </div> -->
-                    
+
                     <x-table-table id="search-table">
                         <x-table-thead >
                             <tr>
                                 <x-table-th>ID</x-table-th>
                                 {{-- <x-table-th>username</x-table-th> --}}
+                                <x-table-th>Player Code</x-table-th>
                                 <x-table-th>Nama</x-table-th>
                                 <x-table-th>Role</x-table-th>
                                 <x-table-th>Companies</x-table-th>
@@ -31,6 +32,7 @@
                                 <tr>
                                     <x-table-td>{{ $user->id }}</x-table-td>
                                     {{-- <x-table-td>{{ $user->username }}</x-table-td> --}}
+                                    <x-table-td>{{ $user->player?->code ?? 'N/A'; }}</x-table-td>
                                     <x-table-td>{{ $user->name }}</x-table-td>
                                     <x-table-td>{{ $user->role->name ?? 'N/A'; }}</x-table-td>
                                     <x-table-td>
