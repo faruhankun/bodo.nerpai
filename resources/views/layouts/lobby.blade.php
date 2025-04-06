@@ -23,6 +23,48 @@
             'route' => "lobby",
             'text' => 'Lobby',
         ],
+        'Space' => [
+            'dropdown_id' => 'spaces',
+            'dropdown_text' => 'Spaces',
+            'dropdown_items' => [
+                'spaces' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "lobby",
+                    'text' => 'Spaces',
+                ],
+            ]
+        ],
+        'Transaction' => [
+            'dropdown_id' => 'transactions',
+            'dropdown_text' => 'Transactions',
+            'dropdown_items' => [
+                'items' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "lobby",
+                    'text' => 'Transactions',
+                ],
+            ]
+        ],
+        'Inventory' => [
+            'dropdown_id' => 'inventories',
+            'dropdown_text' => 'Inventory',
+            'dropdown_items' => [
+                'items' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "lobby",
+                    'text' => 'Items',
+                ],
+                'inventories' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "lobby",
+                    'text' => 'Inventory',
+                ],
+            ]
+        ],
         'Players' => [
             'dropdown_id' => 'players',
             'dropdown_text' => 'Players',
@@ -83,10 +125,6 @@
         ],
     ]
 ])
-
-@section('sidebar')
-    @include('layouts.sidebar-lobby')
-@endsection
 
 @section('main-content')
     {{ $slot }}

@@ -70,9 +70,18 @@
                             @endforeach
                         </ul>
                     @else
-                        <x-sidebar-item :icon="$item['icon'] ?? ''" :route="$item['route']" route_params="{{ $item['route_params'] ?? ''}}" text="{{ $item['text'] }}">
-                            {{ $item['text'] }}
-                        </x-sidebar-item>
+                        @php 
+                            $item['auth'] = isset($item['auth']) ? $item['auth'] : true;
+                        @endphp
+                        
+                        @if($item['auth'])
+                            <x-sidebar-item :icon="$item['icon'] ?? ''" 
+                                            :route="$item['route']" 
+                                            route_params="{{ $item['route_params'] ?? ''}}" 
+                                            text="{{ $item['text'] }}">
+                                {{ $item['text'] }}
+                            </x-sidebar-item>
+                        @endif
                     @endif
                 </li>
             @endforeach
