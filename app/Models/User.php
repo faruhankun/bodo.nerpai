@@ -9,7 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Role;  // Pastikan Role diimport
 use Spatie\Permission\Models\Permission;
 
+use App\Models\Primary\Player;
+
 use App\Models\Space\Company;
+
 
 class User extends Authenticatable
 {

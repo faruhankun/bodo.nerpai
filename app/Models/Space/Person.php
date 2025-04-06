@@ -8,7 +8,7 @@ class Person extends Model
 {
     protected $table = 'persons';
 
-    protected $connection = 'space';
+    protected $connection = 'primary';
 
     protected $fillable = [
         'name',
@@ -21,4 +21,13 @@ class Person extends Model
         'phone_number',    
         'status', 
     ];
+
+
+    
+    // relationship
+    public function player(): hasOne
+    {
+        return $this->hasOne(Player::class, 'size_id', 'id')
+                    ->where('size_type', 'PERS');
+    }
 }

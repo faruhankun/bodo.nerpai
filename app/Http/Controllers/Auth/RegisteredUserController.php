@@ -13,6 +13,12 @@ use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
+
+use App\Models\Primary\Player;
+
+use App\Models\Space\Person;
+
+
 class RegisteredUserController extends Controller
 {
     /**
@@ -50,6 +56,52 @@ class RegisteredUserController extends Controller
         $role = Role::where('name', 'Guest')->first();          // 1 is id role user
         $user->syncRoles($role);
 
+
+        // create player
+        $person = $this->syncPerson($user);
+        $player = $this->syncPlayer($user, $person->id);
+        $user->player_id = $player->id;
+        $user->save();
+
         return redirect(route('lobby', absolute: false));
+    }
+
+
+
+    public function syncPerson($user)
+    {
+        // update if email already exist, or maybe phone number too
+        $person = Person::updateOrCreate(
+            [
+                'email' => $user->email,
+            ], [
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        );
+
+        return $person;
+    }
+
+
+
+    public function syncPlayer($user, $person_id)
+    {
+        $player = Player::updateOrCreate(
+            [
+                'size_type' => 'PERS',
+                'size_id' => $person_id,
+            ],
+            [
+                'name' => $user->name,
+                'size_type' => 'PERS',
+                'size_id' => $person_id,
+            ]
+        );
+
+        $user->player_id = $player->id;
+        $user->save();
+
+        return $player;
     }
 }

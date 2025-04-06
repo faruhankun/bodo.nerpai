@@ -4,6 +4,8 @@ namespace App\Models\Primary;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\User;
+
 class Player extends Model
 {
     protected $connection = 'primary';
@@ -34,5 +36,11 @@ class Player extends Model
     public function type()
     {
         return $this->morphTo();
+    }
+
+
+    public function user(): hasOne
+    {
+        return $this->hasOne(User::class, 'player_id', 'id');
     }
 }
