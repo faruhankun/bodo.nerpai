@@ -15,7 +15,7 @@ class User extends Authenticatable
 {
     protected $table = 'users';
 
-    protected $connection = 'mysql';
+    protected $connection = 'primary';
 
     use HasFactory, Notifiable, HasRoles;
 
@@ -31,6 +31,7 @@ class User extends Authenticatable
         'no_hp',  
         'tgl_keluar',
         'role_id', 
+        'player_id',
     ];
 
     protected $hidden = [
@@ -69,5 +70,10 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function player()
+    {
+        return $this->belongsTo(Player::class);
     }
 }
