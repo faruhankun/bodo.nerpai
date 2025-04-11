@@ -8,6 +8,9 @@ use App\Models\Company\Finance\AccountType;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
 
+use Yajra\DataTables\Facades\DataTables;
+
+
 enum Status: string
 {
     case Active = 'Active';
@@ -79,5 +82,26 @@ class AccountController extends Controller
         $account = Account::findOrFail($id);
         $account->delete();
         return redirect()->route('accounts.index')->with('success', "Accounts {$account->name} deleted successfully.");
+    }
+
+
+    public function getAccountsData(){
+        $accounts = Account::with('account_type', 'parent', 'children')->orderBy('code')->get();
+        $account_types = AccountType::all();
+
+        return DataTables::of($accounts)
+            ->addColumn('actions', function ($data) {
+                $route = 'accounts';
+
+                $actions = [
+                    'edit' => 'modal',
+                    'edit_modal' => 'company.finance.accounts.edit2',
+                    'delete' => 'button',
+                ];
+
+                return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
+            })
+            ->rawColumns(['actions'])
+            ->make(true);
     }
 }

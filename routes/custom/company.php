@@ -109,7 +109,10 @@ Route::middleware([
     Route::post('payables/{id}/action/{action}', [PayableController::class, 'handleAction'])->name('payables.action');
     Route::resource('receivables', ReceivableController::class);
     Route::post('receivables/{id}/action/{action}', [ReceivableController::class, 'handleAction'])->name('receivables.action');
+
+    Route::get('/accounts/data', [AccountController::class, 'getAccountsData'])->name('accounts.data');
     Route::resource('accounts', AccountController::class);
+    
     Route::resource("journal_entries", JournalEntryController::class);
     Route::resource('expenses', ExpenseController::class);
     Route::post('expenses/{id}/action/{action}', [ExpenseController::class, 'handleAction'])->name('expenses.action');
