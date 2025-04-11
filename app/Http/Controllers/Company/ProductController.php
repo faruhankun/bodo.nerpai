@@ -104,9 +104,19 @@ class ProductController extends Controller
 
     public function getProductsData(){
         $products = Product::query();
+
         return DataTables::of($products)
-            ->addColumn('actions', function ($product) {
-                return view('company.products.partials.actions', compact('product'))->render();
+            ->addColumn('actions', function ($data) {
+                $route = 'products';
+                
+                $actions = [
+                    'show' => 'modal',
+                    'show_modal' => 'company.products.show',
+                    'edit' => 'false',
+                    'delete' => 'button',
+                ];
+
+                return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
             ->rawColumns(['actions'])
             ->make(true);

@@ -1,12 +1,12 @@
-<x-index-basic header="Products" 
+<x-crud.index-basic header="Products" 
                 model="product" 
                 table_id="indexTable"
                 :thead="['ID', 'SKU', 'Name', 'Price', 'Status', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
-        <x-button-add :route="route('products.create')" text="Tambah Product" />
+        @include('company.products.create')
     </x-slot>
-</x-index-basic>
+</x-crud.index-basic>
 
 <script>
 $(document).ready(function() {
