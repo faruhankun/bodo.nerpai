@@ -134,4 +134,20 @@ class CustomerController extends Controller
             ->rawColumns(['actions'])
             ->make(true);
     }
+
+
+
+    // API
+    public function search(Request $request)
+    {
+        $search = $request->q;
+
+        $customers = Customer::where('name', 'like', "%$search%")
+            ->orderBy('id', 'desc')
+            ->limit(50) // limit hasil
+            ->get(['id', 'name']);
+
+        return response()->json($customers);
+    }
+
 }

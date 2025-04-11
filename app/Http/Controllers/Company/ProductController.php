@@ -10,6 +10,10 @@ use App\Http\Requests\Product\UpdateProductRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
+use Illuminate\Http\Request;
+
+use Yajra\DataTables\Facades\DataTables;
+
 class ProductController extends Controller
 {
     protected $product;
@@ -23,7 +27,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = $this->productService->getProducts();
+        $products = Product::all();
         return view('company.products.index', compact('products'));
     }
 
@@ -95,5 +99,16 @@ class ProductController extends Controller
     {
         $this->productService->deleteProduct($id);
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+    }
+
+
+    public function getProductsData(){
+        $products = Product::query();
+        return DataTables::of($products)
+            ->addColumn('actions', function ($product) {
+                return view('company.products.partials.actions', compact('product'))->render();
+            })
+            ->rawColumns(['actions'])
+            ->make(true);
     }
 }

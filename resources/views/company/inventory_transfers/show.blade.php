@@ -129,14 +129,16 @@
                     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 
                     <!-- Back Button -->
-                    <x-secondary-button>
-                        <a href="{{ route('inventory_transfers.index') }}">Back to List</a>
-                    </x-secondary-button>
-                    @if($inventory_transfers->status == 'ITF_PROCESS' &&
-                        $layout == 'company')
-                        <x-button href="{{ route('inventory_transfers.edit', $inventory_transfers->id) }}" text="Edit Inventory Transfer"
-                            class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 dark:bg-green-700 dark:hover:bg-green-800">Edit Inventory Transfer</x-button>
-                    @endif
+                    <div class="flex justify-end space-x-4">
+                        <x-secondary-button>
+                            <a href="{{ route('inventory_transfers.index') }}">Back to List</a>
+                        </x-secondary-button>
+                        @if($inventory_transfers->status == 'ITF_PROCESS' &&
+                            $layout == 'company')
+                            <x-button href="{{ route('inventory_transfers.edit', $inventory_transfers->id) }}" text="Edit Inventory Transfer"
+                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 dark:bg-green-700 dark:hover:bg-green-800">Edit Inventory Transfer</x-button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

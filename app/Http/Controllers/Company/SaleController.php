@@ -39,9 +39,8 @@ class SaleController extends Controller
 	public function create()
 	{
 		$warehouses = Warehouse::all();
-		$customers = Customer::all();
 
-		return view('company.sales.create', compact('warehouses', 'customers'));
+		return view('company.sales.create', compact('warehouses'));
 	}
 
 	public function store(Request $request)

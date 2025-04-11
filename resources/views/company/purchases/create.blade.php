@@ -17,11 +17,11 @@
 							@csrf
 							<div class="mb-4">
 								<x-input-label for="supplier_id">Supplier</x-input-label>
-								<select name="supplier_id" id="supplier_id"
+								<select name="supplier_id" class="select2 w-full"
 									class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white"
 									required>
 									@foreach($suppliers as $supplier)
-										<option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+										<option value="{{ $supplier->id }}">{{ $supplier->id }} - {{ $supplier->name }}</option>
 									@endforeach
 								</select>
 							</div>
@@ -61,7 +61,7 @@
 
 									<x-input-label for="product_id">Select Product</x-input-label>
 									<select name="products[0][product_id]"
-										class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white">
+										class="select2 w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white">
 										@foreach ($products as $product)
 											<option value="{{ $product->id }}">{{ $product->name }} -
 												Rp{{ $product->price }}</option>
@@ -107,7 +107,7 @@
 									<div class="mb-3 mt-1 flex-grow border-t border-gray-500 dark:border-gray-700">
 									</div>
 									<x-input-label for="product_id">Select Product</x-input-label>
-									<select name="products[${productIndex}][product_id]" class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white">
+									<select name="products[${productIndex}][product_id]" class="select2 w-full focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white">
 										@foreach ($products as $product)
 											<option value="{{ $product->id }}">{{ $product->name }} - Rp{{ $product->price }}</option>
 										@endforeach

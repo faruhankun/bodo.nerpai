@@ -66,8 +66,10 @@ Route::middleware([
     route::resource("purchases", PurchaseController::class);
     Route::post('purchases/{purchases}/action/{action}', [PurchaseController::class, 'handleAction'])->name('purchases.action');
     Route::get('purchases/{id}/duplicate', [PurchaseController::class, 'duplicate'])->name('purchases.duplicate');
+    Route::get('/suppliers/data', [SupplierController::class, 'getSuppliersData'])->name('suppliers.data');
     Route::resource('suppliers', SupplierController::class);
     route::get('/customers/data', [CustomerController::class, 'getCustomersData'])->name('customers.data');
+    Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     route::resource("customers", CustomerController::class);
 
 
@@ -75,6 +77,7 @@ Route::middleware([
     Route::resource('sales', SaleController::class);
     Route::post('sales/{id}/action/{action}', [SaleController::class, 'handleAction'])->name('sales.action');
 
+    Route::get('/products/data', [ProductController::class, 'getProductsData'])->name('products.data');
     route::resource("products", ProductController::class);
     route::resource("warehouse_locations", WarehouseLocationController::class);
 

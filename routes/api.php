@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\SupplierController;
 
-use App\Http\Controllers\Company\Customer\CustomerController;
+use App\Http\Controllers\Company\CustomerController;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CompanyMiddleware;
@@ -16,5 +16,5 @@ use App\Http\Middleware\CompanyMiddleware;
 // });
 Route::middleware([
 ])->group(function () {
-    // Route::resource('customers', CustomerController::class);
+    //Route::get('/customers/search', [CustomerController::class, 'search']);
 });

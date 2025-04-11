@@ -166,7 +166,7 @@
                                 </tr>
                             </x-table-thead>
                             <x-table-tbody>
-                                @foreach ($outbound->shipments as $shipment)
+                                @foreach ($sale->shipments as $shipment)
                                     @php
                                         $sale_shipments_confirmed = $shipment->status === 'SHP_DELIVERY_CONFIRMED';
                                     @endphp

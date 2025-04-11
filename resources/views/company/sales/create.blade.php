@@ -13,12 +13,7 @@
                             <!-- Select Customer -->
                             <div class="mb-4">
                                 <x-input-label for="customer_id" class="block text-sm font-medium text-gray-700">Customer</x-input-label>
-                                <x-input-select name="customer_id" id="customer_id"
-                                    class="bg-gray-100 w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white"
-                                    required>
-                                    @foreach($customers as $customer)
-                                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                                    @endforeach
+                                <x-input-select name="customer_id" id="customer_id" class="form-control w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white" required>
                                 </x-input-select>
                             </div>
 
@@ -55,3 +50,32 @@
 
     </div>
 </x-company-layout>
+
+<script>
+    $(document).ready(function() {
+        $('#customer_id').select2({
+            placeholder: 'Select a customer',
+            minimumInputLength: 2,
+            ajax: {
+                url: '/customers/search',
+                dataType: 'json',
+                paginate: true,
+                data: function(params) {
+                    return {
+                        q: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data.map(customer => ({
+                            id: customer.id,
+                            text: customer.id + ' - ' + customer.name
+                        }))
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+</script>

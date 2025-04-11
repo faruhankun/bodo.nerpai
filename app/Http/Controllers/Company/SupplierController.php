@@ -13,6 +13,11 @@ use App\Models\Space\Company;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Http\Request;
+
+use Yajra\DataTables\Facades\DataTables;
+
+
 class SupplierController extends Controller
 {
     protected Supplier $supplier;
@@ -80,5 +85,16 @@ class SupplierController extends Controller
     {
         $this->supplierService->destroy($id);
         return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
+    }
+
+
+    public function getSuppliersData(){
+        $suppliers = Supplier::query();
+        return DataTables::of($suppliers)
+            ->addColumn('actions', function ($supplier) {
+                return view('company.suppliers.partials.actions', compact('supplier'))->render();
+            })
+            ->rawColumns(['actions'])
+            ->make(true);
     }
 }
