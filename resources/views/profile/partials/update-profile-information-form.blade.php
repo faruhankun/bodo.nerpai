@@ -31,11 +31,11 @@
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail())
                 <div>
-                    <p class="text-sm mt-2 text-gray-800">
+                    <p class="text-lg mt-2 text-red-800">
                         {{ __('Your email address is unverified.') }}
 
                         <button form="send-verification"
-                            class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            class="underline text-lg text-red-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             {{ __('Click here to re-send the verification email.') }}
                         </button>
                     </p>
@@ -46,28 +46,37 @@
                         </p>
                     @endif
                 </div>
+            @else
+                <p class="text-md mt-2 text-green-800">
+                    {{ __('Your email address is verified.') }}
+                </p>
+
+                <script>
+                    document.getElementById('email').readOnly = true;
+                    document.getElementById('email').style.backgroundColor = '#e5e7eb';
+                </script>
             @endif
         </div>
 
         <div>
-            <x-input-label for="tgl_lahir" :value="__('Tanggal Lahir')" />
-            <x-date-input id="tgl_lahir" name="tgl_lahir" type="date" class="mt-1 block w-full dark:text-white"
-                :value="old('tgl_lahir', \Carbon\Carbon::parse($user->tgl_lahir)->format('Y-m-d'))" />
-            <x-input-error class="mt-2" :messages="$errors->get('tgl_lahir')" />
+            <x-input-label for="birth_date" :value="__('Tanggal Lahir')" />
+            <x-date-input id="birth_date" name="birth_date" type="date" class="mt-1 block w-full dark:text-white"
+                :value="old('birth_date', \Carbon\Carbon::parse($user->birth_date)->format('Y-m-d'))" />
+            <x-input-error class="mt-2" :messages="$errors->get('birth_date')" />
         </div>
 
         <div>
-            <x-input-label for="alamat" :value="__('Alamat')" />
-            <x-text-input id="alamat" name="alamat" type="text" class="mt-1 block w-full" :value="old('alamat', $user->alamat)"
+            <x-input-label for="address" :value="__('Alamat')" />
+            <x-text-input id="address" name="address" type="text" class="mt-1 block w-full" :value="old('address', $user->address)"
                 required autofocus/>
-            <x-input-error class="mt-2" :messages="$errors->get('alamat')" />
+            <x-input-error class="mt-2" :messages="$errors->get('address')" />
         </div>
 
         <div>
-            <x-input-label for="no_hp" :value="__('Nomor WhatsApp')" />
-            <x-text-input id="no_hp" name="no_hp" type="text" class="mt-1 block w-full" :value="old('no_hp', $user->no_hp)"
+            <x-input-label for="phone_number" :value="__('Nomor WhatsApp')" />
+            <x-text-input id="phone_number" name="phone_number" type="text" class="mt-1 block w-full" :value="old('phone_number', $user->phone_number)"
                 required autofocus/>
-            <x-input-error class="mt-2" :messages="$errors->get('no_hp')" />
+            <x-input-error class="mt-2" :messages="$errors->get('phone_number')" />
         </div>
                 
         <div class="flex items-center gap-4">

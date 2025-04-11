@@ -63,7 +63,7 @@ class RegisteredUserController extends Controller
         $user->player_id = $player->id;
         $user->save();
 
-        return redirect(route('lobby', absolute: false));
+        return redirect(route('profile.edit', absolute: false));
     }
 
 

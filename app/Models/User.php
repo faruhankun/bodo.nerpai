@@ -2,7 +2,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Foundation\Auth\User as Authenticatable;
+
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +18,7 @@ use App\Models\Primary\Player;
 use App\Models\Space\Company;
 
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     protected $table = 'users';
 
@@ -29,9 +33,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'tgl_lahir',  
-        'alamat',    
-        'no_hp',  
+        'birth_date',  
+        'address',    
+        'phone_number',  
         'tgl_keluar',
         'role_id', 
         'player_id',
@@ -47,8 +51,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'tgl_lahir' => 'date',    
+            'birth_date' => 'date',    
             'tgl_keluar' => 'date',   
+            'address' => 'json',
         ];
     }
 

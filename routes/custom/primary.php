@@ -11,6 +11,7 @@ use App\Http\Controllers\Primary\PersonController;
 // Primary
 Route::middleware([
     'auth',
+    'verified',
     AppMiddleware::class,
 ])->group(function () {
     // Players

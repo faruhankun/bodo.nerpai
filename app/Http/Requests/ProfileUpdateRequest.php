@@ -25,17 +25,17 @@ class ProfileUpdateRequest extends FormRequest
             'max:255',
             Rule::unique(User::class)->ignore($this->user()->id),
         ],
-        'alamat' => [
+        'address' => [
             'required',
             'string',
             'max:500',
         ],
-        'tgl_lahir' => [
+        'birth_date' => [
             'required',
             'date', 
             'before_or_equal:today',
         ],
-        'no_hp' => [
+        'phone_number' => [
             'required',
             'string',
             'min:10',

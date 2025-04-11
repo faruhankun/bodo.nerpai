@@ -24,22 +24,33 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/lobby', function () {
-    session(['layout' => 'lobby']);
 
-    return view('space.lobby');
-})->middleware(['auth', 'verified'])->name('lobby');
+// Lobby
+Route::middleware([
+    'auth',
+])->group(function () {
+    // Lobby
+    Route::get('/lobby', function () {
+        session(['layout' => 'lobby']);
+        return view('space.lobby');
+    })->name('lobby');
+
+    
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+});
+
 
 // App
 Route::middleware([
     'auth',
+    'verified',
     AppMiddleware::class,
 ])->group(function () { 
     Route::resource('users', UserController::class);
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
     Route::resource('companies', CompanyController::class);
     Route::post('/companies/switch/{company}', [CompanyController::class, 'switchCompany'])->name('companies.switch');

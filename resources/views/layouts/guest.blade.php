@@ -21,7 +21,9 @@
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
         <div>
             <a href="/">
-                <img src="{{ asset('svg/hehe.svg') }}" class="h-20 w-20 me-3 dark:invert" alt="Nerpai Logo" />
+                <!-- <img src="{{ asset('svg/hehe.svg') }}" class="h-20 w-20 me-3 dark:invert" alt="Nerpai Logo" /> -->
+                <img aria-hidden="true" alt="bodo" src="{{ asset('svg/hehe.svg') }}"
+                    class="w-48 h-48 mb-4" />
             </a>
         </div>
 
