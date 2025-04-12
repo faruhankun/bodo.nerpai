@@ -86,15 +86,14 @@ class PlayerController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:players,email,' . $id,
-            'phone_number' => 'required|string|max:20',
-            'address' => 'nullable|string|max:255',
+            'code' => 'required|string|max:255',
             'status' => 'required|string|max:50',
             'notes' => 'nullable|string',
         ]);
 
         $player = Player::find($id);
         $player->update($validatedData);
+
         return redirect()->route('players.index')->with('success', 'Player updated successfully');
     }
 
@@ -114,10 +113,23 @@ class PlayerController extends Controller
 
 
     public function getPlayersData(){
-        $players = Player::query();
+        $players = Player::with('size', 'type')->get();
+
         return DataTables::of($players)
-            ->addColumn('actions', function ($player) {
-                return view('primary.players.partials.actions', compact('player'))->render();
+            ->addColumn('size_display', function ($data) {
+                return ($data->size_type ?? '?') . ' : ' . ($data->size?->number ?? '?');
+            })
+            ->addColumn('actions', function ($data) {
+                $route = 'players';
+                
+                $actions = [
+                    'show' => 'modal',
+                    'show_modal' => 'primary.players.show',
+                    'edit' => 'modal',
+                    'delete' => 'button',
+                ];
+
+                return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
             ->rawColumns(['actions'])
             ->make(true);

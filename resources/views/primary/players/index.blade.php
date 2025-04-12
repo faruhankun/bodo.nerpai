@@ -1,50 +1,51 @@
-@php
-    $layout = session('layout');
-@endphp
-<x-dynamic-component :component="'layouts.' . $layout">
-    <div class="py-12">
-        <div class="max-w-7xl my-10 mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-white">
-                    <h3 class="text-lg font-bold dark:text-white">Manage Players</h3>
-                    <p class="text-sm dark:text-gray-200 mb-6">Create, edit, and manage your players listings.</p>
-                    <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+<x-crud.index-basic header="Players" 
+                model="player" 
+                table_id="indexTable"
+                :thead="['ID', 'Code', 'Size', 'Type', 'Name', 'Status', 'Notes', 'Actions']"
+                >
+    <x-slot name="buttons">
 
-                    <x-table-table id="playersTable">
-                        <x-table-thead >
-                            <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Code</x-table-th>
-                                <x-table-th>Size</x-table-th>
-                                <x-table-th>Type</x-table-th>
-                                <x-table-th>Name</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Actions</x-table-th>
-                            </tr>
-                        </x-table-thead>
-                    </x-table-table>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-</x-dynamic-component>
+    </x-slot>
+
+    <x-slot name="modals">
+        @include('primary.players.edit', ['edit' => ['data' => 'Edit Account']])
+    </x-slot>
+</x-crud.index-basic>
+
+
+
+<script>
+    function edit(data) {
+        document.getElementById('edit_id').value = data.id;
+
+        document.getElementById('edit_name').value = data.name;
+
+        document.getElementById('edit_code').value = data.code;
+
+        document.getElementById('edit_status').value = data.status === '1' || data.status === 'active' ? 'active' : 'inactive';
+
+        document.getElementById('edit_notes').value = data.notes;
+
+        let form = document.getElementById('editDataForm');
+        form.action = `/players/${data.id}`;
+
+        // Dispatch event ke Alpine.js untuk membuka modal
+        window.dispatchEvent(new CustomEvent('edit-modal-js'));
+    }
+</script>
 
 <script>
 $(document).ready(function() {
-    $('#playersTable').DataTable({
+    $('#indexTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: "{{ route('players.data') }}",
         columns: [
             { data: 'id' },
-            { data: 'number' },
-            { data: 'user.username', render: function(data, type, row) {
-                return data ? data : 'N/A';
-            }},
+            { data: 'code' },
+            { data: 'size_display' },
             { data: 'type_type' },
-            { data: 'name' },
+            { data: 'size.name' },
             { data: 'status' },
             { data: 'notes' },
             { data: 'actions', orderable: false, searchable: false }
