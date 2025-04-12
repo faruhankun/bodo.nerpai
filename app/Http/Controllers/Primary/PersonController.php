@@ -43,12 +43,13 @@ class PersonController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:persons',
             'phone_number' => 'required|string|max:20',
-            'address' => 'nullable|string|max:255',
+            'birth_date' => 'nullable|string|max:255',
             'status' => 'required|string|max:50',
             'notes' => 'nullable|string',
         ]);
 
         $person = Person::create($validatedData);
+
         return redirect()->route('persons.index')->with('success', 'Person created successfully');
     }
     /**
@@ -83,18 +84,24 @@ class PersonController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
+    {   
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:persons,email,' . $id,
+            'full_name' => 'required|string|max:255',
+            'birth_date' => 'required|date',
+            'email' => 'required|string|email|max:255',
             'phone_number' => 'required|string|max:20',
             'address' => 'nullable|string|max:255',
             'status' => 'required|string|max:50',
             'notes' => 'nullable|string',
         ]);
-
+        
         $person = Person::find($id);
         $person->update($validatedData);
+
+        $person->generateNumber();
+        $person->save();
+
         return redirect()->route('persons.index')->with('success', 'Person updated successfully');
     }
 
@@ -114,10 +121,23 @@ class PersonController extends Controller
 
 
     public function getPersonsData(){
-        $persons = Person::query();
+        $persons = Person::with(['player', 'player.user'])->get();
+
         return DataTables::of($persons)
-            ->addColumn('actions', function ($person) {
-                return view('primary.persons.partials.actions', compact('person'))->render();
+            ->addColumn('user_username', function ($data) {
+                return $data->player?->user?->username ?? 'N/A';
+            })
+            ->addColumn('actions', function ($data) {
+                $route = 'persons';
+                
+                $actions = [
+                    'show' => 'modal',
+                    'show_modal' => 'primary.persons.show',
+                    'edit' => 'modal',
+                    'delete' => 'button',
+                ];
+
+                return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
             ->rawColumns(['actions'])
             ->make(true);

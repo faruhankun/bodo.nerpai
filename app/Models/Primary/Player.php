@@ -3,6 +3,7 @@
 namespace App\Models\Primary;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 use App\Models\User;
 
@@ -37,7 +38,6 @@ class Player extends Model
     {
         return $this->morphTo();
     }
-
 
     public function user(): hasOne
     {

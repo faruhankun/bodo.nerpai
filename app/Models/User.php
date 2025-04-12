@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     // Kolom dan relasi yang ada di User tidak berubah
     protected $fillable = [
+        'username',
         'name',
         'email',
         'password',

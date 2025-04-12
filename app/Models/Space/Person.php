@@ -3,6 +3,9 @@
 namespace App\Models\Space;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
+use App\Models\Primary\Player;
 
 class Person extends Model
 {
@@ -11,16 +14,35 @@ class Person extends Model
     protected $connection = 'primary';
 
     protected $fillable = [
-        'name',
         'number',
+        'name',
         'full_name',
         'birth_date',
         'death_date',
-        'sex',
-        'address',  
+        'gender',
+        'address',
+        'email',
         'phone_number',    
-        'status', 
+        'status',
+        'notes', 
     ];
+
+
+    protected function casts(): array
+    {
+        return [
+            'birth_date' => 'date',    
+            'death_date' => 'date',   
+            'address' => 'json',
+        ];
+    }
+
+
+    public function generateNumber()
+    {
+        $this->number = $this->birth_date->format('Ymd') . '' . $this->id;
+        return $this->number;
+    }
 
 
     
