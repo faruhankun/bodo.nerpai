@@ -87,6 +87,12 @@
                                 📩 Kirim WhatsApp
                             </a>
                         </div>
+                        <div class="m-4">
+                            <a href="{{ route('store_pos.invoice', $store_pos->id) }}" 
+                                target="_blank" class="bg-primary text-white px-4 py-2 rounded-lg">
+                                🖨️ Cetak Invoice
+                            </a>
+                        </div>
                     </div>
                     @endif
 

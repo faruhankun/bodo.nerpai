@@ -223,4 +223,12 @@ class StorePosController extends Controller
 		
 		return $pdf->stream('pos.pdf');
 	}
+
+
+	public function invoice($id)
+	{
+		$store_pos = StorePos::with(['store_customer', 'store_employee', 'store_pos_products'])->findOrFail($id);
+
+		return view('company.invoices.pos_invoice', compact('store_pos'));
+	}
 }

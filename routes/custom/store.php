@@ -38,6 +38,7 @@ Route::middleware([
 
     Route::resource('store_pos', StorePosController::class);
     Route::get('store_pos/{id}/print', [StorePosController::class, 'printPos'])->name('store_pos.print');
+    Route::get('store_pos/{id}/invoice', [StorePosController::class, 'invoice'])->name('store_pos.invoice');
 
     Route::resource('store_products', StoreProductController::class);
     Route::resource('store_warehouses', StoreWarehouseController::class);
