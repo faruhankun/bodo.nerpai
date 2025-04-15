@@ -50,6 +50,11 @@ class Sale extends Model
 
 
     // relations
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+    
     public function items(): HasMany
     {
         return $this->hasMany(SaleItems::class);

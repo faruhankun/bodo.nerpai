@@ -80,7 +80,7 @@ class SaleController extends Controller
 
 	public function edit($id)
 	{
-		$sale = Sale::with('items')->findOrFail($id);
+		$sale = Sale::with('items', 'customer')->findOrFail($id);
 		$customers = Customer::all();
 		$warehouses = Warehouse::all();
 
@@ -98,7 +98,7 @@ class SaleController extends Controller
 			'date' => 'required|date',
 			'customer_id' => 'required|exists:customers,id',
 			'warehouse_id' => 'required|exists:warehouses,id',
-			'items' => 'required|array', // Validate items as an array
+			'items' => 'nullable|array', // Validate items as an array
 			'items.*.item_type' => 'required|string',
 			'items.*.item_id' => 'required|integer',
 			'items.*.quantity' => 'required|integer|min:1',
@@ -109,6 +109,7 @@ class SaleController extends Controller
 			'shipping_fee_discount' => 'nullable|numeric|min:0',
 			'estimated_shipping_fee' => 'nullable|numeric|min:0',
 		]);
+
 		$employee = session('employee');
 		
 		$sale = Sale::with('items')->findOrFail($id);

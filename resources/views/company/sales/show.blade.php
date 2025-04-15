@@ -198,8 +198,12 @@
                     <h3 class="text-lg font-bold my-3">Actions</h3>
                     <div>
                         @php
+                            $action = '';
                             switch ($sale->status) {
                                 case 'SO_OFFER':
+                                    if(count($sale->items) < 1){
+                                        break;
+                                    }
                                     $action = 'SO_REQUEST';
                                     $submit_text = 'Kirim Penjualan ke Customer';
                                     break;

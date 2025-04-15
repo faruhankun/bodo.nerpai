@@ -142,10 +142,19 @@ class CustomerController extends Controller
     {
         $search = $request->q;
 
-        $customers = Customer::where('name', 'like', "%$search%")
+        $customers = Customer::where(function ($query) use ($search) {
+            $query->where('name', 'like', "%$search%")
+                ->orWhere('id', 'like', "%$search%");
+        })
             ->orderBy('id', 'desc')
             ->limit(50) // limit hasil
-            ->get(['id', 'name']);
+            ->get()
+            ->map(function ($customer) {
+                return [
+                    'id' => $customer->id,
+                    'text' => "{$customer->id} - {$customer->name}",
+                ];
+            });
 
         return response()->json($customers);
     }

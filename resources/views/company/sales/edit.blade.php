@@ -11,31 +11,7 @@
                 @method('PUT')
                 
                 <!-- select customer -->
-                <div class="mb-4">
-                    <label for="customer_id" class="block text-sm font-medium text-gray-700">Select Customer</label>
-                    <x-input-select name="customer_id" id="customer_id" class="bg-gray-100 w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white" required>
-                        @foreach($customers as $customer)
-                            <option value="{{ $customer->id }}" {{ $sale->customer_id == $customer->id ? 'selected' : '' }}>
-                                {{ $customer->name }}
-                            </option>
-                        @endforeach
-                    </x-input-select>
-                
-                <div class="mb-4">
-                    <x-input-label for="date">Sale Date</x-input-label>
-                    <input type="date" name="date" class="bg-gray-100 w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white" value="{{ $sale->date }}" required >
-                </div>
-                
-                <div class="mb-4">
-                    <label for="warehouse_id">Select Warehouse</label>
-                    <select name="warehouse_id" class="bg-gray-100 w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white " required >
-                        @foreach($warehouses as $warehouse)
-                            <option value="{{ $warehouse->id }}" {{ $sale->warehouse_id == $warehouse->id ? 'selected' : '' }}>
-                                {{ $warehouse->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                @include('company.sales.partials.dataform', ['form' => ['id' => 'Edit Sales Order', 'mode' => 'edit']])
 
                 <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
@@ -204,3 +180,45 @@
 </div>
 
 </x-company-layout>
+
+
+<script>
+    $(document).ready(function() {
+        $('#edit_customer_id').select2({
+            placeholder: 'Select a customer',
+            minimumInputLength: 2,
+            ajax: {
+                url: '/customers/search',
+                dataType: 'json',
+                paginate: true,
+                data: function(params) {
+                    return {
+                        q: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // Setelah select2 aktif, jalankan edit
+        let data = @json($sale);
+        setTimeout(() => {
+            edit(data);
+        }, 500); // kasih delay kecil biar select2 siap
+    });
+</script>
+
+<script>
+    function edit(data) {
+        // Tambahkan opsi secara manual (jika perlu)
+        let option = new Option(data.customer_id + ' - ' + data.customer.name, data.customer_id, true, true);
+        $('#edit_customer_id').append(option).trigger('change');
+
+    }
+</script>
