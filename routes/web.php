@@ -66,6 +66,16 @@ Route::middleware([
 });
 
 
+
+Route::middleware([
+    'auth',
+    'verified',
+])->group(function () {
+    Route::get('/dashboard-space', function () { return view('space.dashboard'); })->name('dashboard_space');
+});
+
+
+
 // Company
 Route::middleware(['auth', 
                 CompanyMiddleware::class,

@@ -50,7 +50,7 @@
                                                     <x-primary-button :href="route('companies.switch', $company->id)" onclick="event.preventDefault();
                                                         this.closest('form').submit();">
                                                         {{ __('Masuk Company') }}
-                                                        </x-primary-button>
+                                                    </x-primary-button>
                                                 </form>
                                             @elseif($company->pivot->status == 'invited')
                                                 <form action="{{ route('companies.rejectInvite', $company->id) }}" method="POST">

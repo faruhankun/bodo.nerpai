@@ -1,11 +1,18 @@
-<div class="form-group mb-4">
+                    <div class="form-group mb-4">
+                        <x-input-label for="code">Code</x-input-label>
+                        <x-text-input name="code" id="{{ $form['mode'] ?? '' }}_code" class="w-full" placeholder="Code without spaces" required></x-text-input>
+                    </div>
+                    
+                    <div class="form-group mb-4">
                         <x-input-label for="name">Name</x-input-label>
                         <x-text-input name="name" id="{{ $form['mode'] ?? '' }}_name" class="w-full" placeholder="Name" required></x-text-input>
                     </div>
 
                     <div class="form-group mb-4">
-                        <x-input-label for="code">Code</x-input-label>
-                        <x-text-input name="code" id="{{ $form['mode'] ?? '' }}_code" class="w-full" placeholder="Code" required></x-text-input>
+                        <x-input-label for="type_type">Space Type</x-input-label>
+                        <x-input-select id="{{ $form['mode'] ?? '' }}_type_type" name="type_type" class="w-full" required>
+                            <option value="SPACE">Space</option>
+                        </x-input-select>
                     </div>
 
                     <div class="form-group mb-4">

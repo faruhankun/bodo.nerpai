@@ -6,6 +6,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
+use App\Models\Primary\Player;
+use App\Models\Primary\Space;
+
 use App\Models\Company\Supplier;
 use App\Models\Company\Warehouse;
 use App\Models\Company\Customer;
@@ -68,6 +71,8 @@ class AppServiceProvider extends ServiceProvider
             'IVT' => Inventory::class,
             'SIVT' => StoreInventory::class,
             'PRD' => Product::class,
+
+            'SPACE' => Space::class,
         ]);
 	}
 }

@@ -96,6 +96,7 @@ class CompanyController extends Controller
 		return redirect()->route('companies.index')->with('success', "company {$company->name} deleted successfully.");
 	}
 
+
 	public function switchCompany(Request $request, $companyId)
     {
 		// forget company before
@@ -112,6 +113,7 @@ class CompanyController extends Controller
         return redirect()->route('dashboard-company')->with('success', "Anda masuk ke {$company->name}");
     }
 
+	
 	public function exitCompany(Request $request, $route = 'lobby')
 	{
 		// Hapus session company

@@ -22,6 +22,7 @@
                                 {{-- <x-table-th>username</x-table-th> --}}
                                 <x-table-th>Player Code</x-table-th>
                                 <x-table-th>Nama</x-table-th>
+                                <x-table-th>Email</x-table-th>
                                 <x-table-th>Role</x-table-th>
                                 <x-table-th>Companies</x-table-th>
                                 <x-table-th>Actions</x-table-th>
@@ -34,6 +35,7 @@
                                     {{-- <x-table-td>{{ $user->username }}</x-table-td> --}}
                                     <x-table-td>{{ $user->player?->code ?? 'N/A'; }}</x-table-td>
                                     <x-table-td>{{ $user->name }}</x-table-td>
+                                    <x-table-td>{{ $user->email }}</x-table-td>
                                     <x-table-td>{{ $user->role->name ?? 'N/A'; }}</x-table-td>
                                     <x-table-td>
                                         @if(count($user->companies) > 0)

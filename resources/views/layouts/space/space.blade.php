@@ -20,7 +20,7 @@
     'sidebar' => [
         'Dashboard' => [
             'icon' => 'icon-sidebar',
-            'route' => "lobby",
+            'route' => "dashboard_space",
             'text' => 'Lobby',
         ],
         'Space' => [
@@ -42,7 +42,7 @@
                 'items' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "lobby",
+                    'route' => "dashboard_space",
                     'text' => 'Transactions',
                 ],
             ]
@@ -54,13 +54,13 @@
                 'items' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "lobby",
+                    'route' => "dashboard_space",
                     'text' => 'Items',
                 ],
                 'inventories' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "lobby",
+                    'route' => "dashboard_space",
                     'text' => 'Inventory',
                 ],
             ]
@@ -95,33 +95,33 @@
                 ],
             ]
         ],
-        'World Access' => [
-            'dropdown_id' => 'world-access',
-            'dropdown_text' => 'World Access',
+        'Space Access' => [
+            'dropdown_id' => 'space-access',
+            'dropdown_text' => 'Space Access',
             'dropdown_items' => [
                 'roles' => [
                     'auth' => $sidebar_access['roles'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "roles.index",
-                    'text' => 'World Roles',
+                    'text' => 'Space Roles',
                 ],
                 'permissions' => [
                     'auth' => $sidebar_access['permissions'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "permissions.index",
-                    'text' => 'World Permissions',
+                    'text' => 'Space Permissions',
                 ],
                 'settings' => [
                     'icon' => 'icon-checklist-paper',
-                    'route' => "lobby",
-                    'text' => 'World Settings',
+                    'route' => "dashboard_space",
+                    'text' => 'Space Settings',
                 ],
             ]
         ],
         'Exit' => [
             'icon' => 'icon-arrow-right',
-            'route' => "lobby",
-            'text' => 'Exit World',
+            'route' => "spaces.exit",
+            'text' => 'Exit Space',
         ],
     ]
 ])
