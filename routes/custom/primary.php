@@ -10,6 +10,8 @@ use App\Http\Controllers\Primary\PlayerController;
 use App\Http\Controllers\Primary\PersonController;
 use App\Http\Controllers\Primary\GroupController;
 
+use App\Http\Controllers\Primary\ItemController;
+
 
 // Primary
 Route::middleware([
@@ -23,6 +25,13 @@ Route::middleware([
     Route::get('spaces/exit/{route}', [SpaceController::class, 'exitSpace'])->name('spaces.exit');
     Route::get('spaces/exit', [SpaceController::class, 'exitSpace'])->name('spaces.exit');
     Route::resource('spaces', SpaceController::class);
+
+
+
+    // Inventory
+    Route::get('items/data', [ItemController::class, 'getItemsData'])->name('items.data');
+    Route::resource('items', ItemController::class);
+
 
 
     // Players

@@ -54,7 +54,7 @@
         }
 
         .sidebar-collapsed #main-content {
-            margin-left: 4rem;
+            margin-left: 0;
         }
 
         [x-cloak] {
@@ -89,13 +89,13 @@
 
     <!-- Page Content -->
 
-    <main id="main-content" class="p-4 sm:ml-64 sm:mt-12 transition-all duration-300">
+    <!-- bagian main content -->
+    <!-- class sm:ml-64 sm:mt-12 untuk mengatur jarak antara sidebar dan main content ketika sidebar dalam keadaan collapsed -->
+    <!-- class transition-all duration-300 untuk mengatur transisi animasi ketika sidebar di klik -->
+    <main id="main-content" class="sm:ml-64 sm:mt-12 transition-all duration-300">
+        <!-- yield untuk mengisi konten main content -->
         @yield('main-content')
     </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -141,6 +141,10 @@
             }
         }
     </script>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         function setActive(element) {

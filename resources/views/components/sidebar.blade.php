@@ -4,7 +4,7 @@
 ])
 
 <aside id="logo-sidebar"
-    class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+    class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
     aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 [&::-webkit-scrollbar]:w-2
   [&::-webkit-scrollbar-track]:rounded-full
@@ -14,7 +14,7 @@
   dark:[&::-webkit-scrollbar-track]:bg-neutral-700
   dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
   
-        <ul class="space-y-2 font-medium">
+        <ul class="font-medium">
             @foreach ($sidebar as $item)
                 <li>
                     @if (isset($item['component']))
@@ -51,7 +51,7 @@
                                 }
                             }
                         @endphp
-                        <ul class="mt-1 space-y-1 ms-6 {{ $ul_show }}" id="{{ $item['dropdown_id'] }}">
+                        <ul class="ms-6 {{ $ul_show }}" id="{{ $item['dropdown_id'] }}">
                             @foreach($item['dropdown_items'] as $route => $dropdown_item)
                                 @php 
                                     $dropdown_item['auth'] = isset($dropdown_item['auth']) ? $dropdown_item['auth'] : true;

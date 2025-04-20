@@ -40,7 +40,7 @@
             'dropdown_id' => 'transactions',
             'dropdown_text' => 'Transactions',
             'dropdown_items' => [
-                'items' => [
+                'transactions' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
                     'route' => "lobby",
@@ -55,7 +55,7 @@
                 'items' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "lobby",
+                    'route' => "items.index",
                     'text' => 'Items',
                 ],
                 'inventories' => [

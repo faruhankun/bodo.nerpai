@@ -26,10 +26,10 @@ return new class extends Migration
 
             // Attributes
             $table->string('name');
-            $table->decimal('price', 20, 2);
-            $table->decimal('cost', 20, 2);
+            $table->decimal('price', 20, 2)->default(0);
+            $table->decimal('cost', 20, 2)->default(0);
 
-            $table->decimal('weight', 10, 2);
+            $table->decimal('weight', 10, 2)->default(0);
             $table->json('dimension')->nullable();
 
             $table->string('status')->default('active');
