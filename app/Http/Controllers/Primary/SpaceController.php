@@ -7,6 +7,8 @@ use App\Models\Primary\Space;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 use Yajra\DataTables\Facades\DataTables;
 
@@ -20,6 +22,7 @@ class SpaceController extends Controller
     public function index()
     {
         $spaces = Space::paginate(10);
+
         return view('primary.spaces.index', compact('spaces'));
     }
 
@@ -52,6 +55,21 @@ class SpaceController extends Controller
         $space = Space::create($validatedData);
 
         $space->parent_type = 'SPACE';
+        $parent_id = Session::get('space_id') ?? null;
+        $space->parent_id = $parent_id;
+        $space->save();
+
+
+        // Space owner
+        $player = Auth::user()->player;
+        DB::table('relations')->insert([
+            'model1_type' => 'SPACE',
+            'model1_id' => $space->id,
+            'model2_type' => 'PLAY',
+            'model2_id' => $player->id,
+            'type' => 'owner',
+        ]);
+
 
         return redirect()->route('spaces.index')->with('success', 'Space created successfully');
     }
@@ -98,8 +116,19 @@ class SpaceController extends Controller
 
 
 
-    public function getSpacesData(){
-        $spaces = Space::with(['parent', 'type'])->get();
+    public function getSpacesData(Request $request){
+        $space_id = Session::get('space_id');
+        $player = Auth::user()->player;
+        
+        $spaces = $player->spaces;
+        if($space_id){
+            $spaces = $player->spaces()
+                        ->where('parent_type', 'SPACE')
+                        ->where('parent_id', $space_id)
+                        ->get();
+        } else {
+            // $spaces = Space::with(['parent', 'type'])->get();
+        }
 
         return DataTables::of($spaces)
             ->addColumn('parent_display', function ($data) {
@@ -134,6 +163,13 @@ class SpaceController extends Controller
 		$space = Space::findOrFail($space_id);
 
         // Simpan informasi perusahaan yang dipilih di session
+        if($space->parent_type == 'SPACE'){
+            Session::put('space_parent_type', $space->parent_type);
+            if($space->parent_id){
+                Session::put('space_parent_id', $space->parent_id);
+            }
+        }
+
         Session::put('space_id', $space->id);
 		Session::put('space_name', $space->name);
 		Session::put('layout', 'space');
@@ -157,13 +193,22 @@ class SpaceController extends Controller
 
     public function exitSpace(Request $request, $route = 'lobby')
 	{
-        // Hapus session company
-		$this->forgetSpace();
+        $parent_type = Session::get('space_parent_type') ?? null;
+        $parent_id = Session::get('space_parent_id') ?? null;
+        
+        if($parent_id && $parent_type){
+            if($parent_type == 'SPACE'){
+                return $this->switchSpace($request, $parent_id);
+            }
+        } else {
+            // Hapus session space
+            $this->forgetSpace();
 
-		// change layout to lobby
-		Session::put('layout', 'lobby');
+            // change layout to lobby
+            Session::put('layout', 'lobby');
 
-		// Redirect ke halaman lobby (atau dashboard utama)
-		return redirect()->route($route)->with('status', 'You have exited the space.');
+            // Redirect ke halaman lobby (atau dashboard utama)
+            return redirect()->route($route)->with('status', 'You have exited the space.');
+        }
 	}
 }

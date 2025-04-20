@@ -37,20 +37,23 @@
 <script>
 $(document).ready(function() {
     $('#indexTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('spaces.data') }}",
-        columns: [
-            { data: 'code', render: function(data, type, row) {
-                return data ? data : 'N/A';
-            }},
-            { data: 'parent_display' },
-            { data: 'type_display' },
-            { data: 'name' },
-            { data: 'address' },
-            { data: 'status' },
-            { data: 'notes' },
-            { data: 'actions', orderable: false, searchable: false }
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            "url": '{!! route('spaces.data') !!}',
+            "data": function(d) {
+                d.space_id = @json(session('space_id'))
+            }
+        },
+        "columns": [
+            {data: 'code', name: 'code'},
+            {data: 'parent_display', name: 'parent_display'},
+            {data: 'type_display', name: 'type_display'},
+            {data: 'name', name: 'name'},
+            {data: 'address', name: 'address'},
+            {data: 'status', name: 'status'},
+            {data: 'notes', name: 'notes'},
+            {data: 'actions', name: 'actions', orderable: false, searchable: false}
         ]
     });
 });

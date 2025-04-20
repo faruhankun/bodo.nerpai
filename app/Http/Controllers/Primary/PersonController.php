@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 
 use Yajra\DataTables\Facades\DataTables;
 
+use App\Models\Primary\Player;
+
+
+
 class PersonController extends Controller
 {
     /**
@@ -49,15 +53,29 @@ class PersonController extends Controller
         ]);
 
         $person = Person::create($validatedData);
+        $this->syncPlayer($person);
 
         return redirect()->route('persons.index')->with('success', 'Person created successfully');
     }
-    /**
-     * Display the specified person.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
+
+
+    public function syncPlayer($person)
+    {
+        $player = Player::create(
+            [
+                'name' => $person->name,
+                'size_type' => 'PERS',
+                'size_id' => $person->id,
+            ]
+        );
+
+        return $player;
+    }
+
+
+
+
     public function show($id)
     {
         $person = Person::find($id);

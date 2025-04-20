@@ -13,6 +13,9 @@
     'navbar_left' => [
         'navbar-nerpai-name',
     ],
+    'navbar_right' => [
+        'navbar.space-switcher',
+    ],
     'navbar_dropdown_user' => [
         'navbar-user-profile',
         'navbar-user-logout',

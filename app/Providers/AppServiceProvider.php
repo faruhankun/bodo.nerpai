@@ -73,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
             'PRD' => Product::class,
 
             'SPACE' => Space::class,
+            'PLAY' => Player::class,
         ]);
 	}
 }
