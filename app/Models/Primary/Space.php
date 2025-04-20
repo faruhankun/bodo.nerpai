@@ -32,4 +32,22 @@ class Space extends Model
     {
         return $this->morphTo();
     }
+
+    public function children()
+    {
+        return $this->hasMany(Space::class, 'parent_id')
+                    ->where('parent_type', 'SPACE');
+    }
+
+
+    // Relations
+    public function players()
+    {
+        return $this->belongsToMany(Player::class, 'relations', 'model1_id', 'model2_id')
+                    ->where('relations.model2_type', 'PLAY')
+                    ->where('relations.model1_type', 'SPACE')
+                    ->withPivot('name', 'type', 'status', 'notes')
+                    ->with(['size', 'type'])
+                    ->withTimestamps();
+    }
 }

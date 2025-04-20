@@ -24,12 +24,12 @@ class Relation extends Model
 
 
     // relations
-    public function parent()
+    public function model1()
     {
         return $this->morphTo();
     }
 
-    public function child()
+    public function model2()
     {
         return $this->morphTo();
     }

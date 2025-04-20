@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Primary;
 use App\Http\Controllers\Controller;
 
 use App\Models\Primary\Space;
+use App\Models\Primary\Relation;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
@@ -23,25 +24,19 @@ class SpaceController extends Controller
     {
         $spaces = Space::paginate(10);
 
+        $space_id = session('space_id') ?? null;
+
+        if($space_id){
+            $spaces = auth()->user()->player->spacesWithDescendants();
+
+            //dd($spaces);
+        }
+
         return view('primary.spaces.index', compact('spaces'));
     }
 
-    /**
-     * Show the form for creating a new space.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view('primary.spaces.create');
-    }
+    
 
-    /**
-     * Store a newly created space in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -110,7 +105,18 @@ class SpaceController extends Controller
     public function destroy($id)
     {
         $space = Space::find($id);
+        
+        if($space->children()->count() > 0){
+            return redirect()->route('spaces.index')->with('error', 'Cannot delete space with children');
+        }
+        
+        // delete all relations
+        Relation::where('model1_type', 'SPACE')
+                ->where('model1_id', $space->id)
+                ->delete();
+
         $space->delete();
+
         return redirect()->route('spaces.index')->with('success', 'Space deleted successfully');
     }
 
@@ -120,12 +126,11 @@ class SpaceController extends Controller
         $space_id = Session::get('space_id');
         $player = Auth::user()->player;
         
-        $spaces = $player->spaces;
+        $spaces = $player->spacesWithDescendants();
         if($space_id){
-            $spaces = $player->spaces()
+            $spaces = $player->spacesWithDescendants()
                         ->where('parent_type', 'SPACE')
-                        ->where('parent_id', $space_id)
-                        ->get();
+                        ->where('parent_id', $space_id);
         } else {
             // $spaces = Space::with(['parent', 'type'])->get();
         }

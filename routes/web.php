@@ -19,6 +19,7 @@ use App\Http\Controllers\Company\Client\MigrateClientController;
 
 use App\Http\Middleware\AppMiddleware;
 use App\Http\Middleware\CompanyMiddleware;
+use App\Http\Middleware\Space\SpaceMiddleware;
 
 Route::get('/', function () {
     return view('welcome');
@@ -67,9 +68,12 @@ Route::middleware([
 
 
 
+// Space
 Route::middleware([
     'auth',
     'verified',
+    AppMiddleware::class,
+    SpaceMiddleware::class,
 ])->group(function () {
     Route::get('/dashboard-space', function () { return view('space.dashboard'); })->name('dashboard_space');
 });

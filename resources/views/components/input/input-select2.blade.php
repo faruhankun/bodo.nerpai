@@ -5,6 +5,7 @@
     'label_for', 
     'option_value',
     'option_text',
+    'placeholder',
 ])
 
 @php

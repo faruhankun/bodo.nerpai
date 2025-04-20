@@ -1,6 +1,6 @@
 @php
     $space_name = session('space_name') ?? 'Space - Name : ??';
-    $related_spaces = Auth::user()?->player?->spaces ?? [];
+    $related_spaces = Auth::user()?->player?->spacesWithDescendants() ?? [];
 @endphp
 
 <div class="mr-3 relative" x-data="{ open: false }">

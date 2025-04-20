@@ -53,4 +53,28 @@ class Player extends Model
                     ->where('relations.model2_type', 'PLAY')
                     ->withPivot('name', 'type', 'status', 'notes');
     }
+
+    public function spacesWithDescendants()
+    {
+        $directSpaces = $this->spaces();
+
+        $allSpaces = collect();
+
+        foreach ($directSpaces->get() as $space) {
+            $allSpaces = $allSpaces->merge($this->getAllDescendants($space));
+        }
+
+        return $allSpaces->unique('id')->values();
+    }
+
+    protected function getAllDescendants($space)
+    {
+        $descendants = collect([$space]);
+
+        foreach ($space->children as $child) {
+            $descendants = $descendants->merge($this->getAllDescendants($child));
+        }
+
+        return $descendants;
+    }
 }

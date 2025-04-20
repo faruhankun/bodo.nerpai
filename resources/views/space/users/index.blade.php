@@ -35,7 +35,7 @@
                                     {{-- <x-table-td>{{ $user->username }}</x-table-td> --}}
                                     <x-table-td>{{ $user->player?->code ?? 'N/A'; }}</x-table-td>
                                     <x-table-td>{{ $user->name }}</x-table-td>
-                                    <x-table-td>{{ $user->email }}</x-table-td>
+                                    <x-table-td class="{{ $user->email_verified_at ? 'font-bold text-green-600' : '' }}">{{ $user->email }}</x-table-td>
                                     <x-table-td>{{ $user->role->name ?? 'N/A'; }}</x-table-td>
                                     <x-table-td>
                                         @if(count($user->companies) > 0)

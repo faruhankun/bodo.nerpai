@@ -38,63 +38,15 @@
                 ],
             ]
         ],
-        'Transaction' => [
-            'dropdown_id' => 'transactions',
-            'dropdown_text' => 'Transactions',
-            'dropdown_items' => [
-                'items' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "dashboard_space",
-                    'text' => 'Transactions',
-                ],
-            ]
-        ],
-        'Inventory' => [
-            'dropdown_id' => 'inventories',
-            'dropdown_text' => 'Inventory',
-            'dropdown_items' => [
-                'items' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "dashboard_space",
-                    'text' => 'Items',
-                ],
-                'inventories' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "dashboard_space",
-                    'text' => 'Inventory',
-                ],
-            ]
-        ],
         'Players' => [
             'dropdown_id' => 'players',
-            'dropdown_text' => 'Players',
+            'dropdown_text' => 'Space Players',
             'dropdown_items' => [
                 'players' => [
                     'auth' => $sidebar_access['players'],
                     'icon' => 'icon-checklist-paper',
-                    'route' => "players.index",
-                    'text' => 'Players',
-                ],
-                'users' => [
-                    'auth' => $sidebar_access['users'],
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "users.index",
-                    'text' => 'Users',
-                ],
-                'persons' => [
-                    'auth' => $sidebar_access['persons'],
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "persons.index",
-                    'text' => 'People',
-                ],
-                'companies' => [
-                    'auth' => $sidebar_access['companies'],
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "companies.index",
-                    'text' => 'Groups',
+                    'route' => "space_players.index",
+                    'text' => 'Space Players',
                 ],
             ]
         ],
@@ -102,18 +54,6 @@
             'dropdown_id' => 'space-access',
             'dropdown_text' => 'Space Access',
             'dropdown_items' => [
-                'roles' => [
-                    'auth' => $sidebar_access['roles'],
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "roles.index",
-                    'text' => 'Space Roles',
-                ],
-                'permissions' => [
-                    'auth' => $sidebar_access['permissions'],
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "permissions.index",
-                    'text' => 'Space Permissions',
-                ],
                 'settings' => [
                     'icon' => 'icon-checklist-paper',
                     'route' => "dashboard_space",
