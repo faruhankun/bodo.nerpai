@@ -117,7 +117,7 @@ class PlayerController extends Controller
 
         return DataTables::of($players)
             ->addColumn('size_display', function ($data) {
-                return ($data->size_type ?? '?') . ' : ' . ($data->size?->number ?? '?');
+                return ($data->size_type ?? '?') . ' : ' . ($data->size?->number ?? $data->size?->code ?? '?');
             })
             ->addColumn('actions', function ($data) {
                 $route = 'players';

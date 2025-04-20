@@ -8,6 +8,7 @@ use App\Http\Controllers\Primary\SpaceController;
 
 use App\Http\Controllers\Primary\PlayerController;
 use App\Http\Controllers\Primary\PersonController;
+use App\Http\Controllers\Primary\GroupController;
 
 
 // Primary
@@ -30,4 +31,7 @@ Route::middleware([
     
     Route::get('persons/data', [PersonController::class, 'getPersonsData'])->name('persons.data');
     Route::resource('persons', PersonController::class);
+
+    Route::get('groups/data', [GroupController::class, 'getGroupsData'])->name('groups.data');
+    Route::resource('groups', GroupController::class);
 });

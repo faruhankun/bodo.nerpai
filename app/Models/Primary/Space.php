@@ -41,6 +41,19 @@ class Space extends Model
 
 
     // Relations
+    public function allChildren()
+    {
+        $all = collect();
+
+        foreach ($this->children as $child) {
+            $all->push($child);
+            $all = $all->merge($child->allChildren());
+        }
+
+        return $all->unique('id')->values();
+    }
+
+
     public function players()
     {
         return $this->belongsToMany(Player::class, 'relations', 'model1_id', 'model2_id')

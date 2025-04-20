@@ -3,6 +3,7 @@
         'players' => auth()->user()->can('players sidebar', 'web'),
         'users' => auth()->user()->can('users sidebar', 'web'),
         'persons' => auth()->user()->can('persons sidebar', 'web'),
+        'groups' => auth()->user()->can('groups sidebar', 'web'),
         'companies' => auth()->user()->can('companies sidebar', 'web'),
         'roles' => auth()->user()->can('roles sidebar', 'web'),
         'permissions' => auth()->user()->can('permissions sidebar', 'web'),
@@ -87,11 +88,17 @@
                     'route' => "persons.index",
                     'text' => 'People',
                 ],
+                'groups' => [
+                    'auth' => $sidebar_access['groups'],
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "groups.index",
+                    'text' => 'Groups',
+                ],
                 'companies' => [
                     'auth' => $sidebar_access['companies'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "companies.index",
-                    'text' => 'Groups',
+                    'text' => 'Companies',
                 ],
             ]
         ],

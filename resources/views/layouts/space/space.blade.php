@@ -43,7 +43,7 @@
             'dropdown_text' => 'Space Players',
             'dropdown_items' => [
                 'players' => [
-                    'auth' => $sidebar_access['players'],
+                    'auth' => true,
                     'icon' => 'icon-checklist-paper',
                     'route' => "space_players.index",
                     'text' => 'Space Players',

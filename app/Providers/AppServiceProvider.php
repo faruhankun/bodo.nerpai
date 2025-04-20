@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 
 use App\Models\Primary\Player;
 use App\Models\Primary\Space;
+use App\Models\Primary\Group;
 
 use App\Models\Company\Supplier;
 use App\Models\Company\Warehouse;
@@ -74,6 +75,7 @@ class AppServiceProvider extends ServiceProvider
 
             'SPACE' => Space::class,
             'PLAY' => Player::class,
+            'GRP' => Group::class,
         ]);
 	}
 }

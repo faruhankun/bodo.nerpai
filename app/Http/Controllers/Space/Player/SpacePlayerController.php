@@ -79,13 +79,16 @@ class SpacePlayerController extends Controller
         $space_id = session('space_id') ?? null;
 
         if($space_id){
-            $relation = Relation::where('model1_type', 'SPACE')
-                                ->where('model1_id', $space_id)
+            $space_and_children = Space::find($space_id)->AllChildren()->pluck('id')->toArray();
+            $space_and_children = array_merge($space_and_children, [$space_id]);
+
+            $relations = Relation::where('model1_type', 'SPACE')
+                                ->whereIn('model1_id', $space_and_children)
                                 ->where('model2_type', 'PLAY')
                                 ->where('model2_id', $id)
-                                ->first();
-                                
-            if ($relation) {
+                                ->get();
+
+            foreach ($relations as $relation) {
                 $relation->delete();
             }
         }
@@ -142,7 +145,7 @@ class SpacePlayerController extends Controller
             ->map(function ($player) {
                 return [
                     'id' => $player->id,
-                    'text' => "{$player->id} - {$player->name}",
+                    'text' => "{$player->id} - {$player->name} - {$player->size_type} : {$player->size?->number}",
                 ];
             });
 

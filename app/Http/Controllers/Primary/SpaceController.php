@@ -27,9 +27,7 @@ class SpaceController extends Controller
         $space_id = session('space_id') ?? null;
 
         if($space_id){
-            $spaces = auth()->user()->player->spacesWithDescendants();
-
-            //dd($spaces);
+            $space = Space::find($space_id);
         }
 
         return view('primary.spaces.index', compact('spaces'));
