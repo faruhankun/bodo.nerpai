@@ -15,7 +15,7 @@
     $actions['delete'] = $actions['delete'] ?? '';
 @endphp
 
-<div class="flex gap-3 justify">
+<div class="flex gap-3 justify-end">
     @if($actions['show'] == 'modal')
         @if($actions['show_modal'] != '')
             @include($actions['show_modal'], ['data' => $data])

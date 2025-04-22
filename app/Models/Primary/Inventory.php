@@ -3,15 +3,22 @@
 namespace App\Models\Primary;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Inventory extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'inventories';
 
     public $timestamps = true;
 
     protected $fillable = [
         'code',
+        'model_type',
+        'model_id',
+        'parent_type',
+        'parent_id',
         'type_type',
         'type_id',
         'space_type',
@@ -20,6 +27,7 @@ class Inventory extends Model
         'location_id',
         'item_type',
         'item_id',
+        'name',
         'expiry_date',
         'quantity',
         'balance',
@@ -29,6 +37,10 @@ class Inventory extends Model
 
 
     // morph
+    public function parent()
+    {
+        return $this->morphTo();
+    }
     public function type()
     {
         return $this->morphTo();
@@ -48,4 +60,7 @@ class Inventory extends Model
     {
         return $this->morphTo();
     }
+
+
+    // model
 }

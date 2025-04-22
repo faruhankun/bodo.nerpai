@@ -1,5 +1,5 @@
 @php
-    $space_name = session('space_name') ?? 'Space - Name : ??';
+    $space_name = session('space_name') ?? (( session('space_id') == null ) ? 'Space: Lobby' : 'Space - Name : ??');
     $related_spaces = Auth::user()?->player?->spacesWithDescendants() ?? [];
 @endphp
 

@@ -7,12 +7,16 @@
         'companies' => auth()->user()->can('companies sidebar', 'web'),
         'roles' => auth()->user()->can('roles sidebar', 'web'),
         'permissions' => auth()->user()->can('permissions sidebar', 'web'),
+        'items' => auth()->user()->can('items sidebar', 'web'),
     ];
 @endphp
 
 @extends('layouts.base', [
     'navbar_left' => [
         'navbar-nerpai-name',
+    ],
+    'navbar_right' => [
+        'navbar.space-switcher',
     ],
     'navbar_dropdown_user' => [
         'navbar-user-profile',
@@ -53,7 +57,7 @@
             'dropdown_text' => 'Inventory',
             'dropdown_items' => [
                 'items' => [
-                    'auth' => true,
+                    'auth' => $sidebar_access['items'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "items.index",
                     'text' => 'Items',
@@ -63,6 +67,12 @@
                     'icon' => 'icon-checklist-paper',
                     'route' => "lobby",
                     'text' => 'Inventory',
+                ],
+                'accountsp' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "accountsp.index",
+                    'text' => 'Accounts',
                 ],
             ]
         ],

@@ -19,7 +19,7 @@ class Account extends Model
         'parent_id',
         'status',
         'balance',
-        'notes'
+        'notes',
     ];
 
     public function parent()

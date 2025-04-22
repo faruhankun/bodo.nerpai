@@ -11,6 +11,8 @@ use App\Http\Controllers\Primary\PersonController;
 use App\Http\Controllers\Primary\GroupController;
 
 use App\Http\Controllers\Primary\ItemController;
+use App\Http\Controllers\Primary\InventoryController;
+use App\Http\Controllers\Primary\Inventory\AccountController;
 
 
 // Primary
@@ -32,6 +34,11 @@ Route::middleware([
     Route::get('items/data', [ItemController::class, 'getItemsData'])->name('items.data');
     Route::resource('items', ItemController::class);
 
+    Route::get('inventories/data', [InventoryController::class, 'getInventoriesData'])->name('inventories.data');
+    Route::resource('inventories', InventoryController::class);
+
+    Route::get('accountsp/data', [AccountController::class, 'getAccountsData'])->name('accountsp.data');
+    Route::resource('accountsp', AccountController::class);
 
 
     // Players

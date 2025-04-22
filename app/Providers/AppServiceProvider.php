@@ -31,6 +31,8 @@ use App\Models\Company\Sale\Sale;
 use App\Models\Company\Sale\SaleInvoice;
 
 use App\Models\Company\Finance\Expense;
+use App\Models\Company\Finance\Account;
+use App\Models\Company\Finance\AccountType;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -76,6 +78,8 @@ class AppServiceProvider extends ServiceProvider
             'SPACE' => Space::class,
             'PLAY' => Player::class,
             'GRP' => Group::class,
+            'ACC' => Account::class,
+            'ACCT' => AccountType::class,
         ]);
 	}
 }

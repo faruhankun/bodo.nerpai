@@ -28,21 +28,28 @@ class AccessMiddleware
 
                 // check in parent
                 if(!$player->spacesWithDescendants()->where('id', $space_id)->first()){
-                    // exit space
-                    $this->forgetSpace();
-
-                    // change layout to lobby
-                    Session::put('layout', 'lobby');
-
-                    // Redirect ke halaman lobby (atau dashboard utama)
-                    return redirect()->route('lobby')->with('status', 'You have exited the space.');
+                    $this->goToLobby();
 
                     abort(403);
                 }
             }
+        } else {
+            $this->forgetSpace();
         }
 
         return $next($request);
+    }
+
+
+    public function goToLobby(){
+        // exit space
+        $this->forgetSpace();
+
+        // change layout to lobby
+        Session::put('layout', 'lobby');
+
+        // Redirect ke halaman lobby (atau dashboard utama)
+        return redirect()->route('lobby')->with('status', 'You have exited the space.');
     }
 
 

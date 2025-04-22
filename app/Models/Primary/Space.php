@@ -53,6 +53,20 @@ class Space extends Model
         return $all->unique('id')->values();
     }
 
+    public function allParents()
+    {
+        $all = collect();
+
+        $parent = $this->parent;
+
+        if ($parent) {
+            $all->push($parent);
+            $all = $all->merge($parent->allParents());
+        }
+
+        return $all->unique('id')->values();
+    }
+
 
     public function players()
     {

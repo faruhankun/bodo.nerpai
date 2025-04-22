@@ -50,6 +50,30 @@
                 ],
             ]
         ],
+        'Inventories' => [
+            'dropdown_id' => 'inventories',
+            'dropdown_text' => 'Inventories',
+            'dropdown_items' => [
+                'items' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "items.index",
+                    'text' => 'Items',
+                ],
+                'inventories' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "inventories.index",
+                    'text' => 'Inventories',
+                ],
+                'accountsp' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "accountsp.index",
+                    'text' => 'Accounts',
+                ],
+            ]
+        ],
         'Space Access' => [
             'dropdown_id' => 'space-access',
             'dropdown_text' => 'Space Access',

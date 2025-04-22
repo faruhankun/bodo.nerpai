@@ -29,6 +29,7 @@ Route::get('/', function () {
 // Lobby
 Route::middleware([
     'auth',
+    SpaceMiddleware::class,
 ])->group(function () {
     // Lobby
     Route::get('/lobby', function () {
