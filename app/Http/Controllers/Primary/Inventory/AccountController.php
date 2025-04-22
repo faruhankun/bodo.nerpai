@@ -119,10 +119,7 @@ class AccountController extends Controller
 
         $space_id = session('space_id') ?? null;
 
-        $player = auth()->user()->player;
-        $spaceIds = $player->spaces()->pluck('model1_id')->toArray();
-
-        $accountsp = Inventory::with('type', 'parent')->where('model_type', 'ACC')->get();
+        $accountsp = Inventory::with('type', 'parent', 'tx_details')->where('model_type', 'ACC')->get();
 
         if($space_id){
             $space = Space::findOrFail($space_id);
@@ -135,6 +132,9 @@ class AccountController extends Controller
         }
 
         return DataTables::of($accountsp)
+            ->addColumn('getAccountBalance', function ($data) {
+                return $data->getAccountBalance();
+            })
             ->addColumn('actions', function ($data) {
                 $route = 'accountsp';
                 

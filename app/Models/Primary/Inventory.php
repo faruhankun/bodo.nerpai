@@ -5,6 +5,8 @@ namespace App\Models\Primary;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Illuminate\Support\Facades\DB;
+
 class Inventory extends Model
 {
     use SoftDeletes;
@@ -63,4 +65,40 @@ class Inventory extends Model
 
 
     // model
+    // Account
+    public function tx_details()
+    {
+        return $this->hasMany(TransactionDetail::class, 'detail_id');
+    }
+
+    public function getAccountBalance($start_date = null, $end_date = null)
+    {
+        if ($start_date == null) {
+            $start_date = now()->startOfYear()->startOfDay();
+        }
+    
+        if ($end_date == null) {
+            $end_date = now()->endOfYear()->endOfDay();
+        }
+
+        if(!$this->space){
+            return 0;
+        }
+
+        $space_type = $this->space_type;
+        $list_space_id = $this->space->allChildren()->pluck('id')->toArray();
+        $list_space_id = array_merge($list_space_id, [$this->space->id]);
+
+        $query = $this->tx_details()
+            ->whereHas('transaction', function ($query) use ($space_type, $list_space_id, $start_date, $end_date){
+                $query->where('space_type', $space_type)
+                    ->whereIn('space_id', $list_space_id)
+                    ->whereBetween('sent_time', [$start_date, $end_date]);
+            });
+
+        $debit = (clone $query)->sum('debit');
+        $credit = (clone $query)->sum('credit');
+
+        return $debit - $credit;
+    }
 }

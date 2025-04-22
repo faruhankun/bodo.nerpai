@@ -57,7 +57,7 @@ $(document).ready(function() {
             { data: 'code' },
             { data: 'name' },
             { data: 'type.name' },
-            { data: 'balance', className: 'text-right' },
+            { data: 'getAccountBalance', className: 'text-right' },
             { data: 'notes' },
             { data: 'actions', orderable: false, searchable: false }
         ]
