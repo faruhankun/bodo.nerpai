@@ -38,6 +38,18 @@
                 ],
             ]
         ],
+        'Transaction' => [
+            'dropdown_id' => 'transactions',
+            'dropdown_text' => 'Transactions',
+            'dropdown_items' => [
+                'journal_accounts' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "journal_accounts.index",
+                    'text' => 'Journal Accounts',
+                ],
+            ]
+        ],
         'Players' => [
             'dropdown_id' => 'players',
             'dropdown_text' => 'Space Players',

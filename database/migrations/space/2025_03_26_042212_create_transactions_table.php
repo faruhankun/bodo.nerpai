@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('number')->nullable()->unique();
+            $table->string('number')->nullable();
             $table->string('class')->nullable();
 
             // morph
+            $table->string('space_type')->nullable();
+            $table->unsignedBigInteger('space_id')->nullable();
+            $table->string('model_type')->nullable();
+            $table->unsignedBigInteger('model_id')->nullable();
+
             $table->string('type_type')->nullable();
             $table->unsignedBigInteger('type_id')->nullable();
             $table->string('input_type')->nullable();
@@ -36,8 +41,9 @@ return new class extends Migration
             $table->json('input_address')->nullable();
             $table->json('output_address')->nullable();
 
-            $table->date('sent_date')->nullable();
-            $table->date('received_date')->nullable();
+            $table->datetime('request_time')->nullable();
+            $table->datetime('sent_time')->nullable();
+            $table->datetime('received_time')->nullable();
             $table->string('handler_number')->nullable();
 
             $table->decimal('total', 30, 2)->default(0);
@@ -49,6 +55,7 @@ return new class extends Migration
             $table->text('handler_notes')->nullable();
 
             $table->string('status')->default('TX_REQUEST');
+            $table->text('notes')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

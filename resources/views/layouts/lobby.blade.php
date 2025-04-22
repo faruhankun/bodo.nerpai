@@ -44,11 +44,11 @@
             'dropdown_id' => 'transactions',
             'dropdown_text' => 'Transactions',
             'dropdown_items' => [
-                'transactions' => [
+                'journal_accounts' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "lobby",
-                    'text' => 'Transactions',
+                    'route' => "journal_accounts.index",
+                    'text' => 'Journal Accounts',
                 ],
             ]
         ],

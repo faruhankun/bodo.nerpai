@@ -17,6 +17,11 @@ class Transaction extends Model
         'number',
         'class',
 
+        'space_type',
+        'space_id',
+        'model_type',
+        'model_id',
+
         'type_type',
         'type_id',
         'input_type',
@@ -34,6 +39,7 @@ class Transaction extends Model
         'input_address',
         'output_address',
 
+        'sent_time',
         'sent_date',
         'received_date',
         'handler_number',
@@ -49,6 +55,16 @@ class Transaction extends Model
         'status',
     ];
 
+    protected $casts = [
+        'sent_time' => 'datetime',
+    ];
+
+    // function
+    public function generateNumber()
+    {
+        $this->number = $this->type_type ?? 'TX' . '_' . $this->id;
+        return $this->number;
+    }
 
 
     // Relationships
@@ -80,5 +96,10 @@ class Transaction extends Model
     public function handler()
     {
         return $this->morphTo();
+    }
+
+    public function details()
+    {
+        return $this->hasMany(TransactionDetail::class);
     }
 }

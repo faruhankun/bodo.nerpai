@@ -33,6 +33,8 @@ use App\Models\Company\Sale\SaleInvoice;
 use App\Models\Company\Finance\Expense;
 use App\Models\Company\Finance\Account;
 use App\Models\Company\Finance\AccountType;
+use App\Models\Company\Finance\JournalEntry;
+use App\Models\Company\Finance\JournalEntryDetail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -80,6 +82,8 @@ class AppServiceProvider extends ServiceProvider
             'GRP' => Group::class,
             'ACC' => Account::class,
             'ACCT' => AccountType::class,
+            'JE' => JournalEntry::class,
+            'IV' => \App\Models\Primary\Inventory::class,
         ]);
 	}
 }

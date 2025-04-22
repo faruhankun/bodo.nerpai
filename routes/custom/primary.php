@@ -14,6 +14,8 @@ use App\Http\Controllers\Primary\ItemController;
 use App\Http\Controllers\Primary\InventoryController;
 use App\Http\Controllers\Primary\Inventory\AccountController;
 
+use App\Http\Controllers\Primary\Transaction\JournalAccountController;
+
 
 // Primary
 Route::middleware([
@@ -30,6 +32,11 @@ Route::middleware([
 
 
 
+    // Transactions
+    Route::get('journal_accounts/data', [JournalAccountController::class, 'getJournalAccountsData'])->name('journal_accounts.data');
+    Route::resource('journal_accounts', JournalAccountController::class);
+
+
     // Inventory
     Route::get('items/data', [ItemController::class, 'getItemsData'])->name('items.data');
     Route::resource('items', ItemController::class);
@@ -39,6 +46,7 @@ Route::middleware([
 
     Route::get('accountsp/data', [AccountController::class, 'getAccountsData'])->name('accountsp.data');
     Route::resource('accountsp', AccountController::class);
+
 
 
     // Players
