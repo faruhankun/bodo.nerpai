@@ -60,7 +60,12 @@ $(document).ready(function() {
             }},
             { data: 'number' },
             { data: 'sender_notes' },
-            { data: 'total', className: 'text-right' },
+            { data: 'total', className: 'text-right',
+                render: function (data, type, row, meta) {
+                    return new Intl.NumberFormat('id-ID', { 
+                        maximumFractionDigits: 2
+                    }).format(data);
+                }},
             { data: 'actions', orderable: false, searchable: false }
         ]
     });

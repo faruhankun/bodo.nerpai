@@ -97,6 +97,17 @@
                 ],
             ]
         ],
+        'Summary' => [
+            'dropdown_id' => 'summary',
+            'dropdown_text' => 'Summary',
+            'dropdown_items' => [
+                'summaries' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "summaries.index",
+                    'text' => 'Summary Reports',
+                ],
+            ]
+        ],
         'Exit' => [
             'icon' => 'icon-arrow-right',
             'route' => "spaces.exit",

@@ -170,7 +170,9 @@ class JournalAccountController extends Controller
 
         $space_id = session('space_id') ?? null;
 
-        $journal_accounts = Transaction::with('input', 'type')->where('model_type', 'JE')->get();
+        $journal_accounts = Transaction::with('input', 'type')->where('model_type', 'JE')
+                            ->orderBy('sent_time', 'desc')
+                            ->get();
 
         if($space_id){
             $journal_accounts = $journal_accounts->where('space_type', 'SPACE')

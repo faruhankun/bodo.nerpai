@@ -16,6 +16,7 @@ use App\Http\Controllers\Primary\Inventory\AccountController;
 
 use App\Http\Controllers\Primary\Transaction\JournalAccountController;
 
+use App\Http\Controllers\Primary\Summary\ReportController;
 
 // Primary
 Route::middleware([
@@ -58,4 +59,9 @@ Route::middleware([
 
     Route::get('groups/data', [GroupController::class, 'getGroupsData'])->name('groups.data');
     Route::resource('groups', GroupController::class);
+
+
+
+    // Reports
+    Route::resource("summaries", ReportController::class);
 });

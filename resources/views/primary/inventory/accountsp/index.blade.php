@@ -57,7 +57,13 @@ $(document).ready(function() {
             { data: 'code' },
             { data: 'name' },
             { data: 'type.name' },
-            { data: 'getAccountBalance', className: 'text-right' },
+            { data: 'getAccountBalance', className: 'text-right',
+                render: function (data, type, row, meta) {
+                    return new Intl.NumberFormat('id-ID', { 
+                        maximumFractionDigits: 2
+                    }).format(data);
+                }
+             },
             { data: 'notes' },
             { data: 'actions', orderable: false, searchable: false }
         ]
