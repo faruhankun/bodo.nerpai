@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
+use Database\Seeders\Primary\PrimarySeeder;
 use Database\Seeders\Space\SpaceSeeder;
 
 class DatabaseSeeder extends Seeder
