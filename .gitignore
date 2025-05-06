@@ -34,3 +34,5 @@ storage/framework/testing/.gitignore
 storage/framework/views/.gitignore
 storage/logs/.gitignore
 config/migrate_client.php
+
+bun.lock
