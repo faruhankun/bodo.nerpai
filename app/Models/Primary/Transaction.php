@@ -48,6 +48,7 @@ class Transaction extends Model
         'fee',
         'fee_rules',
 
+        'description',
         'sender_notes',
         'receiver_notes',
         'handler_notes',

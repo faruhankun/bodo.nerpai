@@ -20,8 +20,7 @@
                                 <x-input-label for="store_cashier">Maintainer</x-input-label>
                                 <input type="text" name="store_cashier" id="store_cashier"
                                     class="bg-gray-100 w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white"
-                                    value="{{ auth()->user()->player->name ?? 'N/A' }}" required readonly
-                                    disabled>
+                                    value="{{ auth()->user()->player->name ?? 'N/A' }}" required readonly disabled>
                             </div>
 
                             <div class="form-group">
@@ -167,7 +166,7 @@
             let totalDebit = 0;
             $(".debit-input").each(function() {
                 if ($(this).val() == 0) {
-                    if($(this).closest("tr").find(".credit-input").val() == 0){
+                    if ($(this).closest("tr").find(".credit-input").val() == 0) {
                         alert("Debit and Credit must not be zero!");
 
                         isValid = false;
@@ -178,13 +177,13 @@
                 totalDebit += parseFloat($(this).val()) || 0;
             });
 
-            if($("#total-debit").text() != $("#total-credit").text()){
+            if ($("#total-debit").text() != $("#total-credit").text()) {
                 alert("Total Debit and Credit must be equal!");
 
                 isValid = false;
             }
 
-            if(totalDebit == 0){
+            if (totalDebit == 0) {
                 alert("Debit and Credit must not be zero!");
 
                 isValid = false;

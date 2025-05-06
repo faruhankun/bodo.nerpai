@@ -35,6 +35,7 @@ Route::middleware([
 
     // Transactions
     Route::get('journal_accounts/data', [JournalAccountController::class, 'getJournalAccountsData'])->name('journal_accounts.data');
+    Route::post('journal_accounts/import', [JournalAccountController::class, 'readCsv'])->name('journal_accounts.import');
     Route::resource('journal_accounts', JournalAccountController::class);
 
 
@@ -53,7 +54,7 @@ Route::middleware([
     // Players
     Route::get('players/data', [PlayerController::class, 'getPlayersData'])->name('players.data');
     Route::resource('players', PlayerController::class);
-    
+
     Route::get('persons/data', [PersonController::class, 'getPersonsData'])->name('persons.data');
     Route::resource('persons', PersonController::class);
 
