@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Middleware\AppMiddleware;
+use App\Http\Middleware\Space\SpaceMiddleware;
 
 use App\Http\Controllers\Primary\SpaceController;
 
@@ -16,6 +17,8 @@ use App\Http\Controllers\Primary\Inventory\AccountController;
 
 use App\Http\Controllers\Primary\Transaction\JournalAccountController;
 
+use App\Http\Controllers\Primary\Access\VariableController;
+
 use App\Http\Controllers\Primary\Summary\ReportController;
 
 // Primary
@@ -23,6 +26,7 @@ Route::middleware([
     'auth',
     'verified',
     AppMiddleware::class,
+    SpaceMiddleware::class,
 ])->group(function () {
     // Spaces
     Route::get('spaces/data', [SpaceController::class, 'getSpacesData'])->name('spaces.data');
@@ -60,6 +64,11 @@ Route::middleware([
     Route::get('groups/data', [GroupController::class, 'getGroupsData'])->name('groups.data');
     Route::resource('groups', GroupController::class);
 
+
+
+    // Access
+    Route::get('variables/data', [VariableController::class, 'getVariablesData'])->name('variables.data');
+    Route::resource('variables', VariableController::class);
 
 
     // Reports

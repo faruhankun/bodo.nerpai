@@ -7,20 +7,12 @@
         'roles' => auth()->user()->can('roles sidebar', 'web'),
         'permissions' => auth()->user()->can('permissions sidebar', 'web'),
     ];
-@endphp
 
-@extends('layouts.base', [
-    'navbar_left' => [
-        'navbar-nerpai-name',
-    ],
-    'navbar_right' => [
-        'navbar.space-switcher',
-    ],
-    'navbar_dropdown_user' => [
-        'navbar-user-profile',
-        'navbar-user-logout',
-    ],
-    'sidebar' => [
+    $settings = [
+        'accounting' => get_variable('space.setting.accounting') ?? false,
+    ];
+
+    $sidebar = [
         'Dashboard' => [
             'icon' => 'icon-sidebar',
             'route' => "dashboard_space",
@@ -43,7 +35,7 @@
             'dropdown_text' => 'Transactions',
             'dropdown_items' => [
                 'journal_accounts' => [
-                    'auth' => true,
+                    'auth' => $settings['accounting'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "journal_accounts.index",
                     'text' => 'Journal Accounts',
@@ -79,21 +71,10 @@
                     'text' => 'Inventories',
                 ],
                 'accountsp' => [
-                    'auth' => true,
+                    'auth' => $settings['accounting'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "accountsp.index",
                     'text' => 'Accounts',
-                ],
-            ]
-        ],
-        'Space Access' => [
-            'dropdown_id' => 'space-access',
-            'dropdown_text' => 'Space Access',
-            'dropdown_items' => [
-                'settings' => [
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "dashboard_space",
-                    'text' => 'Space Settings',
                 ],
             ]
         ],
@@ -108,12 +89,37 @@
                 ],
             ]
         ],
+        'Space Access' => [
+            'dropdown_id' => 'space-access',
+            'dropdown_text' => 'Space Access',
+            'dropdown_items' => [
+                'settings' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "variables.index",
+                    'text' => 'Variables',
+                ],
+            ]
+        ],
         'Exit' => [
             'icon' => 'icon-arrow-right',
             'route' => "spaces.exit",
             'text' => 'Exit Space',
         ],
-    ]
+    ];
+@endphp
+
+@extends('layouts.base', [
+    'navbar_left' => [
+        'navbar-nerpai-name',
+    ],
+    'navbar_right' => [
+        'navbar.space-switcher',
+    ],
+    'navbar_dropdown_user' => [
+        'navbar-user-profile',
+        'navbar-user-logout',
+    ],
+    'sidebar' => $sidebar
 ])
 
 @section('main-content')
