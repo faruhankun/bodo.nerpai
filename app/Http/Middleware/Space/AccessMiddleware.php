@@ -37,8 +37,37 @@ class AccessMiddleware
             $this->forgetSpace();
         }
 
+        
+        // check space settings
+        $this->space_setting_check($request);
+
+
         return $next($request);
     }
+
+
+    public function space_setting_check(Request $request){
+        $route = $request->route();
+        $first_uri = explode('/', $route->uri)[0];
+
+        $settings = [
+            'accounting' => get_variable('space.setting.accounting') ?? false,
+        ];
+
+        // accounting
+        switch($first_uri){
+            case 'accountsp':
+            case 'journal_accounts':
+                if(!$settings['accounting']){
+                    abort(403);
+
+                    $this->goToLobby();
+                }
+                break;
+            default: ;
+        }
+    }
+
 
 
     public function goToLobby(){

@@ -1,6 +1,19 @@
 @php
     $space_name = session('space_name') ?? (( session('space_id') == null ) ? 'Space: Lobby' : 'Space - Name : ??');
-    $related_spaces = Auth::user()?->player?->spacesWithDescendants() ?? [];
+    $related_spaces = [];
+    $space_id = session('space_id') ?? null;
+    $parent_space_id = session('space_parent_id') ?? null;
+
+    if($space_id){
+        $related_spaces = Auth::user()?->player?->spacesWithDescendants() ?? [];
+        
+        $parent_space = $related_spaces->where('id', '==', $parent_space_id) ?? [];
+        $children_spaces = $related_spaces->where('parent_id', '==', $space_id) ?? [];
+        
+        $related_spaces = $parent_space->merge($children_spaces);
+    } else { 
+        $related_spaces = Auth::user()?->player?->spacesWithDescendants() ?? [];
+    }
 @endphp
 
 <div class="mr-3 relative" x-data="{ open: false }">

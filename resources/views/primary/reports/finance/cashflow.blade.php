@@ -32,21 +32,21 @@
                             $cogs = $accounts->where('type_id', 13)->sum('balance');
                             $sales = $accounts->where('type_id', 12)->sum('balance');
                             
-                            $netIncome = -1 * ($accounts->where('type_id', 12)->sum('balance') 
+                            $netIncome =  ($accounts->where('type_id', 12)->sum('balance') 
                                         + $accounts->where('type_id', 13)->sum('balance') 
                                         + $accounts->where('type_id', 14)->sum('balance') 
                                         - $accounts->where('type_id', 15)->sum('balance') 
                                         + $accounts->where('type_id', 16)->sum('balance'));
                             
-                            $changeReceivables = -1 * ($accounts->where('type_id', 2)->sum('balance'));
-                            $changeInventory = -1 * $accounts->where('type_id', 3)->sum('balance');
-                            $changePayables = -1 * $accounts->where('type_id', 8)->sum('balance');
+                            $changeReceivables =  ($accounts->where('type_id', 2)->sum('balance'));
+                            $changeInventory =  $accounts->where('type_id', 3)->sum('balance');
+                            $changePayables =  $accounts->where('type_id', 8)->sum('balance');
                             
-                            $purchaseFixedAssets = -1 * $accounts->where('type_id', 5)->sum('balance');
+                            $purchaseFixedAssets =  $accounts->where('type_id', 5)->sum('balance');
                             
-                            $loansReceived = -1 * ($accounts->where('type_id', 9)->sum('balance')
+                            $loansReceived =  ($accounts->where('type_id', 9)->sum('balance')
                                                 + $accounts->where('type_id', 10)->sum('balance'));
-                            $equityChanges = -1 * $accounts->where('type_id', 11)->sum('balance');
+                            $equityChanges =  $accounts->where('type_id', 11)->sum('balance');
                             
                             $endingCash = $accounts->where('type_id', 1)->sum('balance');
                             

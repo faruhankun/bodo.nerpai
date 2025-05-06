@@ -66,6 +66,7 @@
                                             </x-table-td>
                                             <x-table-td>
                                                 <div class="flex inline">
+                                                    <x-button-show :route="route('roles.show', $role->id)" />
                                                     <x-button-edit :route="route('roles.edit', $role->id)" />
                                                     <x-button-delete :route="route('roles.destroy', $role->id)" />
                                                 </div>

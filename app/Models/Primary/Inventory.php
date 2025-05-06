@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class Inventory extends Model
 {
@@ -74,12 +75,14 @@ class Inventory extends Model
     public function getAccountBalance($start_date = null, $end_date = null)
     {
         if ($start_date == null) {
-            $start_date = now()->startOfYear()->startOfDay();
+            $start_date = now()->startOfYear();
         }
+        $start_date = Carbon::parse($start_date)->startOfDay();
     
         if ($end_date == null) {
-            $end_date = now()->endOfYear()->endOfDay();
+            $end_date = now()->endOfYear();
         }
+        $end_date = Carbon::parse($end_date)->endOfDay();
 
         if(!$this->space){
             return 0;
@@ -99,6 +102,12 @@ class Inventory extends Model
         $debit = (clone $query)->sum('debit');
         $credit = (clone $query)->sum('credit');
 
-        return $debit - $credit;
+        $balance = $debit - $credit;
+        if($this->type){
+            if($this->type->credit && $this->type->credit == '1'){
+                $balance *= -1;
+            }
+        }
+        return $balance;
     }
 }
