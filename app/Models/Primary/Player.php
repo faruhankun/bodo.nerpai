@@ -67,6 +67,13 @@ class Player extends Model
         return $allSpaces->unique('id')->values();
     }
 
+    public function space_children($id)
+    {
+        $directSpaces = $this->spaces();
+
+        return $directSpaces->where('parent_id', $id)->get();
+    }
+
     protected function getAllDescendants($space)
     {
         $descendants = collect([$space]);

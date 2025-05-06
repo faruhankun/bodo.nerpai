@@ -61,6 +61,8 @@
                                 <x-button2 type="button" id="add-detail" class="mr-3 m-4">Add Journal
                                     Detail</x-button2>
                             </div>
+
+
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                             <div class="flex justify-end space-x-4">
                                 <p class="text-lg font-semibold text-end"><strong>Total Debit:</strong> Rp <span
@@ -68,6 +70,10 @@
                                 <p class="text-lg font-semibold text-end"><strong>Total Credit:</strong> Rp <span
                                         id="total-credit">0</span></p>
                             </div>
+                            <p class="text-lg font-semibold text-end text-red-600"><span
+                                        id="debit-credit"></span></p>
+
+                                        
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                         </div>
 
@@ -151,8 +157,14 @@
                     totalCredit += parseFloat($(this).val()) || 0;
                 });
 
-                $("#total-debit").text(totalDebit.toFixed(2));
-                $("#total-credit").text(totalCredit.toFixed(2));
+                $("#total-debit").text(totalDebit.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+                $("#total-credit").text(totalCredit.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+                if(totalDebit != totalCredit){
+                    $("#debit-credit").text("Total Debit and Credit must be equal, diff: " + (totalDebit - totalCredit).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+                } else {
+                    $("#debit-credit").text("");
+                }
             }
 
             // Initial call to add a journal entry detail row

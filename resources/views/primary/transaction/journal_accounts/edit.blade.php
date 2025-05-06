@@ -104,18 +104,24 @@
                                 <x-button2 type="button" id="add-detail" class="mr-3 m-4">Add Journal
                                     Detail</x-button2>
                             </div>
+
+
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
-                            <p class="text-lg font-semibold text-end"><strong>Total Debit:</strong> Rp <span
-                                    id="total-debit">{{ number_format($journal_entry->details->sum('debit'), 2) }}</span>
-                            </p>
-                            <p class="text-lg font-semibold text-end"><strong>Total Credit:</strong> Rp <span
-                                    id="total-credit">{{ number_format($journal_entry->details->sum('credit'), 2) }}</span>
-                            </p>
+                            <div class="flex justify-end space-x-4">
+                                <p class="text-lg font-semibold text-end"><strong>Total Debit:</strong> Rp <span
+                                        id="total-debit">0</span></p>
+                                <p class="text-lg font-semibold text-end"><strong>Total Credit:</strong> Rp <span
+                                        id="total-credit">0</span></p>
+                            </div>
+                            <p class="text-lg font-semibold text-end text-red-600"><span
+                                        id="debit-credit"></span></p>
+
+                                        
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                         </div>
 
                         <div class="m-4 flex justify-end space-x-4">
-                            <a href="{{ route('journal_accounts.show', $journal_entry->id) }}">
+                            <a href="{{ route('journal_accounts.index') }}">
                                 <x-secondary-button type="button">Cancel</x-secondary-button>
                             </a>
                             <x-primary-button>Update Journal Entry</x-primary-button>
@@ -192,8 +198,14 @@
                     totalCredit += parseFloat($(this).val()) || 0;
                 });
 
-                $("#total-debit").text(totalDebit.toFixed(2));
-                $("#total-credit").text(totalCredit.toFixed(2));
+                $("#total-debit").text(totalDebit.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+                $("#total-credit").text(totalCredit.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+                if(totalDebit != totalCredit){
+                    $("#debit-credit").text("Total Debit and Credit must be equal, diff: " + (totalDebit - totalCredit).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+                } else {
+                    $("#debit-credit").text("");
+                }
             }
 
             // Initialize totals with existing values

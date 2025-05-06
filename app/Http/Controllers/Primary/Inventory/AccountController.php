@@ -129,6 +129,8 @@ class AccountController extends Controller
 
             $accountsp = $accountsp->where('space_type', 'SPACE')
                                     ->whereIn('space_id', $spaceIds);
+        } else {
+            $accountsp = [];
         }
 
         return DataTables::of($accountsp)

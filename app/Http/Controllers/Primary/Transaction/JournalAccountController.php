@@ -80,7 +80,7 @@ class JournalAccountController extends Controller
             $data = [
                 'space_id' => $validated['space_id'],
                 'sender_id' => $player->id,
-                'send_time' => $validated['date'],
+                'sent_time' => $validated['date'],
                 'sender_notes' => $validated['description'],
                 'total' => $totalDebit,
             ];
@@ -177,6 +177,8 @@ class JournalAccountController extends Controller
         if($space_id){
             $journal_accounts = $journal_accounts->where('space_type', 'SPACE')
                                     ->whereIn('space_id', $space_id);
+        } else {
+            $journal_accounts = [];
         }
 
         return DataTables::of($journal_accounts)

@@ -23,7 +23,7 @@ class ReportController extends Controller
 
     
 
-    public function show(string $id)
+    public function show(Request $request, $id)
     {
         $accountsp = [];
 
@@ -41,20 +41,27 @@ class ReportController extends Controller
                                     ->whereIn('space_id', $spaceIds);
         }
 
+        $start_date = $request->input('start_date') ?? null;
+        $end_date = $request->input('end_date') ?? null;
         foreach($accountsp as $account){
-            $account->balance = $account->getAccountBalance();
+            $account->balance = $account->getAccountBalance($start_date, $end_date);
         }
 
+        $profit_loss = [];
+        $param = $request->all();
         switch($id){
             case 'profit-and-loss':
                 $accounts = $accountsp;
-                return view('primary.reports.finance.profit-and-loss', compact('id', 'accounts'));
+                $data = $this->calculate_profit_loss($accounts);
+                return view('primary.reports.finance.profit-and-loss', compact('id', 'accounts', 'param', 
+                            'data'));
             case 'cashflow':
                 $accounts = $accountsp;
                 return view('primary.reports.finance.cashflow', compact('id', 'accounts'));
             case 'balance-sheet':
                 $accounts = $accountsp;
-                return view('primary.reports.finance.balance-sheet', compact('id', 'accounts'));
+                $data = $this->calculate_balance_sheet($accounts);
+                return view('primary.reports.finance.balance-sheet', compact('id', 'accounts', 'param', 'data'));
             default:
                 ;
         }
@@ -62,27 +69,44 @@ class ReportController extends Controller
         return view('primary.reports.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+    
+    public function calculate_profit_loss($accounts){
+        $data = [];
+        $data['pendapatan'] = $accounts->where('type_id', 12);
+        $data['beban_pokok'] = $accounts->where('type_id', 13);
+        $data['biaya_operasional'] = $accounts->where('type_id', 14);
+        $data['pendapatan_lainnya'] = $accounts->where('type_id', 15);
+        $data['beban_lainnya'] = $accounts->where('type_id', 16);
+
+        $data['total_pendapatan'] = $data['pendapatan']->sum('balance');
+        $data['total_beban_pokok'] = $data['beban_pokok']->sum('balance');
+        $data['total_biaya_operasional'] = $data['biaya_operasional']->sum('balance');
+        $data['total_pendapatan_lainnya'] = $data['pendapatan_lainnya']->sum('balance');
+        $data['total_beban_lainnya'] = $data['beban_lainnya']->sum('balance');
+
+        $data['laba_kotor'] = $data['total_pendapatan'] - $data['total_beban_pokok'];
+        $data['laba_operasional'] = $data['laba_kotor'] - $data['total_biaya_operasional'];
+        $data['laba_bersih'] = $data['laba_operasional'] + $data['total_pendapatan_lainnya'] - $data['total_beban_lainnya'];
+
+        return $data;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+    public function calculate_balance_sheet($accounts){
+        $data = [];
+    
+        $data['assets'] = $accounts->whereBetween('type_id', [1, 7]);
+        $data['liabilities'] = $accounts->whereBetween('type_id', [8, 10]);
+        $data['equities'] = $accounts->where('type_id', 11);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $data['pnl'] = $this->calculate_profit_loss($accounts);
+        // $data['pnl_before'] = $data['pnl'];
+
+        $data['totalAssets'] = $data['assets']->sum('balance');
+        $data['totalLiabilities'] = $data['liabilities']->sum('balance');
+        $data['totalEquities'] = $data['equities']->sum('balance') 
+                                    // + $data['pnl_before']['laba_bersih']
+                                    + $data['pnl']['laba_bersih'];
+    
+        return $data;
     }
 }
