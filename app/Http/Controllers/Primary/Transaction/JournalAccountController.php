@@ -177,7 +177,7 @@ class JournalAccountController extends Controller
 
         if ($space_id) {
             $journal_accounts = $journal_accounts->where('space_type', 'SPACE')
-                                    ->whereIn('space_id', $space_id);
+                ->whereIn('space_id', $space_id);
         } else {
             $journal_accounts = [];
         }
@@ -347,7 +347,9 @@ class JournalAccountController extends Controller
 
                 foreach ($rows as $row) {
                     // look up or create inventory, then use its id
-                    $acct = Inventory::find($row['account_code']);
+                    $acct = Inventory::where('code', $row['account_code'])
+                        ->where('space_id', session('space_id'))
+                        ->first();
                     if (!$acct) {
                         $acct = Inventory::create([
                             'name' => $row['account_name'],

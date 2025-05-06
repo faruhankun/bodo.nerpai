@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('transactions', function (Blueprint $table) {
             $table->datetime('sent_date')->nullable();
-            $table->varchar('description')->nullable();
+            $table->string('description')->nullable();
         });
     }
 
