@@ -95,7 +95,7 @@ class GroupController extends Controller
         $groups = [];
 
         $player = auth()->user()->player;
-        $spaceIds = $player->spaces()->pluck('model1_id')->toArray();
+        $spaceIds = $player->spacesWithDescendants()->pluck('id')->toArray();
 
         $players = Player::whereHas('spaces', function ($query) use ($spaceIds) {
                 $query->whereIn('model1_id', $spaceIds)

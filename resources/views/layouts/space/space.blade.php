@@ -34,6 +34,12 @@
             'dropdown_id' => 'transactions',
             'dropdown_text' => 'Transactions',
             'dropdown_items' => [
+                'trade' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "trades.index",
+                    'text' => 'Trades',
+                ],
                 'journal_accounts' => [
                     'auth' => $settings['accounting'],
                     'icon' => 'icon-checklist-paper',
@@ -44,9 +50,15 @@
         ],
         'Players' => [
             'dropdown_id' => 'players',
-            'dropdown_text' => 'Space Players',
+            'dropdown_text' => 'Players',
             'dropdown_items' => [
                 'players' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "dashboard_space",
+                    'text' => 'Players',
+                ],
+                'space_players' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
                     'route' => "space_players.index",
@@ -93,7 +105,7 @@
             'dropdown_id' => 'space-access',
             'dropdown_text' => 'Space Access',
             'dropdown_items' => [
-                'settings' => [
+                'variables' => [
                     'icon' => 'icon-checklist-paper',
                     'route' => "variables.index",
                     'text' => 'Variables',

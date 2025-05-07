@@ -4,6 +4,8 @@ namespace App\Models\Primary;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Primary\Access\Variable;
+
 class Space extends Model
 {
     protected $table = 'spaces';
@@ -76,5 +78,12 @@ class Space extends Model
                     ->withPivot('name', 'type', 'status', 'notes')
                     ->with(['size', 'type'])
                     ->withTimestamps();
+    }
+
+
+    public function variables() 
+    {
+        return $this->hasMany(Variable::class)
+                    ->where('space_type', 'SPACE');
     }
 }

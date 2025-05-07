@@ -27,7 +27,7 @@
                     <div
                         class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 mb-4">
                         
-                        <div class="w-full md:w-auto flex justify-end">
+                        <div>
                             {{ $buttons ?? '' }}
                         </div>
                     </div>
