@@ -13,6 +13,7 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\Primary\Transaction;
 use App\Models\Primary\Inventory;
 use App\Models\Primary\TransactionDetail;
+use Illuminate\Support\Facades\Response;
 
 class JournalAccountController extends Controller
 {
@@ -389,5 +390,29 @@ class JournalAccountController extends Controller
             dd($th);
             return back()->with('error', 'Failed to import csv. Please try again.');
         }
+    }
+
+    public function downloadTemplate()
+    {
+        $headers = ['Content-Type' => 'text/csv'];
+        $filename = "template.csv";
+
+        // Define your column headers (template)
+        $columns = ['number', 'description', 'date', 'account_code', 'account_name', 'debit', 'credit', 'notes', 'tags'];
+
+        // Open a memory "file" for writing CSV data
+        $callback = function () use ($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ]);
     }
 }

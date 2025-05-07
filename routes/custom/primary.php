@@ -39,6 +39,7 @@ Route::middleware([
 
     // Transactions
     Route::get('journal_accounts/data', [JournalAccountController::class, 'getJournalAccountsData'])->name('journal_accounts.data');
+    Route::get('journal_accounts/template', [JournalAccountController::class, 'downloadTemplate'])->name('journal_accounts.template');
     Route::post('journal_accounts/import', [JournalAccountController::class, 'readCsv'])->name('journal_accounts.import');
     Route::resource('journal_accounts', JournalAccountController::class);
 
