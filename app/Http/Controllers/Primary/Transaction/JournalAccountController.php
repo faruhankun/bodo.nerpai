@@ -168,19 +168,16 @@ class JournalAccountController extends Controller
 
     public function getJournalAccountsData()
     {
-        $journal_accounts = [];
-
         $space_id = session('space_id') ?? null;
 
         $journal_accounts = Transaction::with('input', 'type')->where('model_type', 'JE')
-            ->orderBy('sent_time', 'desc')
-            ->get();
+            ->orderBy('sent_time', 'desc');
 
         if ($space_id) {
             $journal_accounts = $journal_accounts->where('space_type', 'SPACE')
-                ->whereIn('space_id', $space_id);
+                                                ->where('space_id', $space_id);
         } else {
-            $journal_accounts = [];
+            $journal_accounts->whereRaw('1 = 0');
         }
 
         return DataTables::of($journal_accounts)
@@ -336,10 +333,11 @@ class JournalAccountController extends Controller
 
                 // Prepare the journal entry header
                 $entryData = [
+                    'number'       => $txnNumber,
                     'space_id'     => session('space_id'),
                     'sender_id'    => auth()->user()->player->id,
                     'sent_time'    => \Carbon\Carbon::createFromFormat('d/m/Y', $first['date'])->toDateString(),
-                    'sender_notes' => $first['notes'] ?? null,
+                    'sender_notes' => $first['description'] ?? null,
                     'total'        => 0, // will be recalculated below
                 ];
 
@@ -398,7 +396,7 @@ class JournalAccountController extends Controller
         $filename = "template.csv";
 
         // Define your column headers (template)
-        $columns = ['number', 'description', 'date', 'account_code', 'account_name', 'debit', 'credit', 'notes', 'tags'];
+        $columns = ['date', 'number', 'description', 'account_code', 'account_name', 'notes', 'debit', 'credit', 'tags'];
 
         // Open a memory "file" for writing CSV data
         $callback = function () use ($columns) {

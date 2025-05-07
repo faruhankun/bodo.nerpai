@@ -9,7 +9,7 @@
                         CSV</label>
                     <input
                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                        aria-describedby="file_input_help" id="file" name="file" type="file">
+                        aria-describedby="file_input_help" id="file" name="file" type="file" accept=".csv, .txt">
                     <a class=" text-sm text-gray-500 dark:text-gray-300 hover:underline" id="file_input_help"
                         href="{{ route('journal_accounts.template') }}">Download
                         Template</a>
@@ -69,7 +69,7 @@
         $('#indexTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('journal_accounts.data') }}",
+            ajax: "{{ route('journal_accounts.data') }}",   
             pageLength: 25,
             columns: [{
                     data: 'id'

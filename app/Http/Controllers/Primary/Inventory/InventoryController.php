@@ -14,13 +14,7 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
 
-enum Status: string
-{
-    case Active = 'Active';
-    case Inactive = 'Inactive';
-}
-
-class AccountController extends Controller
+class InventoryController extends Controller
 {
     public function index()
     {
@@ -115,10 +109,11 @@ class AccountController extends Controller
 
 
     public function getAccountsData(){
+        $accountsp = [];
+
         $space_id = session('space_id') ?? null;
 
-        $accountsp = Inventory::with('type', 'parent', 'tx_details')
-                                ->where('model_type', 'ACC');
+        $accountsp = Inventory::with('type', 'parent', 'tx_details')->where('model_type', 'ACC')->get();
 
         if($space_id){
             $space = Space::findOrFail($space_id);
@@ -129,7 +124,7 @@ class AccountController extends Controller
             $accountsp = $accountsp->where('space_type', 'SPACE')
                                     ->whereIn('space_id', $spaceIds);
         } else {
-            $accountsp->whereRaw('1 = 0');
+            $accountsp = [];
         }
 
         return DataTables::of($accountsp)
