@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Primary\Space;
 use App\Models\Primary\Relation;
+use App\Models\Primary\Player;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
@@ -122,8 +123,10 @@ class SpaceController extends Controller
 
     public function getSpacesData(Request $request){
         $space_id = Session::get('space_id');
-        $player = Auth::user()->player;
+        $player_id = session('player_id') ?? Auth::user()->player_id;
         
+        $player = Player::findOrFail($player_id);
+
         $spaces = $player->spacesWithDescendants();
         if($space_id){
             $spaces = $player->spacesWithDescendants()
@@ -199,11 +202,11 @@ class SpaceController extends Controller
         $parent_type = Session::get('space_parent_type') ?? null;
         $parent_id = Session::get('space_parent_id') ?? null;
         
-        if($parent_id && $parent_type){
-            if($parent_type == 'SPACE'){
-                return $this->switchSpace($request, $parent_id);
-            }
-        } else {
+        // if($parent_id && $parent_type){
+        //     if($parent_type == 'SPACE'){
+        //         return $this->switchSpace($request, $parent_id);
+        //     }
+        // } else {
             // Hapus session space
             $this->forgetSpace();
 
@@ -213,5 +216,5 @@ class SpaceController extends Controller
             // Redirect ke halaman lobby (atau dashboard utama)
             return redirect()->route($route)->with('status', 'You have exited the space.');
         }
-	}
+	// }
 }

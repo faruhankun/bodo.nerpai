@@ -8,15 +8,6 @@
         'permissions' => auth()->user()->can('permissions sidebar', 'web'),
     ];
 
-
-    // Navbar
-    $navbar_right = [
-        'navbar.space-switcher',
-        'navbar.player-switcher',
-    ];
-
-
-
     $settings = [
         'accounting' => get_variable('space.setting.accounting') ?? false,
     ];
@@ -24,7 +15,7 @@
     $sidebar = [
         'Dashboard' => [
             'icon' => 'icon-sidebar',
-            'route' => "dashboard_space",
+            'route' => "dashboard_player",
             'text' => 'Lobby',
         ],
         'Space' => [
@@ -110,9 +101,9 @@
                 ],
             ]
         ],
-        'Access' => [
-            'dropdown_id' => 'access',
-            'dropdown_text' => 'Access',
+        'Space Access' => [
+            'dropdown_id' => 'space-access',
+            'dropdown_text' => 'Space Access',
             'dropdown_items' => [
                 'variables' => [
                     'icon' => 'icon-checklist-paper',
@@ -133,7 +124,9 @@
     'navbar_left' => [
         'navbar-nerpai-name',
     ],
-    'navbar_right' => $navbar_right,
+    'navbar_right' => [
+        
+    ],
     'navbar_dropdown_user' => [
         'navbar-user-profile',
         'navbar-user-logout',

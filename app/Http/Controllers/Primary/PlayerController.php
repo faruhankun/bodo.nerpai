@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Primary\Player;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 use Yajra\DataTables\Facades\DataTables;
 
@@ -63,25 +64,16 @@ class PlayerController extends Controller
         return view('primary.players.show', compact('player'));
     }
 
-    /**
-     * Show the form for editing the specified player.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
+
     public function edit($id)
     {
         $player = Player::find($id);
         return view('primary.players.edit', compact('player'));
     }
 
-    /**
-     * Update the specified player in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
+
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
@@ -97,12 +89,8 @@ class PlayerController extends Controller
         return redirect()->route('players.index')->with('success', 'Player updated successfully');
     }
 
-    /**
-     * Remove the specified player from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
+
     public function destroy($id)
     {
         $player = Player::find($id);
@@ -113,7 +101,7 @@ class PlayerController extends Controller
 
 
     public function getPlayersData(){
-        $players = Player::with('size', 'type')->get();
+        $players = Player::with('size', 'type');
 
         return DataTables::of($players)
             ->addColumn('size_display', function ($data) {
@@ -134,4 +122,46 @@ class PlayerController extends Controller
             ->rawColumns(['actions'])
             ->make(true);
     }
+
+
+    public function switchPlayer(Request $request, $player_id)
+    {
+		// forget player before
+		$this->forgetSession();
+        $this->forgetSession('space');
+
+		$player = Player::with('size', 'type')->findOrFail($player_id);
+
+        Session::put('player_id', $player->id);
+		Session::put('player_name', $player->name);
+		Session::put('layout', 'space');
+
+        return redirect()->route('dashboard_space')->with('success', "Anda masuk ke {$player->name}");
+    }
+
+
+
+    public function forgetSession($ikey = 'player')
+	{
+		// to forget from what player had
+		foreach(session()->all() as $key => $value) {
+			if(str_contains($key, $ikey)) {
+				session()->forget($key);				
+			}
+		}
+	}
+
+
+    public function exitPlayer(Request $request, $route = 'lobby')
+	{
+        // Hapus session space
+        $this->forgetSession();
+        $this->forgetSession('space');
+
+        // change layout to space
+        Session::put('layout', 'space');
+
+        // Redirect ke halaman space (atau dashboard utama)
+        return redirect()->route($route)->with('status', 'You have exited the player & the space.');
+	}
 }

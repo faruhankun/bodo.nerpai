@@ -12,7 +12,7 @@ use App\Http\Controllers\Primary\PersonController;
 use App\Http\Controllers\Primary\GroupController;
 
 use App\Http\Controllers\Primary\ItemController;
-use App\Http\Controllers\Primary\InventoryController;
+use App\Http\Controllers\Primary\Inventory\InventoryController;
 use App\Http\Controllers\Primary\Inventory\AccountController;
 
 use App\Http\Controllers\Primary\Transaction\TradeController;
@@ -32,8 +32,8 @@ Route::middleware([
     // Spaces
     Route::get('spaces/data', [SpaceController::class, 'getSpacesData'])->name('spaces.data');
     Route::post('/spaces/switch/{code}', [SpaceController::class, 'switchSpace'])->name('spaces.switch');
-    Route::get('spaces/exit/{route}', [SpaceController::class, 'exitSpace'])->name('spaces.exit');
     Route::get('spaces/exit', [SpaceController::class, 'exitSpace'])->name('spaces.exit');
+    Route::get('spaces/exit/{route}', [SpaceController::class, 'exitSpace'])->name('spaces.exit');
     Route::resource('spaces', SpaceController::class);
 
 
@@ -65,6 +65,9 @@ Route::middleware([
 
 
     // Players
+    Route::post('/players/switch/{id}', [PlayerController::class, 'switchPlayer'])->name('players.switch');
+    Route::get('players/exit/{route}', [PlayerController::class, 'exitPlayer'])->name('players.exit');
+    Route::get('players/exit', [PlayerController::class, 'exitPlayer'])->name('players.exit');
     Route::get('players/data', [PlayerController::class, 'getPlayersData'])->name('players.data');
     Route::resource('players', PlayerController::class);
 

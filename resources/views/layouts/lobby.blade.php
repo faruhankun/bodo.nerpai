@@ -16,6 +16,7 @@
         'navbar-nerpai-name',
     ],
     'navbar_right' => [
+        'navbar.player-switcher',
         'navbar.space-switcher',
     ],
     'navbar_dropdown_user' => [

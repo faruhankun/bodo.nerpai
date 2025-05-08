@@ -9,6 +9,21 @@
         </x-div-box-show>
     </div>
 
+    <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
+
+    <!-- Action Section -->
+    <h3 class="text-lg font-bold my-3">Actions</h3>
+    <div class="flex gap-3">
+        <form method="POST" action="{{ route('players.switch', $data->player->id) }}">
+            @csrf
+
+            <x-primary-button :href="route('players.switch', $data->player->id)" onclick="event.preventDefault();
+                this.closest('form').submit();">
+                {{ __('Enter Group =>') }}
+            </x-primary-button>
+        </form>
+    </div>
+
     <div class="flex gap-3 justify-end mt-8">
         <x-secondary-button type="button" @click="isOpen = false">Cancel</x-secondary-button>
         <!-- <a href="{{ route('players.edit', $data->id) }}">

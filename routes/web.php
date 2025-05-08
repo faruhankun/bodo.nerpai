@@ -81,6 +81,16 @@ Route::middleware([
 });
 
 
+// Player
+Route::middleware([
+    'auth',
+    'verified',
+    AppMiddleware::class,
+])->group(function () {
+    Route::get('/dashboard-player', function () { return view('player.dashboard'); })->name('dashboard_player');
+});
+
+
 
 // Company
 Route::middleware(['auth', 
