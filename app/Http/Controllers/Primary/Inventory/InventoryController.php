@@ -4,10 +4,7 @@ namespace App\Http\Controllers\Primary\Inventory;
 
 use App\Http\Controllers\Controller;
 
-use App\Models\Company\Finance\Account;
-use App\Models\Company\Finance\AccountType;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Enum;
 
 use Yajra\DataTables\Facades\DataTables;
 
@@ -18,102 +15,24 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        $accounts = Inventory::where('model_type', 'ACC')->get();
-        
         $space_id = session('space_id') ?? null;
-        if($space_id){
-            $space = Space::findOrFail($space_id);
-            $spaceIds = $space->allParents()->pluck('id')->toArray();
-            $spaceIds = array_merge($spaceIds, [$space_id]);
-
-            $accounts = $accounts->whereIn('space_id', $spaceIds);
+        if(is_null($space_id)){
+            abort(403);
         }
 
-        $account_types = AccountType::all();
-        return view('primary.inventory.accountsp.index', compact('account_types', 'accounts'));
+        return view('primary.inventory.supplies.index');
     }
 
-    public function store(Request $request)
-    {
+
+
+    public function getSuppliesData(){
         $space_id = session('space_id') ?? null;
-
-        try {
-            $request->validate([
-                'name' => 'required',
-                'type_id' => 'required',
-                'basecode' => 'required',
-                'code' => 'required',
-                'status' => 'required|string|max:50',
-                'parent_id' => 'nullable',
-                'notes' => 'nullable',
-            ]);
-
-            $requestData = $request->all();
-            $requestData['code'] = $request->input('basecode') . $request->input('code');
-
-            if($space_id){
-                $requestData['space_type'] = 'SPACE';
-                $requestData['space_id'] = $space_id;
-            }
-
-            $requestData += [
-                'model_type' => 'ACC',
-                'type_type' => 'ACCT',
-                'parent_type' => 'IVT',
-            ];
-
-            $account = Inventory::create($requestData);
-
-            return redirect()->route('accountsp.index')->with('success', "Accounts {$account->name} created successfully.");
-        } catch (\Exception $e) {
-            dd($e);
-            return redirect()->back()->withErrors($e->getMessage())->withInput();
+        if(is_null($space_id)){
+            abort(403);
         }
-    }
 
-    public function update(Request $request, String $id)
-    {
-        try {
-            $request->validate([
-                'name' => 'required',
-                'type_id' => 'required',
-                'basecode' => 'required',
-                'code' => 'required',
-                'status' => 'required|string|max:50',
-                'parent_id' => 'nullable',
-                'notes' => 'nullable',
-            ]);
-
-            $requestData = $request->all();
-            $requestData['code'] = $request->input('basecode') . $request->input('code');
-            
-            $account = Inventory::findOrFail($id);
-            $account->update($requestData);
-
-            return redirect()->route('accountsp.index')->with('success', "Accounts {$account->name} updated successfully.");
-        } catch (\Exception $e) {
-            dd($e);
-            return redirect()->back()->withErrors($e->getMessage())->withInput();
-        }
-    }
-
-    public function destroy(String $id)
-    {
-        $account = Inventory::findOrFail($id);
-
-        $account->delete();
-
-        return redirect()->route('accountsp.index')->with('success', "Accounts {$account->name} deleted successfully.");
-    }
-
-
-
-    public function getAccountsData(){
-        $accountsp = [];
-
-        $space_id = session('space_id') ?? null;
-
-        $accountsp = Inventory::with('type', 'parent', 'tx_details')->where('model_type', 'ACC')->get();
+        $supplies = Inventory::with('type', 'item', 'tx_details')
+                            ->where('model_type', 'SUP');
 
         if($space_id){
             $space = Space::findOrFail($space_id);
@@ -121,22 +40,25 @@ class InventoryController extends Controller
             $spaceIds = $space->AllChildren()->pluck('id')->toArray();
             $spaceIds = array_merge($spaceIds, [$space_id]);
 
-            $accountsp = $accountsp->where('space_type', 'SPACE')
+            $supplies = $supplies->where('space_type', 'SPACE')
                                     ->whereIn('space_id', $spaceIds);
-        } else {
-            $accountsp = [];
-        }
+        } 
 
-        return DataTables::of($accountsp)
-            ->addColumn('getAccountBalance', function ($data) {
-                return $data->getAccountBalance();
+        return DataTables::of($supplies)
+            ->addColumn('getSupplyBalance', function ($data) {
+                // return $data->getSupplyBalance();
+                return 0;
+            })
+            ->addColumn('item_display', function ($data) {
+                $item_display = ($data->item_type ?? '?') . ' : ' . ($data->item->name ?? '?');
+                return $item_display;
             })
             ->addColumn('actions', function ($data) {
-                $route = 'accountsp';
+                $route = 'supplies';
                 
                 $actions = [
-                    'edit' => 'modal',
-                    'delete' => 'button',
+                    'show' => 'modal',
+                    'show_modal' => 'primary.inventory.supplies.show',
                 ];
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();

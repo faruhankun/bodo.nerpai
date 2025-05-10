@@ -18,6 +18,8 @@
 
 
     $settings = [
+        'supplies' => get_variable('space.setting.supplies') ?? false,
+
         'accounting' => get_variable('space.setting.accounting') ?? false,
     ];
 
@@ -85,11 +87,11 @@
                     'route' => "items.index",
                     'text' => 'Items',
                 ],
-                'inventories' => [
-                    'auth' => true,
+                'supplies' => [
+                    'auth' => $settings['supplies'],
                     'icon' => 'icon-checklist-paper',
-                    'route' => "inventories.index",
-                    'text' => 'Inventories',
+                    'route' => "supplies.index",
+                    'text' => 'Supplies',
                 ],
                 'accountsp' => [
                     'auth' => $settings['accounting'],

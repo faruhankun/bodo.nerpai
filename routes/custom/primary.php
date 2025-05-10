@@ -56,8 +56,8 @@ Route::middleware([
     Route::get('items/data', [ItemController::class, 'getItemsData'])->name('items.data');
     Route::resource('items', ItemController::class);
 
-    Route::get('inventories/data', [InventoryController::class, 'getInventoriesData'])->name('inventories.data');
-    Route::resource('inventories', InventoryController::class);
+    Route::get('supplies/data', [InventoryController::class, 'getSuppliesData'])->name('supplies.data');
+    Route::resource('supplies', InventoryController::class);
 
     Route::get('accountsp/data', [AccountController::class, 'getAccountsData'])->name('accountsp.data');
     Route::resource('accountsp', AccountController::class);

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use App\Models\Primary\Player;
 use App\Models\Primary\Space;
 use App\Models\Primary\Group;
+use App\Models\Primary\Item;
 
 use App\Models\Company\Supplier;
 use App\Models\Company\Warehouse;
@@ -84,6 +85,7 @@ class AppServiceProvider extends ServiceProvider
             'ACCT' => AccountType::class,
             'JE' => JournalEntry::class,
             'IV' => \App\Models\Primary\Inventory::class,
+            'ITM' => Item::class,
         ]);
 	}
 }
