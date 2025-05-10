@@ -68,6 +68,10 @@ Route::middleware([
     Route::post('/players/switch/{id}', [PlayerController::class, 'switchPlayer'])->name('players.switch');
     Route::get('players/exit/{route}', [PlayerController::class, 'exitPlayer'])->name('players.exit');
     Route::get('players/exit', [PlayerController::class, 'exitPlayer'])->name('players.exit');
+    Route::get('players/related', [PlayerController::class, 'getRelatedPlayersData'])->name('players.related');
+    Route::post('players/related', [PlayerController::class, 'storeRelatedPlayer'])->name('players.related.store');
+    Route::put('players/related/{id}', [PlayerController::class, 'updateRelatedPlayer'])->name('players.related.update');
+    Route::get('players/search', [PlayerController::class, 'searchPlayer'])->name('players.search');
     Route::get('players/data', [PlayerController::class, 'getPlayersData'])->name('players.data');
     Route::resource('players', PlayerController::class);
 

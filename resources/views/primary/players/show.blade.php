@@ -1,12 +1,18 @@
+@php
+    $size_display = ($data->model2?->size_type ?? '?') . ' : ' . ($data->model2?->size?->number ?? $data->model2?->size?->code ?? '?');
+@endphp
+
+
 <x-crud.modal-show title="Player Details" trigger="View">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <x-div-box-show title="Code">{{ $data->code }}</x-div-box-show>
-        <x-div-box-show title="Size">{{ ($data->size_type ?? '?') . ' : ' . ($data->size?->number ?? '?') }}</x-div-box-show>
-        <x-div-box-show title="Type">{{ ($data->type_type ?? '?') . ' : ' . ($data->type?->number ?? '?') }}</x-div-box-show>
-        <x-div-box-show title="Size-Name">{{ $data->size?->name ?? 'N/A' }}</x-div-box-show>
-        <x-div-box-show title="Status">{{ $data->status }}</x-div-box-show>
+        <x-div-box-show title="Code">{{ $data->model2?->code }}</x-div-box-show>
+        <x-div-box-show title="Size">{{ $size_display }}</x-div-box-show>
+        <!-- <x-div-box-show title="Type">{{ ($data->model2?->type_type ?? '?') . ' : ' . ($data->model2?->type?->number ?? '?') }}</x-div-box-show> -->
+        <x-div-box-show title="Size-Name">{{ $data->model2?->size?->name ?? 'N/A' }}</x-div-box-show>
+        <x-div-box-show title="Address">{{ $data->model2?->size?->address ?? 'N/A' }}</x-div-box-show>
+        <x-div-box-show title="Status">{{ $data->model2?->status }}</x-div-box-show>
         <x-div-box-show title="Notes">
-            {{ $data->notes ?? 'N/A' }}
+            {{ $data->model2?->notes ?? 'N/A' }}
         </x-div-box-show>
     </div>
 

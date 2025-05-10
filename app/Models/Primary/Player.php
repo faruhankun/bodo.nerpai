@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Models\User;
 
+use Illuminate\Support\Facades\DB;
+
 class Player extends Model
 {
     protected $connection = 'primary';
@@ -43,6 +45,26 @@ class Player extends Model
     public function user(): hasOne
     {
         return $this->hasOne(User::class, 'player_id', 'id');
+    }
+
+
+    public function relatedPlayers()
+    {
+        $relatedIds = DB::table('relations')
+                        ->where('model1_type', 'PLAY')
+                        ->where('model2_type', 'PLAY')
+                        ->where(function ($query) {
+                            $query->where('model1_id', $this->id)
+                                ->orWhere('model2_id', $this->id);
+                        })
+                        ->selectRaw('
+                            CASE 
+                                WHEN model1_id = ? THEN model2_id 
+                                ELSE model1_id 
+                            END as related_id', [$this->id])
+                        ->pluck('related_id');
+        
+        return $relatedIds;
     }
 
 

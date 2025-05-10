@@ -64,7 +64,7 @@
                 'players' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "dashboard_space",
+                    'route' => "players.index",
                     'text' => 'Players',
                 ],
                 'space_players' => [
