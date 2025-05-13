@@ -10,7 +10,6 @@ use Yajra\DataTables\Facades\DataTables;
 
 use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
-use App\Models\Primary\Item;
 
 class InventoryController extends Controller
 {
@@ -32,7 +31,7 @@ class InventoryController extends Controller
 
         try {
             $validated = $request->validate([
-                'item_id' => 'required',
+                'ivt_id' => 'required',
                 'status' => 'required|string|max:50',
                 'notes' => 'nullable',
             ]);
@@ -42,16 +41,16 @@ class InventoryController extends Controller
                 $validated['space_id'] = $space_id;
             }
 
-            $item = Item::findOrFail($validated['item_id']);
-            $validated['name'] = $item->name;
-            $validated['code'] = $item->code;
-            $validated['sku'] = $item->sku;
+            $ivt = Inventory::findOrFail($validated['ivt_id']);
+            $validated['name'] = $ivt->name;
+            $validated['code'] = $ivt->code;
+            $validated['sku'] = $ivt->sku;
             $validated['status'] = $validated['status'];
             $validated['notes'] = $validated['notes'];
 
             $validated += [
                 'model_type' => 'SUP',
-                'item_type' => 'ITM',
+                'ivt_type' => 'ITM',
                 'parent_type' => 'IVT',
             ];
 
@@ -71,7 +70,7 @@ class InventoryController extends Controller
             abort(403);
         }
 
-        $supplies = Inventory::with('type', 'item', 'tx_details')
+        $supplies = Inventory::with('type', 'ivt', 'tx_details')
                             ->where('model_type', 'SUP');
 
         if($space_id){
@@ -89,9 +88,9 @@ class InventoryController extends Controller
                 // return $data->getSupplyBalance();
                 return 0;
             })
-            ->addColumn('item_display', function ($data) {
-                $item_display = ($data->item_type ?? '?') . ' : ' . ($data->item->name ?? '?');
-                return $item_display;
+            ->addColumn('ivt_display', function ($data) {
+                $ivt_display = ($data->ivt_type ?? '?') . ' : ' . ($data->ivt->name ?? '?');
+                return $ivt_display;
             })
             ->addColumn('actions', function ($data) {
                 $route = 'supplies';
@@ -105,5 +104,39 @@ class InventoryController extends Controller
             })
             ->rawColumns(['actions'])
             ->make(true);
+    }
+
+
+
+    public function searchSupply(Request $request)
+    {
+        $search = $request->q;
+
+        $space_id = $request['space_id'] ?? (session('space_id') ?? null);
+        if(is_null($space_id)){
+            abort(403);
+        }
+
+        $ivts = Inventory::where(function ($query) use ($search) {
+            $query->where('name', 'like', "%$search%")
+                ->orWhere('code', 'like', "%$search%")
+                ->orWhere('sku', 'like', "%$search%")
+                ->orWhere('notes', 'like', "%$search%")
+                ->orWhere('id', 'like', "%$search%");
+        })
+            ->where('model_type', 'SUP')
+            ->where('space_type', 'SPACE')
+            ->where('space_id', $space_id)
+            ->orderBy('id', 'desc')
+            ->limit(50) // limit hasil
+            ->get()
+            ->map(function ($ivt) {
+                return [
+                    'id' => $ivt->id,
+                    'text' => "{$ivt->id} - {$ivt->sku} - {$ivt->name} qty: {$ivt->balance} : {$ivt->notes}",
+                ];
+            });
+
+        return response()->json($ivts);
     }
 }

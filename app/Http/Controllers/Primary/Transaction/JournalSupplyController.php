@@ -92,7 +92,7 @@ class JournalSupplyController extends Controller
         $inventories = $this->get_inventories();
         $inventories = Item::with('type', 'parent')
                             ->where('model_type', 'PRD')->get();
-        $journal = Transaction::with(['details'])->findOrFail($id);
+        $journal = Transaction::with(['details', 'details.detail'])->findOrFail($id);
         $model_types = $this->model_types;
 
         return view('primary.transaction.journal_supplies.edit', compact('journal', 'inventories', 'model_types'));
@@ -108,7 +108,7 @@ class JournalSupplyController extends Controller
                 'handler_id' => 'required',
                 'handler_notes' => 'nullable|string|max:255',
                 'details' => 'nullable|array',
-                'details.*.item_id' => 'required',
+                'details.*.detail_id' => 'required',
                 'details.*.quantity' => 'required|numeric',
                 'details.*.model_type' => 'required|string',
                 'details.*.cost_per_unit' => 'required|min:0',
@@ -118,8 +118,6 @@ class JournalSupplyController extends Controller
             if(!isset($validated['details'])){
                 $validated['details'] = [];
             }
-
-            //dd($validated);
 
             $journal = Transaction::with(['details'])->findOrFail($id);
 
@@ -166,7 +164,7 @@ class JournalSupplyController extends Controller
             abort(403);
         }
 
-        $journal_supplies = Transaction::with('input', 'type')
+        $journal_supplies = Transaction::with('input', 'type', 'details', 'details.detail')
             ->where('model_type', 'JS')
             ->orderBy('sent_time', 'desc');
 

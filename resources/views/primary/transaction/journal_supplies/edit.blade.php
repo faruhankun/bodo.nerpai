@@ -33,7 +33,7 @@
                                 <x-table-thead>
                                     <tr>
                                         <x-table-th>No</x-table-th>
-                                        <x-table-th>Item</x-table-th>
+                                        <x-table-th>Supply</x-table-th>
                                         <x-table-th>Qty</x-table-th>
                                         <x-table-th>Type</x-table-th>
                                         <x-table-th>Cost/Unit</x-table-th>
@@ -79,9 +79,13 @@
             
             // Details
             let detailIndex = {{ $journal->details->count() }};
-            journal_details.forEach(detail => {
-                $("#journal-detail-list").append(renderDetailRow(detail));
-            });
+            journal_details.forEach(appendDetailRow);
+            
+            // setTimeout(() => {
+            //     $('.inventory-select').each(function() {
+            //         initInventorySelect($(this));
+            //     });
+            // }, 0);
         });
     </script>
     
@@ -91,17 +95,11 @@
 
         function renderDetailRow(detail = {}) {
             const rowIndex = detailIndex++;
-            const selectedId = detail.item_id || '';
+            const selectedId = detail.detail_id || '';
             const quantity = detail.quantity || 0;
             const selectedModel = detail.model_type || '';
             const cost_per_unit = detail.cost_per_unit || 0;
             const notes = detail.notes || '';
-            
-            const inventories = @json($inventories);
-            const accountOptions = inventories.map(account => {
-                const selected = account.id === selectedId ? 'selected' : '';
-                return `<option value="${account.id}" ${selected}>${account.name}</option>`;
-            }).join('');
 
             const model_types = @json($model_types);
             const modelTypeOptions = model_types.map(model_type => {
@@ -113,13 +111,12 @@
                 <tr class="detail-row">
                     <td class="mb-2">${rowIndex + 1}</td>
                     <td>
-                        <select name="details[${rowIndex}][item_id]" class="account-select my-3" required>
-                            <option value="">Select Account</option>
-                            ${accountOptions}
+                        <select name="details[${rowIndex}][detail_id]" class="inventory-select w-full" required>
+                            <option value="">Select Inventory</option>
                         </select>
                     </td>
                     <td>
-                        <input type="number" size="5" name="details[${rowIndex}][quantity]" class="quantity-input" value="${quantity}" required min="0">
+                        <input type="number" name="details[${rowIndex}][quantity]" class="quantity-input w-20" value="${quantity}">
                     </td>
                     <td>
                         <select name="details[${rowIndex}][model_type]" class="model_type-select type-select my-3" required>
@@ -128,7 +125,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="number" size="10" name="details[${rowIndex}][cost_per_unit]" class="cost_per_unit-input" value="${cost_per_unit}" default="0" min="0">
+                        <input type="number" size="5" name="details[${rowIndex}][cost_per_unit]" class="cost_per_unit-input w-25" value="${cost_per_unit}" default="0" min="0">
                     </td>
                     <td>
                         <input type="text" name="details[${rowIndex}][notes]" class="notes-input" value="${notes}">
@@ -139,57 +136,74 @@
                 </tr>
             `;
         }
+
+        function initInventorySelect($element, selectedData = null) {
+            $element.select2({
+                placeholder: 'Search & Select Supply',
+                minimumInputLength: 2,
+                width: '100%',
+                padding: '0px 12px',
+                ajax: {
+                    url: '/supplies/search',
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                            q: params.term,
+                            space: '{{ $space_id }}',
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.map(item => ({
+                                id: item.id,
+                                text: item.text // Ubah sesuai nama field yang kamu punya
+                            }))
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            if (selectedData) {
+                // Delay agar select2 benar-benar ter-attach
+                const option = new Option(selectedData.text, selectedData.id, true, true);
+                $element.append(option).trigger('change');
+            }
+        }
+
+        function appendDetailRow(detail) {
+            const $row = $(renderDetailRow(detail));
+            $("#journal-detail-list").append($row);
+
+            const $select = $row.find('.inventory-select');
+            const selectedData = detail.detail_id && detail.detail ? {
+                id: detail.detail_id,
+                text: `${detail.detail_id} - ${detail.detail.sku} - ${detail.detail.name} qty: ${detail.detail.balance} : ${detail.detail.notes}`,
+            } : null;
+
+            setTimeout(() => {
+                initInventorySelect($select, selectedData);
+            }, 0);
+        }
     </script>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function() { 
             // Add Journal Detail row
             $("#add-detail").click(function() {
                 let newRow = renderDetailRow();
-                $("#journal-detail-list").append(newRow);
+                const $row = $(newRow);
+
+                $("#journal-detail-list").append($row);
+
+                initInventorySelect($row.find('.inventory-select'));
             });
 
             // Remove Journal Detail row
             $(document).on("click", ".remove-detail", function() {
                 $(this).closest("tr").remove();
-                updateTotals();
             });
-
-            // Update the total Debit and Credit
-            $(document).on("input", ".debit-input", function() {
-                $(this).closest("tr").find(".credit-input").val(0);
-                updateTotals();
-            });
-
-            $(document).on("input", ".credit-input", function() {
-                $(this).closest("tr").find(".debit-input").val(0);
-                updateTotals();
-            });
-
-            function updateTotals() {
-                let totalDebit = 0;
-                let totalCredit = 0;
-
-                $(".debit-input").each(function() {
-                    totalDebit += parseFloat($(this).val()) || 0;
-                });
-
-                $(".credit-input").each(function() {
-                    totalCredit += parseFloat($(this).val()) || 0;
-                });
-
-                $("#total-debit").text(totalDebit.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
-                $("#total-credit").text(totalCredit.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
-
-                if(totalDebit != totalCredit){
-                    $("#debit-credit").text("Total Debit and Credit must be equal, diff: " + (totalDebit - totalCredit).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
-                } else {
-                    $("#debit-credit").text("");
-                }
-            }
-
-            // Initialize totals with existing values
-            // updateTotals();
         });
 
         function validateForm() {

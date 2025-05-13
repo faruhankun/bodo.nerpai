@@ -59,11 +59,14 @@ class JournalSupplyService
         $journalDetails = [];
         foreach ($details as $detail) {
             // inventory_id
-            $ivt = Inventory::where('space_id', $tx->space_id)
-                                ->where('space_type', 'SPACE')
-                                ->where('model_type', 'SUP')            // supply
-                                ->where('item_id', $detail['item_id'])
-                                ->first();
+            $detail['quantity'] = $detail['quantity'] ?? 0;
+
+            $detail['detail_id'] = $detail['detail_id'] ?? null;
+            $detail['debit'] = $detail['quantity'] >= 0 ? $detail['quantity'] : 0;
+            $detail['credit'] = $detail['quantity'] < 0 ? abs($detail['quantity']) : 0;
+            $detail['notes'] = $detail['notes'] ?? null;
+            $detail['model_type'] = $detail['model_type'] ?? 'SUP';
+            $detail['cost_per_unit'] = $detail['cost_per_unit'] ?? 0;
 
             $journalDetails[] = [
                 'transaction_id' => $tx->id,
@@ -72,6 +75,9 @@ class JournalSupplyService
                 'debit' => $detail['debit'],
                 'credit' => $detail['credit'],
                 'notes' => $detail['notes'] ?? null,
+                'quantity' => $detail['quantity'],
+                'model_type' => $detail['model_type'],
+                'cost_per_unit' => $detail['cost_per_unit'],
             ];
         }
 

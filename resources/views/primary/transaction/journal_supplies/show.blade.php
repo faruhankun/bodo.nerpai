@@ -26,20 +26,19 @@
             <x-table-thead>
                 <tr>
                     <x-table-th>Inventory</x-table-th>
-                    <x-table-th>Debit</x-table-th>
-                    <x-table-th>Credit</x-table-th>
+                    <x-table-th>Quantity</x-table-th>
+                    <x-table-th>Type</x-table-th>
+                    <x-table-th>Cost/Unit</x-table-th>
                     <x-table-th>Notes</x-table-th>
                 </tr>
             </x-table-thead>
             <x-table-tbody>
                 @foreach ($data->details as $detail)
                     <x-table-tr>
-                        <x-table-td>
-                            {{ $detail->detail?->name ?? 'N/A' }}
-                        </x-table-td>
-                        <x-table-td
-                            class="py-4">Rp{{ number_format($detail->debit, 2) }}</x-table-td>
-                        <x-table-td>Rp{{ number_format($detail->credit, 2) }}</x-table-td>
+                        <x-table-td>{{ $detail->detail?->name ?? 'N/A' }}</x-table-td>
+                        <x-table-td>{{ number_format($detail->quantity, 0) }}</x-table-td>
+                        <x-table-td>{{ $detail->model_type ?? 'N/A' }}</x-table-td>
+                        <x-table-td class="py-4">Rp{{ number_format($detail->cost_per_unit, 2) }}</x-table-td>
                         <x-table-td>{{ $detail->notes ?? 'N/A' }}</x-table-td>
                     </x-table-tr>
                 @endforeach
