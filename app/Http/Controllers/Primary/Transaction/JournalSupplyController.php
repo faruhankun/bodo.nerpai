@@ -11,11 +11,24 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\Primary\Transaction;
 use App\Models\Primary\Inventory;
 use App\Models\Primary\TransactionDetail;
+use App\Models\Primary\Item;
+
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 
 class JournalSupplyController extends Controller
 {
     protected $journalSupply;
+
+    protected $model_types = [
+        ['id' => 'PO', 'name' => 'Purchase'],
+        ['id' => 'SO', 'name' => 'Sales'],
+        ['id' => 'FND', 'name' => 'Opname Found'],
+        ['id' => 'LOSS', 'name' => 'Opname Loss'],
+        ['id' => 'DMG', 'name' => 'Damage'],
+        ['id' => 'RTR', 'name' => 'Return'],
+        ['id' => 'MV', 'name' => 'Move'],
+    ];
 
     public function __construct(JournalSupplyService $journalSupply)
     {
@@ -77,9 +90,12 @@ class JournalSupplyController extends Controller
     public function edit(String $id)
     {
         $inventories = $this->get_inventories();
+        $inventories = Item::with('type', 'parent')
+                            ->where('model_type', 'PRD')->get();
         $journal = Transaction::with(['details'])->findOrFail($id);
+        $model_types = $this->model_types;
 
-        return view('primary.transaction.journal_supplies.edit', compact('journal', 'inventories'));
+        return view('primary.transaction.journal_supplies.edit', compact('journal', 'inventories', 'model_types'));
     }
 
 
@@ -92,15 +108,18 @@ class JournalSupplyController extends Controller
                 'handler_id' => 'required',
                 'handler_notes' => 'nullable|string|max:255',
                 'details' => 'nullable|array',
-                'details.*.detail_id' => 'required',
-                'details.*.debit' => 'required|numeric|min:0',
-                'details.*.credit' => 'required|numeric|min:0',
+                'details.*.item_id' => 'required',
+                'details.*.quantity' => 'required|numeric',
+                'details.*.model_type' => 'required|string',
+                'details.*.cost_per_unit' => 'required|min:0',
                 'details.*.notes' => 'nullable|string|max:255',
             ]);
 
             if(!isset($validated['details'])){
                 $validated['details'] = [];
             }
+
+            //dd($validated);
 
             $journal = Transaction::with(['details'])->findOrFail($id);
 

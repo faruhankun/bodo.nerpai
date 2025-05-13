@@ -18,6 +18,8 @@ class Item extends Model
         'parent_id',
         'type_type',
         'type_id',
+        'model_type',
+        'model_id',
         'name',
         'price',
         'cost',

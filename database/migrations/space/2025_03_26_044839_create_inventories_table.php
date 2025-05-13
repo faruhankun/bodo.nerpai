@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
             $table->string('code')->nullable();
+            $table->string('sku')->nullable();
 
             // morph
             $table->string('space_type')->nullable();

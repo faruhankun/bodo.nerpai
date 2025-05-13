@@ -7,6 +7,7 @@
     }
 
     $player = session('player_id') ? \App\Models\Primary\Player::findOrFail(session('player_id')) : Auth::user()->player;
+
 @endphp
 
 
@@ -32,59 +33,15 @@
                                 <x-table-thead>
                                     <tr>
                                         <x-table-th>No</x-table-th>
-                                        <x-table-th>Account</x-table-th>
-                                        <x-table-th>Debit</x-table-th>
-                                        <x-table-th>Credit</x-table-th>
+                                        <x-table-th>Item</x-table-th>
+                                        <x-table-th>Qty</x-table-th>
+                                        <x-table-th>Type</x-table-th>
+                                        <x-table-th>Cost/Unit</x-table-th>
                                         <x-table-th>Notes</x-table-th>
                                         <x-table-th>Action</x-table-th>
                                     </tr>
                                 </x-table-thead>
                                 <x-table-tbody id="journal-detail-list">
-                                    @foreach ($journal->details as $index => $detail)
-                                        <tr class="detail-row">
-                                            <x-table-td class="mb-2">{{ $index + 1 }}</x-table-td>
-                                            <x-table-td>
-                                                <x-input-select
-                                                    name="details[{{ $index }}][detail_id]"
-                                                    class="account-select my-3" required>
-                                                    <option value="">Select Account</option>
-                                                    @foreach ($inventories as $account)
-                                                        <option value="{{ $account->id }}"
-                                                            {{ $detail->detail_id == $account->id ? 'selected' : '' }}>
-                                                            {{ $account->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </x-input-select>
-                                            </x-table-td>
-                                            <x-table-td>
-                                                <x-input-input type="number"
-                                                    name="details[{{ $index }}][debit]"
-                                                    class="debit-input"
-                                                    value="{{ old('details.' . $index . '.debit', $detail->debit) }}"
-                                                    required min="0">
-                                                </x-input-input>
-                                            </x-table-td>
-                                            <x-table-td>
-                                                <x-input-input type="number"
-                                                    name="details[{{ $index }}][credit]"
-                                                    class="credit-input"
-                                                    value="{{ old('details.' . $index . '.credit', $detail->credit) }}"
-                                                    required min="0">
-                                                </x-input-input>
-                                            </x-table-td>
-                                            <x-table-td>
-                                                <x-input-input type="text"
-                                                    name="details[{{ $index }}][notes]"
-                                                    class="notes-input"
-                                                    value="{{ old('details.' . $index . '.notes', $detail->notes) }}">
-                                                </x-input-input>
-                                            </x-table-td>
-                                            <x-table-td>
-                                                <button type="button"
-                                                    class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
-                                            </x-table-td>
-                                        </tr>
-                                    @endforeach
                                 </x-table-tbody>
                             </x-table-table>
 
@@ -92,19 +49,6 @@
                                 <x-button2 type="button" id="add-detail" class="mr-3 m-4">Add Journal
                                     Detail</x-button2>
                             </div>
-
-
-                            <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
-
-
-                            <!-- <div class="flex justify-end space-x-4">
-                                <p class="text-lg font-semibold text-end"><strong>Total Debit:</strong> Rp <span
-                                        id="total-debit">0</span></p>
-                                <p class="text-lg font-semibold text-end"><strong>Total Credit:</strong> Rp <span
-                                        id="total-credit">0</span></p>
-                            </div>
-                            <p class="text-lg font-semibold text-end text-red-600"><span
-                                        id="debit-credit"></span></p> -->
 
                                         
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
@@ -122,49 +66,86 @@
         </div>
     </div>
 
-    <!-- Journal Detail Row Script -->
     <script>
         $(document).ready(function() {
             // Journal
             let journal = {!! json_encode($journal) !!};
-            
+            let journal_details = {!! json_encode($journal->details) !!};
+
             let sentTime = '{{ $journal->sent_time->format('Y-m-d') }}';
             $("#edit_sent_time").val(sentTime);
             $("#edit_handler_notes").val(journal.handler_notes);
 
-
+            
             // Details
             let detailIndex = {{ $journal->details->count() }};
+            journal_details.forEach(detail => {
+                $("#journal-detail-list").append(renderDetailRow(detail));
+            });
+        });
+    </script>
+    
+    <!-- Rows -->
+    <script>
+        let detailIndex = 0;
 
+        function renderDetailRow(detail = {}) {
+            const rowIndex = detailIndex++;
+            const selectedId = detail.item_id || '';
+            const quantity = detail.quantity || 0;
+            const selectedModel = detail.model_type || '';
+            const cost_per_unit = detail.cost_per_unit || 0;
+            const notes = detail.notes || '';
+            
+            const inventories = @json($inventories);
+            const accountOptions = inventories.map(account => {
+                const selected = account.id === selectedId ? 'selected' : '';
+                return `<option value="${account.id}" ${selected}>${account.name}</option>`;
+            }).join('');
+
+            const model_types = @json($model_types);
+            const modelTypeOptions = model_types.map(model_type => {
+                const selected = model_type.id === selectedModel ? 'selected' : '';
+                return `<option value="${model_type.id}" ${selected}>${model_type.name}</option>`;
+            }).join('');
+
+            return `
+                <tr class="detail-row">
+                    <td class="mb-2">${rowIndex + 1}</td>
+                    <td>
+                        <select name="details[${rowIndex}][item_id]" class="account-select my-3" required>
+                            <option value="">Select Account</option>
+                            ${accountOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" size="5" name="details[${rowIndex}][quantity]" class="quantity-input" value="${quantity}" required min="0">
+                    </td>
+                    <td>
+                        <select name="details[${rowIndex}][model_type]" class="model_type-select type-select my-3" required>
+                            <option value="">Select Type</option>
+                            ${modelTypeOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" size="10" name="details[${rowIndex}][cost_per_unit]" class="cost_per_unit-input" value="${cost_per_unit}" default="0" min="0">
+                    </td>
+                    <td>
+                        <input type="text" name="details[${rowIndex}][notes]" class="notes-input" value="${notes}">
+                    </td>
+                    <td>
+                        <button type="button" class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
+                    </td>
+                </tr>
+            `;
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
             // Add Journal Detail row
             $("#add-detail").click(function() {
-                detailIndex++;
-                let newRow =
-                    `<tr class="detail-row">
-                        <x-table-td class="mb-2">${detailIndex}</x-table-td>
-                        <x-table-td>
-                            <x-input-select name="details[${detailIndex}][detail_id]" class="account-select my-3" required>
-                                <option value="">Select Account</option>
-                                @foreach ($inventories as $account)
-                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
-                                @endforeach
-                            </x-input-select>
-                        </x-table-td>
-                        <x-table-td>
-                            <x-input-input type="number" name="details[${detailIndex}][debit]" class="debit-input" value="0" required min="0">
-                            </x-input-input>
-                        </x-table-td>
-                        <x-table-td>
-                            <x-input-input type="number" name="details[${detailIndex}][credit]" class="credit-input" value="0" required min="0">
-                            </x-input-input>
-                        </x-table-td>
-                        <x-table-td>
-                            <x-input-input type="text" name="details[${detailIndex}][notes]" class="notes-input"></x-input-input>
-                        </x-table-td>
-                        <x-table-td>
-                            <button type="button" class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
-                        </x-table-td>
-                    </tr>`;
+                let newRow = renderDetailRow();
                 $("#journal-detail-list").append(newRow);
             });
 
@@ -239,4 +220,5 @@
             return isValid; // Return true if the form is valid, false otherwise
         }
     </script>
+
 </x-dynamic-component>

@@ -58,6 +58,13 @@ class JournalSupplyService
         // Create new details
         $journalDetails = [];
         foreach ($details as $detail) {
+            // inventory_id
+            $ivt = Inventory::where('space_id', $tx->space_id)
+                                ->where('space_type', 'SPACE')
+                                ->where('model_type', 'SUP')            // supply
+                                ->where('item_id', $detail['item_id'])
+                                ->first();
+
             $journalDetails[] = [
                 'transaction_id' => $tx->id,
                 'detail_type' => 'IVT',

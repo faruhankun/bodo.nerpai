@@ -19,6 +19,8 @@ class TransactionDetail extends Model
         'detail_id',
         'type_type',
         'type_id',
+        'model_type',
+        'model_id',
         'quantity',
         'price',
         'cost_per_unit',

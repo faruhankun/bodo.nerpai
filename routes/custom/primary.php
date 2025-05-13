@@ -59,6 +59,7 @@ Route::middleware([
 
 
     // Inventory
+    Route::get('items/search', [ItemController::class, 'searchItem'])->name('items.search');
     Route::get('items/data', [ItemController::class, 'getItemsData'])->name('items.data');
     Route::resource('items', ItemController::class);
 

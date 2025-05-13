@@ -24,6 +24,10 @@ return new class extends Migration
             $table->string('type_type')->nullable();     
             $table->unsignedBigInteger('type_id')->nullable();
 
+            $table->string('model_type')->nullable();
+            $table->unsignedBigInteger('model_id')->nullable();
+            
+
             // Attributes
             $table->string('name');
             $table->decimal('price', 20, 2)->default(0);

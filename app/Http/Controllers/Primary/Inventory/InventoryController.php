@@ -10,6 +10,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
+use App\Models\Primary\Item;
 
 class InventoryController extends Controller
 {
@@ -23,6 +24,45 @@ class InventoryController extends Controller
         return view('primary.inventory.supplies.index');
     }
 
+
+
+    public function store(Request $request)
+    {
+        $space_id = session('space_id') ?? null;
+
+        try {
+            $validated = $request->validate([
+                'item_id' => 'required',
+                'status' => 'required|string|max:50',
+                'notes' => 'nullable',
+            ]);
+
+            if($space_id){
+                $validated['space_type'] = 'SPACE';
+                $validated['space_id'] = $space_id;
+            }
+
+            $item = Item::findOrFail($validated['item_id']);
+            $validated['name'] = $item->name;
+            $validated['code'] = $item->code;
+            $validated['sku'] = $item->sku;
+            $validated['status'] = $validated['status'];
+            $validated['notes'] = $validated['notes'];
+
+            $validated += [
+                'model_type' => 'SUP',
+                'item_type' => 'ITM',
+                'parent_type' => 'IVT',
+            ];
+
+            $ivt = Inventory::create($validated);
+
+            return redirect()->route('supplies.index')->with('success', "Supply {$ivt->name} created successfully.");
+        } catch (\Exception $e) {
+            dd($e);
+            return redirect()->back()->withErrors($e->getMessage())->withInput();
+        }
+    }
 
 
     public function getSuppliesData(){

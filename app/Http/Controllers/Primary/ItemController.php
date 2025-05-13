@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 
 use Yajra\DataTables\Facades\DataTables;
 
-use App\Models\Primary\Player;
-
 
 
 class ItemController extends Controller
@@ -90,5 +88,30 @@ class ItemController extends Controller
             })
             ->rawColumns(['actions'])
             ->make(true);
+    }
+
+
+
+    public function searchItem(Request $request)
+    {
+        $search = $request->q;
+
+        $items = Item::where(function ($query) use ($search) {
+            $query->where('name', 'like', "%$search%")
+                ->orWhere('code', 'like', "%$search%")
+                ->orWhere('sku', 'like', "%$search%")
+                ->orWhere('id', 'like', "%$search%");
+        })
+            ->orderBy('id', 'desc')
+            ->limit(50) // limit hasil
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'text' => "{$item->id} - {$item->sku} - {$item->name} : {$item->notes}",
+                ];
+            });
+
+        return response()->json($items);
     }
 }

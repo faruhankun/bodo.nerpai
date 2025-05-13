@@ -1,16 +1,53 @@
+@php 
+    $space_id = session('space_id') ?? null;
+
+    if(is_null($space_id)){
+        abort(403);
+    }
+
+@endphp
+
 <x-crud.index-basic header="Supplies" 
                 model="supply" 
                 table_id="indexTable"
                 :thead="['Code', 'Item', 'Qty', 'Cost_per_unit', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
-
+        @include('primary.inventory.supplies.create')
     </x-slot>
 
     <x-slot name="modals">
 
     </x-slot>
 </x-crud.index-basic>
+
+<script>
+    $(document).ready(function() {
+        $('#create_item_id').select2({
+            placeholder: 'Search & Select Item',
+            minimumInputLength: 2,
+            ajax: {
+                url: '/items/search',
+                dataType: 'json',
+                paginate: true,
+                data: function(params) {
+                    return {
+                        q: params.term,
+                        space: '{{ $space_id }}',
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+</script>
+
 
 <script>
     function create(){
