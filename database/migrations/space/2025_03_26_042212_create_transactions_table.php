@@ -72,6 +72,9 @@ return new class extends Migration
             $table->string('detail_type')->nullable();
             $table->unsignedBigInteger('detail_id')->nullable();
 
+            $table->string('model_type')->nullable();
+            $table->unsignedBigInteger('model_id')->nullable();
+
             // Attributes
             $table->json('data')->nullable();
 

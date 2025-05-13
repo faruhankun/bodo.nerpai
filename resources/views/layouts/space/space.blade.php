@@ -51,6 +51,12 @@
                     'route' => "trades.index",
                     'text' => 'Trades',
                 ],
+                'journal_supplies' => [
+                    'auth' => $settings['supplies'],
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "journal_supplies.index",
+                    'text' => 'Journal Supplies',
+                ],
                 'journal_accounts' => [
                     'auth' => $settings['accounting'],
                     'icon' => 'icon-checklist-paper',

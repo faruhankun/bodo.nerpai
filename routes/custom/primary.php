@@ -16,6 +16,7 @@ use App\Http\Controllers\Primary\Inventory\InventoryController;
 use App\Http\Controllers\Primary\Inventory\AccountController;
 
 use App\Http\Controllers\Primary\Transaction\TradeController;
+use App\Http\Controllers\Primary\Transaction\JournalSupplyController;
 use App\Http\Controllers\Primary\Transaction\JournalAccountController;
 
 use App\Http\Controllers\Primary\Access\VariableController;
@@ -45,6 +46,11 @@ Route::middleware([
     Route::get('trades/so', [TradeController::class, 'indexSO'])->name('trades.so');
     Route::get('trades/data', [TradeController::class, 'getTradesData'])->name('trades.data');
     Route::resource('trades', TradeController::class);
+
+    Route::get('journal_supplies/data', [JournalSupplyController::class, 'getJournalSuppliesData'])->name('journal_supplies.data');
+    Route::get('journal_supplies/template', [JournalSupplyController::class, 'downloadTemplate'])->name('journal_supplies.template');
+    Route::post('journal_supplies/import', [JournalSupplyController::class, 'readCsv'])->name('journal_supplies.import');
+    Route::resource('journal_supplies', JournalSupplyController::class);
 
     Route::get('journal_accounts/data', [JournalAccountController::class, 'getJournalAccountsData'])->name('journal_accounts.data');
     Route::get('journal_accounts/template', [JournalAccountController::class, 'downloadTemplate'])->name('journal_accounts.template');
