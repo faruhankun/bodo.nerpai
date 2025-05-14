@@ -4,7 +4,14 @@
                 :thead="['Code', 'SKU', 'Name', 'Price', 'Status', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
-        @include('primary.items.create')
+        <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
+            <div class="form-group">
+                @include('primary.items.exim')
+            </div>
+            <div class="form-group">
+                @include('primary.items.create')
+            </div>
+        </div>
     </x-slot>
 
     <x-slot name="modals">
@@ -20,6 +27,10 @@
         document.getElementById('edit_sku').value = data.sku;
         document.getElementById('edit_name').value = data.name;
 
+        $('#edit_price').val(data.price);
+        $('#edit_cost').val(data.cost);
+        $('#edit_weight').val(data.weight);
+
         document.getElementById('edit_status').value = data.status === '1' || data.status === 'active' ? 'active' : 'inactive';
 
         document.getElementById('edit_notes').value = data.notes;
@@ -34,7 +45,7 @@
 
 <script>
 $(document).ready(function() {
-    $('#indexTable').DataTable({
+    let table = $('#indexTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: "{{ route('items.data') }}",
@@ -47,6 +58,19 @@ $(document).ready(function() {
             { data: 'notes' },
             { data: 'actions', orderable: false, searchable: false }
         ]
+    });
+
+
+    // export 
+    $('#exportVisibleBtn').on('click', function(e) {
+        e.preventDefault();
+
+        let params = table.ajax.params();
+        
+        let exportUrl = '{{ route("items.export") }}' + '?params=' + encodeURIComponent(JSON.stringify(params));
+
+
+        window.location.href = exportUrl;
     });
 });
 </script>

@@ -3,9 +3,12 @@
 namespace App\Models\Primary;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Item extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'items';
 
     public $timestamps = true;
@@ -41,5 +44,11 @@ class Item extends Model
     public function parent()
     {
         return $this->morphTo();
+    }
+
+
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class);
     }
 }
