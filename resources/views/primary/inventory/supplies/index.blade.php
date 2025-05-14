@@ -10,7 +10,7 @@
 <x-crud.index-basic header="Supplies" 
                 model="supply" 
                 table_id="indexTable"
-                :thead="['Code', 'Item', 'Qty', 'Cost_per_unit', 'Notes', 'Actions']"
+                :thead="['Code', 'Space', 'Item', 'Qty', 'Cost_per_unit', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
         @include('primary.inventory.supplies.create')
@@ -92,6 +92,7 @@ $(document).ready(function() {
         pageLength: 25,
         columns: [
             { data: 'code' },
+            { data: 'space_display' },
             { data: 'item_display' },
             { data: 'balance' },
             // { data: 'getSupplyBalance', className: 'text-right',

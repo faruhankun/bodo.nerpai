@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\Primary\Transaction;
 use App\Models\Primary\Player;
+use App\Models\Primary\Inventory;
 
 class JournalSupplyService
 {
@@ -86,5 +87,12 @@ class JournalSupplyService
         if(is_null($tx->number))
             $tx->generateNumber();
         $tx->save();
+
+        // Update Balance
+        $supply_ids = collect($details)->pluck('detail_id')->unique();
+        foreach($supply_ids as $supply_id) {
+            $supply = Inventory::find($supply_id);
+            $supply->updateSupplyBalance();
+        }
     }
 }

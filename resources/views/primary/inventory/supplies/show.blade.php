@@ -1,8 +1,9 @@
 <x-crud.modal-show title="Account Details" trigger="View">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <x-div-box-show title="Name">{{ $data->name ?? 'N/A' }}</x-div-box-show>
         <x-div-box-show title="Code">{{ $data->code ?? 'N/A' }}</x-div-box-show>
-        <x-div-box-show title="Address">{{ $data->address ?? 'N/A' }}</x-div-box-show>
+        <x-div-box-show title="SKU">{{ $data->sku ?? 'N/A' }}</x-div-box-show>
+        <x-div-box-show title="Name">{{ $data->name ?? 'N/A' }}</x-div-box-show>
+        <x-div-box-show title="Item">{{ $data->item_type ?? 'N/A' }}: {{ $data?->item->name ?? 'N/A' }}</x-div-box-show>
         <x-div-box-show title="Status">{{ $data->status }}</x-div-box-show>
         <x-div-box-show title="Notes">
             {{ $data->notes ?? 'N/A' }}

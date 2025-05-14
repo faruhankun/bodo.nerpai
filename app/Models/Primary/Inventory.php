@@ -111,4 +111,40 @@ class Inventory extends Model
         }
         return $balance;
     }
+
+
+    public function updateSupplyBalance($start_date = null, $end_date = null)
+    {
+        if($start_date && $end_date){
+            $start_date = Carbon::parse($start_date)->startOfDay();
+            $end_date = Carbon::parse($end_date)->endOfDay();
+        }
+
+        if(!$this->space){
+            return 0;
+        }
+
+        $space_type = $this->space_type;
+        $space_id = $this->space_id;
+        // $list_space_id = $this->space->allChildren()->pluck('id')->toArray();
+        // $list_space_id = array_merge($list_space_id, [$this->space->id]);
+
+        $query = $this->tx_details()
+            ->whereHas('transaction', function ($query) use ($space_type, $space_id, $start_date, $end_date){
+                $query->where('space_type', $space_type)
+                    ->where('space_id', $space_id);
+
+                if($start_date && $end_date)
+                    $query = $query->whereBetween('sent_time', [$start_date, $end_date]);
+            });
+
+        $debit = (clone $query)->sum('debit');
+        $credit = (clone $query)->sum('credit');
+
+        $balance = $debit - $credit;
+        $this->balance = $balance;
+        $this->save();
+        
+        return $balance;
+    }
 }
