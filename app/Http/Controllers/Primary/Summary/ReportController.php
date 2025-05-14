@@ -9,6 +9,7 @@ use App\Models\Company\Finance\Account;
 
 use App\Models\Primary\Space;
 use App\Models\Primary\Inventory;
+use App\Models\Primary\Item;
 
 class ReportController extends Controller
 {
@@ -31,6 +32,7 @@ class ReportController extends Controller
 
         $accountsp = Inventory::with('type', 'parent', 'tx_details')->where('model_type', 'ACC')->get();
 
+        $spaceIds = [];
         if($space_id){
             $space = Space::findOrFail($space_id);
 
@@ -62,6 +64,16 @@ class ReportController extends Controller
                 $accounts = $accountsp;
                 $data = $this->calculate_balance_sheet($accounts);
                 return view('primary.reports.finance.balance-sheet', compact('id', 'accounts', 'param', 'data'));
+
+
+            // items
+            case 'items.summary':
+                $items = Item::with('inventories')
+                            ->where('space_type', 'SPACE')
+                            ->where('space_id', $space_id)
+                            ->get();
+
+                return view('primary.reports.items.summary', compact('id', 'items', 'param', 'spaceIds'));
             default:
                 ;
         }

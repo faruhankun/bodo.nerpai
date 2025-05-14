@@ -144,7 +144,7 @@ class InventoryController extends Controller
             ->map(function ($ivt) {
                 return [
                     'id' => $ivt->id,
-                    'text' => "{$ivt->id} - {$ivt->sku} - {$ivt->name} qty: {$ivt->balance} : {$ivt->notes}",
+                    'text' => "{$ivt->id} - {$ivt->sku} - {$ivt->name} qty: {$ivt->balance} x {$ivt->cost_per_unit} : {$ivt->notes}",
                 ];
             });
 

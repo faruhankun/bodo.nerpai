@@ -58,6 +58,7 @@ class JournalSupplyService
 
         // Create new details
         $journalDetails = [];
+        $balance_change = 0;
         foreach ($details as $detail) {
             // inventory_id
             $detail['quantity'] = $detail['quantity'] ?? 0;
@@ -80,12 +81,15 @@ class JournalSupplyService
                 'model_type' => $detail['model_type'],
                 'cost_per_unit' => $detail['cost_per_unit'],
             ];
+
+            $balance_change += $detail['quantity'] * $detail['cost_per_unit'];
         }
 
         $tx->details()->createMany($journalDetails);
 
         if(is_null($tx->number))
             $tx->generateNumber();
+        $tx->total = $tx->total + $balance_change;
         $tx->save();
 
         // Update Balance

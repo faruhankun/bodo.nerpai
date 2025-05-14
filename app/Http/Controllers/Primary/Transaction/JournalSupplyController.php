@@ -79,7 +79,8 @@ class JournalSupplyController extends Controller
 
             $journal = $this->journalSupply->addJournal($data);
 
-            return redirect()->route('journal_supplies.index')->with('success', "Journal {$journal->id} Created Successfully!");
+            return redirect()->route('journal_supplies.edit', $journal->id)
+                            ->with('success', "Journal {$journal->id} Created Successfully!");
         } catch (\Throwable $th) {
             return back()->with('error', 'Something went wrong. Please try again.');
         }

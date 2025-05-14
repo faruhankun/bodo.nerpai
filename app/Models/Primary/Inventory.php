@@ -141,8 +141,14 @@ class Inventory extends Model
         $debit = (clone $query)->sum('debit');
         $credit = (clone $query)->sum('credit');
 
+        $debit_cost = (clone $query)->sum(DB::raw('debit * cost_per_unit'));
+        $credit_cost = (clone $query)->sum(DB::raw('credit * cost_per_unit'));
+
         $balance = $debit - $credit;
         $this->balance = $balance;
+
+        $balance_cost = $debit_cost - $credit_cost;
+        $this->cost_per_unit = $balance_cost >= 0 ? $balance_cost / $balance : 0;
         $this->save();
         
         return $balance;
