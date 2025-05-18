@@ -153,4 +153,57 @@ class Inventory extends Model
         
         return $balance;
     }
+
+    public function getSupplyBalance($param = [])
+    {
+        $start_date = $param['start_date'] ?? null;
+        $end_date = $param['end_date'] ?? null;
+        $data = [];
+
+        if($start_date && $end_date){
+            $start_date = Carbon::parse($start_date)->startOfDay();
+            $end_date = Carbon::parse($end_date)->endOfDay();
+        }
+
+        if(!$this->space){
+            return 0;
+        }
+
+        $space_type = $this->space_type;
+        $space_id = $this->space_id;
+        // $list_space_id = $this->space->allChildren()->pluck('id')->toArray();
+        // $list_space_id = array_merge($list_space_id, [$this->space->id]);
+
+        $query = $this->tx_details()
+            ->whereHas('transaction', function ($query) use ($space_type, $space_id, $start_date, $end_date){
+                $query->where('space_type', $space_type)
+                    ->where('space_id', $space_id);
+
+                if($end_date)
+                    $query = $query->where('sent_time', '<=', $end_date);
+            });
+
+
+        $debit = (clone $query)->sum('debit');
+        $credit = (clone $query)->sum('credit');
+        $balance = $debit - $credit;
+
+
+        $debit_cost = (clone $query)->sum(DB::raw('debit * cost_per_unit'));
+        $credit_cost = (clone $query)->sum(DB::raw('credit * cost_per_unit'));
+        $balance_cost = $debit_cost - $credit_cost;
+        
+
+        if(isset($param['update'])){
+            $this->balance = $balance;
+            $this->cost_per_unit = $balance_cost >= 0 ? $balance_cost / $balance : 0;
+            $this->save();
+        }
+        
+
+        $data['balance'] = $balance;
+        $data['cost_per_unit'] = $this->cost_per_unit;
+
+        return $data;
+    }
 }

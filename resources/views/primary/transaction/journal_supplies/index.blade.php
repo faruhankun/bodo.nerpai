@@ -8,7 +8,7 @@
 @endphp
 
 <x-crud.index-basic header="Journal Supplies" model="journal supplies" table_id="indexTable" :thead="['ID', 'Date', 'Number', 'Description', 'Total', 'Actions']">
-    <x-slot name="buttons">
+    <x-slot name="panel">
         <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
             <div class="form-group">
                 @include('primary.transaction.journal_supplies.import')
@@ -80,7 +80,7 @@
                     data: 'number'
                 },
                 {
-                    data: 'sender_notes'
+                    data: 'handler_notes'
                 },
                 {
                     data: 'total',

@@ -4,14 +4,11 @@
                 :thead="['Code', 'SKU', 'Name', 'Price', 'Status', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
-        <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
-            <div class="form-group">
-                @include('primary.items.exim')
-            </div>
-            <div class="form-group">
-                @include('primary.items.create')
-            </div>
-        </div>
+        @include('primary.items.create')
+    </x-slot>
+
+    <x-slot name="filters">
+        @include('primary.items.exim')
     </x-slot>
 
     <x-slot name="modals">

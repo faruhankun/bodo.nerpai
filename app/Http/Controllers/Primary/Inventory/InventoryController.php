@@ -145,6 +145,7 @@ class InventoryController extends Controller
                 return [
                     'id' => $ivt->id,
                     'text' => "{$ivt->id} - {$ivt->sku} - {$ivt->name} qty: {$ivt->balance} x {$ivt->cost_per_unit} : {$ivt->notes}",
+                    'cost_per_unit' => $ivt->cost_per_unit,
                 ];
             });
 

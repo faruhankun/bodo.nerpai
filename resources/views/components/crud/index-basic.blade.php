@@ -24,11 +24,18 @@
                     <p class="text-sm dark:text-gray-200 mb-6">Create, edit, and manage your {{ $model }} listings.</p>
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
-                    <div
-                        class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 mb-4">
-                        
-                        <div>
-                            {{ $buttons ?? '' }}
+                    {{ $panel ?? '' }}
+
+                    <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 w-full mb-4">
+                        <div class="form-group flex justify-left">
+                            <div class="form-group flex gap-4">
+                                {{ $buttons ?? '' }}
+                            </div>
+                        </div>
+                        <div class="form-group flex justify-end">
+                            <div class="form-group flex gap-4">
+                                {{ $filters ?? '' }}
+                            </div>
                         </div>
                     </div>
 

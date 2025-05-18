@@ -27,8 +27,7 @@
 
                     @php 
                         $data = [];
-                        foreach($items as $item){
-                            foreach($item->inventories as $inventory){
+                            foreach($item_inventories as $inventory){
                                 if(!isset($data[$inventory->space_id])){
                                     $data[$inventory->space_id] = [
                                         'space_name' => $inventory->space->name,
@@ -40,8 +39,8 @@
                                 $data[$inventory->space_id]['inventory_count']++;
                                 $data[$inventory->space_id]['cost_total'] += $inventory->cost_per_unit * $inventory->balance;
                             }
-                        }
 
+                        dd($item_inventories);
                         $data = collect($data);
                     @endphp
                     <!-- Rangkuman -->

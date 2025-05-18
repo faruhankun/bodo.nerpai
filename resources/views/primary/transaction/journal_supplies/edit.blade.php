@@ -157,7 +157,8 @@
                         return {
                             results: data.map(item => ({
                                 id: item.id,
-                                text: item.text // Ubah sesuai nama field yang kamu punya
+                                text: item.text, // Ubah sesuai nama field yang kamu punya
+                                cost_per_unit: item.cost_per_unit
                             }))
                         };
                     },
@@ -170,6 +171,13 @@
                 const option = new Option(selectedData.text, selectedData.id, true, true);
                 $element.append(option).trigger('change');
             }
+
+            // Event setelah pilih inventory
+            $element.on('select2:select', function(e) {
+                const selected = e.params.data;
+                const $row = $(this).closest('tr');
+                $row.find('.cost_per_unit-input').val(selected.cost_per_unit || 0);
+            });
         }
 
         function appendDetailRow(detail) {

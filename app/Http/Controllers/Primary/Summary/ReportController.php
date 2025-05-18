@@ -73,7 +73,18 @@ class ReportController extends Controller
                             ->where('space_id', $space_id)
                             ->get();
 
-                return view('primary.reports.items.summary', compact('id', 'items', 'param', 'spaceIds'));
+                // if there's date
+                $date = $request->input('date') ?? now()->format('Y-m-d');
+
+                $item_inventories = $items->pluck('inventories')->unique()->flatten();
+
+                foreach($item_inventories as $item_inventory){
+                    $data = $item_inventory->getSupplyBalance(['start_date' => $date]);
+                    $item_inventory->balance = $data['balance'];
+                    $item_inventory->cost_per_unit = $data['cost_per_unit'];
+                }
+
+                return view('primary.reports.items.summary', compact('id', 'items', 'param', 'spaceIds', 'item_inventories'));
             default:
                 ;
         }
