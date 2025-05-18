@@ -40,7 +40,6 @@
                                 $data[$inventory->space_id]['cost_total'] += $inventory->cost_per_unit * $inventory->balance;
                             }
 
-                        dd($item_inventories);
                         $data = collect($data);
                     @endphp
                     <!-- Rangkuman -->

@@ -21,10 +21,6 @@ class InventoryController extends Controller
             abort(403);
         }
 
-        $ivt_id = 2;
-        $ivt = Inventory::findOrFail($ivt_id);
-        $ivt->updateSupplyBalance();
-
         return view('primary.inventory.supplies.index');
     }
 

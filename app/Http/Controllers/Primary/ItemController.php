@@ -86,8 +86,9 @@ class ItemController extends Controller
     public function getItemsData(){
         $space_id = session('space_id') ?? null;
 
-        $items = Item::where('space_type', 'SPACE')
-            ->where('space_id', $space_id);
+        $items = Item::query();
+        // $items = Item::where('space_type', 'SPACE')
+        //     ->where('space_id', $space_id);
 
         return DataTables::of($items)
             ->addColumn('actions', function ($data) {
@@ -152,6 +153,7 @@ class ItemController extends Controller
                 $headers = fgetcsv($handle);
 
                 // validasi header
+                // dd($headers);
                 foreach ($requiredHeaders as $header) {
                     if (!in_array($header, $headers)) {
                         return back()->with('error', 'Invalid CSV file. Missing required header: ' . $header);
@@ -189,7 +191,7 @@ class ItemController extends Controller
                         'name' => $row['name'],
                         'price' => $row['price'] ?? 0,
                         'cost' => $row['cost'] ?? 0,
-                        'weight' => $row['weight'] ?? 0,
+                        'weight' => $row['weight (gram)'] ?? 0,
                         'notes' => $row['notes'] ?? null,
                     ];
 
@@ -273,9 +275,7 @@ class ItemController extends Controller
         
         $space_id = session('space_id') ?? null;
 
-        $query = Item::query()
-            ->where('space_type', 'SPACE')
-            ->where('space_id', $space_id);
+        $query = Item::query();
         
         // Apply search filter
         if (!empty($params['search']['value'])) {
@@ -299,7 +299,7 @@ class ItemController extends Controller
             $query->orderBy($column, $dir);
         }
 
-        $query->take(1000);
+        $query->take(10000);
 
         $items = $query->get();
 
