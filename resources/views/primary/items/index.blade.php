@@ -74,7 +74,6 @@ $(document).ready(function() {
         
         let exportUrl = '{{ route("items.export") }}' + '?params=' + encodeURIComponent(JSON.stringify(params));
 
-
         window.location.href = exportUrl;
     });
 });

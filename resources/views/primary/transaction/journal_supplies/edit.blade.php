@@ -146,6 +146,7 @@
                 ajax: {
                     url: '/supplies/search',
                     dataType: 'json',
+                    paginate: true,
                     data: function(params) {
                         return {
                             q: params.term,

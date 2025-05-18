@@ -16,16 +16,26 @@
         @include('primary.inventory.supplies.create')
     </x-slot>
 
+    <x-slot name="filters">
+        <!-- export import  -->
+        <x-crud.exim-csv route_import="{{ route('supplies.import') }}" route_template="{{ route('supplies.import_template') }}">
+            <h1 class="text-2xl dark:text-white font-bold">Under Construction</h1>
+        </x-crud.exim-csv>
+    </x-slot>
+
     <x-slot name="modals">
 
     </x-slot>
 </x-crud.index-basic>
+
 
 <script>
     $(document).ready(function() {
         $('#create_item_id').select2({
             placeholder: 'Search & Select Item',
             minimumInputLength: 2,
+            width: '100%',
+            padding: '0px 12px',
             ajax: {
                 url: '/items/search',
                 dataType: 'json',
@@ -84,28 +94,39 @@
 </script>
 
 <script>
-$(document).ready(function() {
-    $('#indexTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('supplies.data') }}",
-        pageLength: 25,
-        columns: [
-            { data: 'code' },
-            { data: 'space_display' },
-            { data: 'item_display' },
-            { data: 'balance' },
-            // { data: 'getSupplyBalance', className: 'text-right',
-            //     render: function (data, type, row, meta) {
-            //         return new Intl.NumberFormat('id-ID', { 
-            //             maximumFractionDigits: 2
-            //         }).format(data);
-            //     }
-            //  },
-            { data: 'cost_per_unit' },
-            { data: 'notes' },
-            { data: 'actions', orderable: false, searchable: false }
-        ]
+    $(document).ready(function() {
+        let indexTable = $('#indexTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('supplies.data') }}",
+            pageLength: 25,
+            columns: [
+                { data: 'code' },
+                { data: 'space_display' },
+                { data: 'item_display' },
+                { data: 'balance' },
+                // { data: 'getSupplyBalance', className: 'text-right',
+                //     render: function (data, type, row, meta) {
+                //         return new Intl.NumberFormat('id-ID', { 
+                //             maximumFractionDigits: 2
+                //         }).format(data);
+                //     }
+                //  },
+                { data: 'cost_per_unit' },
+                { data: 'notes' },
+                { data: 'actions', orderable: false, searchable: false }
+            ]
+        });
+        
+        // Export Import
+        $('#exportVisibleBtn').on('click', function(e) {
+            e.preventDefault();
+
+            let params = indexTable.ajax.params();
+            
+            let exportUrl = '{{ route("supplies.export") }}' + '?params=' + encodeURIComponent(JSON.stringify(params));
+
+            window.location.href = exportUrl;
+        });
     });
-});
 </script>

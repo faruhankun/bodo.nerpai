@@ -58,6 +58,7 @@ Route::middleware([
     Route::resource('journal_accounts', JournalAccountController::class);
 
 
+
     // Inventory
     Route::post('items/import', [ItemController::class, 'importData'])->name('items.import');
     Route::get('items/import', [ItemController::class, 'importTemplate'])->name('items.importtemplate');
@@ -66,6 +67,9 @@ Route::middleware([
     Route::get('items/data', [ItemController::class, 'getItemsData'])->name('items.data');
     Route::resource('items', ItemController::class);
 
+    Route::post('supplies/import', [InventoryController::class, 'importData'])->name('supplies.import');
+    Route::get('supplies/import', [InventoryController::class, 'importTemplate'])->name('supplies.import_template');
+    Route::get('supplies/export', [InventoryController::class, 'exportData'])->name('supplies.export');
     Route::get('supplies/search', [InventoryController::class, 'searchSupply'])->name('supplies.search');
     Route::get('supplies/data', [InventoryController::class, 'getSuppliesData'])->name('supplies.data');
     Route::resource('supplies', InventoryController::class);

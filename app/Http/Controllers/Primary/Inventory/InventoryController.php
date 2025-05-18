@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Primary\Inventory;
 
 use App\Http\Controllers\Controller;
-
-use Illuminate\Http\Request;
+use App\Services\Primary\Basic\EximService;
 
 use Yajra\DataTables\Facades\DataTables;
 
@@ -12,8 +11,34 @@ use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
 use App\Models\Primary\Item;
 
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+
 class InventoryController extends Controller
 {
+    protected $eximService;
+
+    protected $import_columns = [
+        'item_code', 
+        'item_sku', 
+        'supplies_name', 
+        'supplies_stock', 
+        'cost_per_unit', 
+        'expire_date', 
+        'notes'
+    ];
+
+
+
+    public function __construct(EximService $eximService)
+    {
+        $this->eximService = $eximService;
+    }
+
+
+
     public function index()
     {
         $space_id = session('space_id') ?? null;
@@ -41,8 +66,6 @@ class InventoryController extends Controller
                 $validated['space_type'] = 'SPACE';
                 $validated['space_id'] = $space_id;
             }
-
-            dd($validated);
 
             $item = Item::findOrFail($validated['item_id']);
             $validated['name'] = $item->name;
@@ -146,5 +169,94 @@ class InventoryController extends Controller
             });
 
         return response()->json($ivts);
+    }
+
+
+
+
+    // Export Import
+    public function importTemplate(){
+        $response = $this->eximService->exportCSV(['filename' => 'supplies_import_template.csv'], $this->import_columns);
+
+        return $response;
+    }
+
+
+    public function importData(Request $request)
+    {
+        $space_id = session('space_id') ?? null;
+
+        // try {
+        //     $validated = $request->validate([
+        //         'file' => 'required|mimes:csv,txt'
+        //     ]);
+
+        //     $file = $validated['file'];
+        //     $data = [];
+        //     $failedRows = [];
+        //     $requiredHeaders = ['item_sku', 'supplies_stock', 'name'];
+
+        //     // Read the CSV into an array of associative rows
+        //     $data = $this->eximService->convertCSVtoArray($file, ['requiredHeaders' => $requiredHeaders]);
+
+
+        //     // input
+        //     foreach ($data as $i => $row) {
+        //         try {
+        //             // skip if no code or name
+        //             if (empty($row['sku']) || empty($row['name'])) {
+        //                 throw new \Exception('Missing required field: sku or name');
+        //             }
+
+        //             $item = Item::where('code', $row['code'])
+        //             ->orWhere('sku', $row['sku'])
+        //             ->orWhere('name', $row['name'])
+        //             ->first();
+
+        //             $payload = [
+        //                 'code' => $row['code'],
+        //                 'sku' => $row['sku'],
+        //                 'name' => $row['name'],
+        //                 'price' => $row['price'] ?? 0,
+        //                 'cost' => $row['cost'] ?? 0,
+        //                 'weight' => $row['weight (gram)'] ?? 0,
+        //                 'notes' => $row['notes'] ?? null,
+        //             ];
+
+        //             $payload['space_type'] = 'SPACE';
+        //             if($space_id) 
+        //                 $payload['space_id'] = $space_id;
+
+        //             if ($item) {
+        //                 $item->update($payload);
+        //             } else {
+        //                 Item::create($payload);
+        //             }
+        //         } catch (\Throwable $e) {
+        //             $row['row'] = $i + 2; // +2 karena array dimulai dari 0 dan +1 untuk header CSV
+        //             $row['error'] = $e->getMessage();
+        //             $failedRows[] = $row;
+        //         }
+        //     }
+
+
+        //     // Jika ada row yang gagal, langsung return CSV dari memory
+        //     if (count($failedRows) > 0) {
+        //         $filename = 'failed_import_' . now()->format('Ymd_His') . '.csv';
+                
+        //         $this->eximService->exportCSV(['filename' => $filename], $failedRows);
+        //     }
+
+        //     return redirect()->route('supplies.index')->with('success', 'CSV uploaded and processed Successfully!');
+        // } catch (\Throwable $th) {
+        //     return back()->with('error', 'Failed to import csv. Please try again.' . $th->getMessage());
+        // }
+
+        return back()->with('error', 'Under Construction');
+    }
+
+
+    public function exportData(){
+        return back()->with('error', 'Under Construction');
     }
 }
