@@ -8,18 +8,15 @@
 @endphp
 
 <x-crud.index-basic header="Journal Supplies" model="journal supplies" table_id="indexTable" :thead="['ID', 'Date', 'Number', 'Description', 'Total', 'Actions']">
-    <x-slot name="panel">
-        <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
-            <div class="form-group">
-                @include('primary.transaction.journal_supplies.import')
-            </div>
-            <div class="form-group">
-                <!-- <a href="{{ route('journal_supplies.create') }}">
-                    <x-button-add :route="route('journal_supplies.create')" text="Add Journal" class="h-fit w-48" />
-                </a> -->
-                @include('primary.transaction.journal_supplies.create')
-            </div>
-        </div>
+    <x-slot name="buttons">
+        @include('primary.transaction.journal_supplies.create')
+    </x-slot>
+
+    <x-slot name="filters">
+        <!-- export import  -->
+        <x-crud.exim-csv route_import="{{ route('journal_supplies.import') }}" route_template="{{ route('journal_supplies.import_template') }}">
+            <h1 class="text-2xl dark:text-white font-bold">Under Construction</h1>
+        </x-crud.exim-csv>
     </x-slot>
 </x-crud.index-basic>
 
@@ -60,9 +57,11 @@
     }
 </script>
 
+
+<!-- Tabel & EXIM  -->
 <script>
     $(document).ready(function() {
-        $('#indexTable').DataTable({
+        let indexTable = $('#indexTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: "{{ route('journal_supplies.data') }}",   
@@ -102,6 +101,18 @@
 
         // setup create
         $('#create_sender_id').val('{{ $player->id }}');
+
+
+        // Export Import
+        $('#exportVisibleBtn').on('click', function(e) {
+            e.preventDefault();
+
+            let params = indexTable.ajax.params();
+            
+            let exportUrl = '{{ route("journal_supplies.export") }}' + '?params=' + encodeURIComponent(JSON.stringify(params));
+
+            window.location.href = exportUrl;
+        });
 
     });
 </script>

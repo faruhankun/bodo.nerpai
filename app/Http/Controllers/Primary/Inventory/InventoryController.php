@@ -71,6 +71,7 @@ class InventoryController extends Controller
             $validated['name'] = $item->name;
             $validated['code'] = $item->code;
             $validated['sku'] = $item->sku;
+            $validated['cost_per_unit'] = $item->cost;
             $validated['status'] = $validated['status'];
             $validated['notes'] = $validated['notes'];
 

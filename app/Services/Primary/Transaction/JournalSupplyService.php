@@ -67,7 +67,7 @@ class JournalSupplyService
             $detail['debit'] = $detail['quantity'] >= 0 ? $detail['quantity'] : 0;
             $detail['credit'] = $detail['quantity'] < 0 ? abs($detail['quantity']) : 0;
             $detail['notes'] = $detail['notes'] ?? null;
-            $detail['model_type'] = $detail['model_type'] ?? 'SUP';
+            $detail['model_type'] = $detail['model_type'] ?? 'UNDF';
             $detail['cost_per_unit'] = $detail['cost_per_unit'] ?? 0;
 
             $journalDetails[] = [
@@ -89,7 +89,7 @@ class JournalSupplyService
 
         if(is_null($tx->number))
             $tx->generateNumber();
-        $tx->total = $tx->total + $balance_change;
+        $tx->total = $balance_change;
         $tx->save();
 
         // Update Balance

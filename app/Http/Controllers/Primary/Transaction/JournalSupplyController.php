@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Primary\Transaction;
 
 use App\Http\Controllers\Controller;
 use App\Services\Primary\Transaction\JournalSupplyService;
+use App\Services\Primary\Basic\EximService;
 use Illuminate\Http\Request;
 
 use Yajra\DataTables\Facades\DataTables;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Response;
 
 class JournalSupplyController extends Controller
 {
-    protected $journalSupply;
+    protected $journalSupply, $eximService;
 
     protected $model_types = [
         ['id' => 'PO', 'name' => 'Purchase'],
@@ -28,12 +29,32 @@ class JournalSupplyController extends Controller
         ['id' => 'DMG', 'name' => 'Damage'],
         ['id' => 'RTR', 'name' => 'Return'],
         ['id' => 'MV', 'name' => 'Move'],
+        ['id' => 'UNDF', 'name' => 'Undefined'],
     ];
 
-    public function __construct(JournalSupplyService $journalSupply)
+    protected $import_columns = ['date', 'number', 'sender_notes', 'model_type', 'item_sku', 'item_name', 'notes', 'quantity', 'cost_per_unit', 'debit', 'credit', 'tags'];
+    protected $export_columns = [
+        'id' => 'id', 
+        'number' => 'number', 
+        'sender_notes' => 'sender_notes', 
+        'status' => 'status', 
+        'model_type' => 'model_type',
+        'item_sku' => 'item_sku',
+        'item_name' => 'item_name',
+        'quantity' => 'quantity',
+        'cost_per_unit' => 'cost_per_unit',
+        'debit' => 'debit',
+        'credit' => 'credit',
+        'notes' => 'notes', 
+        'created_at' => 'created_at',
+    ];
+
+    public function __construct(JournalSupplyService $journalSupply, EximService $eximService)
     {
         $this->journalSupply = $journalSupply;
+        $this->eximService = $eximService;
     }
+
 
 
     public function get_inventories()
@@ -158,22 +179,11 @@ class JournalSupplyController extends Controller
 
 
 
-    public function getJournalSuppliesData()
+    public function getJournalSuppliesData(Request $request)
     {
-        $space_id = session('space_id') ?? null;
-        if(is_null($space_id)){
-            abort(403);
-        }
-
-        $journal_supplies = Transaction::with('input', 'type', 'details', 'details.detail')
-            ->where('model_type', 'JS')
-            ->orderBy('sent_time', 'desc');
-
-        $journal_supplies = $journal_supplies->where('space_type', 'SPACE')
-                                            ->where('space_id', $space_id);
-                          
+        $query = $this->getQueryData($request);       
                                             
-        return DataTables::of($journal_supplies)
+        return DataTables::of($query)
             ->addColumn('actions', function ($data) {
                 $route = 'journal_supplies';
 
@@ -191,119 +201,239 @@ class JournalSupplyController extends Controller
     }
 
     
+    public function getQueryData(Request $request){
+        $space_id = $request->space_id ?? (session('space_id') ?? null);
+        if(is_null($space_id)){
+            abort(403);
+        }
 
-    public function readCsv(Request $request)
+        $query = Transaction::with('input', 'type', 'details', 'details.detail')
+            ->where('model_type', 'JS')
+            ->orderBy('sent_time', 'desc');
+
+        $query = $query->where('space_type', 'SPACE')
+                        ->where('space_id', $space_id);
+
+        return $query;
+    }
+
+
+
+    // Export Import
+    public function importTemplate(){
+        $response = $this->eximService->exportCSV(['filename' => 'journal_supplies_import_template.csv'], $this->import_columns);
+
+        return $response;
+    }
+
+
+    public function exportData(Request $request)
     {
+        $params = json_decode($request->get('params'), true);
+        
+        $query = $this->getQueryData($request);
+
+        // Apply search filter
+        if (!empty($params['search']['value'])) {
+            $search = $params['search']['value'];
+            $query->where(function ($q) use ($search) {
+                $q->where('sent_time', 'like', "%$search%")
+                ->orWhere('number', 'like', "%$search%")
+                ->orWhere('sender_notes', 'like', "%$search%");
+            });
+        }
+
+        // Apply ordering
+        if (!empty($params['order'][0])) {
+            $colIdx = $params['order'][0]['column'];
+            $dir = $params['order'][0]['dir'];
+
+            // ambil nama kolom dari index
+            $column = $params['columns'][$colIdx]['data'] ?? 'id';
+            $query->orderBy($column, $dir);
+        }
+
+        $query->take(10000);
+        $collects = $query->get();
+
+
+        // Prepare the CSV data
+        $filename = 'export_journal_supplies_' . now()->format('Ymd_His') . '.csv';
+        $data = collect();
+
+        // fetch transation into array
+        // grouped by number
+        foreach($collects as $collect){
+            $row = [];
+
+            $row['number'] = $collect->number;
+            $row['date'] = $collect->sent_time->format('d/m/Y');
+            $row['sender_notes'] = $collect->sender_notes;
+            $row['status'] = $collect->status;
+
+            foreach($collect->details as $detail){
+                $row['model_type'] = $detail->model_type ?? 'no model type';
+                $row['item_sku'] = $detail->detail->sku ?? 'no sku';
+                $row['item_name'] = $detail->detail->name ?? 'no name';
+                $row['quantity'] = $detail->quantity;
+                $row['cost_per_unit'] = $detail->cost_per_unit;
+                $row['debit'] = $detail->debit;
+                $row['credit'] = $detail->credit;
+                $row['notes'] = $detail->notes;
+                $row['created_at'] = $collect->created_at;
+
+                $data[] = $row;
+            }
+        }
+
+        $response = $this->eximService->exportCSV(['filename' => $filename], $data);
+
+        return $response;
+    }
+
+
+    public function importData(Request $request)
+    {
+        $space_id = $request->space_id ?? (session('space_id') ?? null);
+        $player_id = $request->player_id ?? (session('player_id') ?? auth()->user()->player->id);
+
         try {
             $validated = $request->validate([
                 'file' => 'required|mimes:csv,txt'
             ]);
 
             $file = $validated['file'];
-            $data = [];
+            $data = collect();
+            $failedRows = collect();
+            $requiredHeaders = ['date', 'number', 'model_type', 'item_sku', 'quantity'];
 
             // Read the CSV into an array of associative rows
-            if (($handle = fopen($file->getRealPath(), 'r')) !== FALSE) {
-                $headers = fgetcsv($handle);
-                while (($row = fgetcsv($handle)) !== FALSE) {
-                    $record = [];
-                    foreach ($headers as $i => $header) {
-                        $record[trim($header, " *")] = $row[$i] ?? null;
-                    }
-                    $data[] = $record;
-                }
-                fclose($handle);
-            }
+            $data = $this->eximService->convertCSVtoArray($file, ['requiredHeaders' => $requiredHeaders]);
+
+
 
             // Group by transaction number
-            $grouped = [];
-            foreach ($data as $row) {
-                $grouped[$row['number']][] = $row;
-            }
+            $data_by_number = collect($data)->groupBy('number');
 
-            foreach ($grouped as $txnNumber => $rows) {
-                $first = $rows[0];
+            // dd($data_by_number);
 
-                // Prepare the journal entry header
-                $entryData = [
-                    'number'       => $txnNumber,
-                    'space_id'     => session('space_id'),
-                    'sender_id'    => auth()->user()->player->id,
-                    'sent_time'    => \Carbon\Carbon::createFromFormat('d/m/Y', $first['date'])->toDateString(),
-                    'sender_notes' => $first['description'] ?? null,
-                    'total'        => 0, // will be recalculated below
-                ];
+            foreach($data_by_number as $txnNumber => $rows){
+                try {
+                    $row_first = $rows[0];
 
-                $details = [];
-                $total = 0;
-
-                foreach ($rows as $row) {
-                    // look up or create inventories, then use its id
-                    $acct = Inventory::where('code', $row['account_code'])
-                        ->where('space_id', session('space_id'))
-                        ->first();
-                    if (!$acct) {
-                        $acct = Inventory::create([
-                            'name' => $row['account_name'],
-                            'type_id' => SupplyType::where('basecode', '1-101')->first()->id,
-                            'code' => $row['account_code'],
-                            'space_type' => 'SPACE',
-                            'space_id' => session('space_id'),
-                            'model_type' => 'ACC',
-                            'type_type' => 'ACCT',
-                            'parent_type' => 'IVT',
-                            'status' => 'active',
-                        ]);
-                    }
-
-                    $debit  = floatval($row['debit'] ?? 0);
-                    $credit = floatval($row['credit'] ?? 0);
-
-                    $details[] = [
-                        'account_id' => $acct->id,
-                        'debit'      => $debit,
-                        'credit'     => $credit,
-                        'notes'      => $row['notes'] ?? null,
+                    // header transaction
+                    $header = [
+                        'number' => $txnNumber,
+                        'space_type' => 'SPACE',
+                        'space_id' => $space_id,
+                        'model_type' => 'JS',
+                        'sender_type' => 'PLAY',
+                        'sender_id' => $player_id,
+                        'handler_type' => 'PLAY',
+                        'handler_id' => $player_id,
+                        'sent_time' => empty($row_first['date']) ? Date('Y-m-d') : $row_first['date'],
+                        'sender_notes' => $row_first['sender_notes'] ?? null,
                     ];
 
-                    // accumulate for the header total
-                    $total += $debit;
+                    $tx_details = collect();
+                    $tx_total = 0;
+
+                    foreach($rows as $i => $row){
+                        try {
+                            // skip if no code or name
+                            if (empty($row['item_sku']) && empty($row['item_name'])) {
+                                throw new \Exception('Missing required field: item_sku && item_name');
+                            }
+    
+    
+                            // look up item
+                            $item = Item::Where('sku', $row['item_sku'])
+                                        ->orWhere('name', $row['item_name'])
+                                        ->first();
+    
+                            // create or use item
+                            if(!$item){
+                                $item = Item::create([
+                                    'sku' => $row['item_sku'],
+                                    'name' => $row['item_name'],
+                                    'price' => $row['item_price'] ?? 0,
+                                    'cost' => $row['item_cost'] ?? 0,
+                                    'weight' => $row['item_weight (gram)'] ?? 0,
+                                    'notes' => $row['notes'] ?? null,
+                                ]);
+                            }
+    
+    
+                            // check for supply
+                            $supply = Inventory::where('model_type', 'SUP')
+                                                ->where('item_type', 'ITM');
+    
+                            
+                            // check supply exists
+                            $supply = $supply->where('item_id', $item->id)
+                                                ->first();
+    
+    
+                            // create supply if not exist
+                            if (!$supply) {
+                                $supply = Inventory::create([
+                                    'space_type' => 'SPACE',
+                                    'space_id' => $space_id,
+    
+                                    'sku' => $item->sku,
+                                    'name' => $item->name,
+                                    'item_id' => $item->id,
+                                    'cost_per_unit' => $item->cost,
+                                    
+                                    'model_type' => 'SUP',
+                                    'item_type' => 'ITM',
+                                    'parent_type' => 'IVT',
+                                ]);
+                            }
+    
+                            $tx_details->push([
+                                'detail_id' => $supply->id,
+                                'model_type' => $row['model_type'] ?? 'UNDF',
+                                'quantity' => $row['quantity'] ?? 0,
+                                'cost_per_unit' => $row['cost_per_unit'] ?? 0,
+                                'notes' => $row['notes'] ?? null,
+                            ]);
+                        } catch (\Throwable $e) {
+                            $row['row'] = $i + 1; 
+                            $row['error'] = $e->getMessage();
+                            $failedRows[] = $row;
+                        }
+                    }
+                    
+                    // find tx, create if not exist
+                    $tx = Transaction::where('number', $txnNumber)
+                                        ->where('model_type', 'JS')
+                                        ->where('space_type', 'SPACE')
+                                        ->where('space_id', $space_id)
+                                        ->first();
+
+                    if (!$tx) {
+                        $tx = Transaction::create($header);
+                    }
+
+                    // update
+                    $this->journalSupply->updateJournal($tx, $header, $tx_details->toArray());
+                } catch (\Throwable $e) {
+                    return back()->with('error', 'Theres an error on tx number ' . $txnNumber . '. Please try again.' . $e->getMessage());
                 }
+            }
 
-                $entryData['total'] = $total;
 
-                // Delegate to the service
-                $this->journalSupply->addJournalEntry($entryData, $details);
+            // Jika ada row yang gagal, langsung return CSV dari memory
+            if (count($failedRows) > 0) {
+                $filename = 'failed_import_' . now()->format('Ymd_His') . '.csv';
+                
+                $this->eximService->exportCSV(['filename' => $filename], $failedRows);
             }
 
             return redirect()->route('journal_supplies.index')->with('success', 'CSV uploaded and processed Successfully!');
         } catch (\Throwable $th) {
-            dd($th);
-            return back()->with('error', 'Failed to import csv. Please try again.');
+            return back()->with('error', 'Failed to import csv. Please try again.' . $th->getMessage());
         }
-    }
-
-    public function downloadTemplate()
-    {
-        $headers = ['Content-Type' => 'text/csv'];
-        $filename = "template.csv";
-
-        // Define your column headers (template)
-        $columns = ['date', 'number', 'description', 'account_code', 'account_name', 'notes', 'debit', 'credit', 'tags'];
-
-        // Open a memory "file" for writing CSV data
-        $callback = function () use ($columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-            fclose($file);
-        };
-
-        return Response::stream($callback, 200, [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$filename",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        ]);
     }
 }
