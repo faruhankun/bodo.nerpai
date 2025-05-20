@@ -260,4 +260,30 @@ class InventoryController extends Controller
     public function exportData(){
         return back()->with('error', 'Under Construction');
     }
+
+
+
+
+    
+    // Summaries
+    public function summary()
+    {
+        $space_id = session('space_id') ?? null;
+        if(is_null($space_id)){
+            abort(403);
+        }
+
+        $supplies = Inventory::with('type', 'item', 'tx_details')
+                            ->where('model_type', 'SUP');
+
+        $space = Space::findOrFail($space_id);
+        $spaces = $space->allChildren();
+        $spaces = $spaces->prepend($space);
+
+        $supplies_spaces = $supplies->where('space_type', 'SPACE')
+                                        ->whereIn('space_id', $spaces->pluck('id')->toArray())
+                                        ->get();
+
+        return view('primary.inventory.supplies.summary', compact('supplies_spaces'));
+    }
 }

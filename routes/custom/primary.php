@@ -68,6 +68,7 @@ Route::middleware([
     Route::get('items/data', [ItemController::class, 'getItemsData'])->name('items.data');
     Route::resource('items', ItemController::class);
 
+    Route::get('supplies/summary', [InventoryController::class, 'summary'])->name('supplies.summary');
     Route::post('supplies/import', [InventoryController::class, 'importData'])->name('supplies.import');
     Route::get('supplies/import', [InventoryController::class, 'importTemplate'])->name('supplies.import_template');
     Route::get('supplies/export', [InventoryController::class, 'exportData'])->name('supplies.export');

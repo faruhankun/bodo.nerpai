@@ -33,6 +33,12 @@
                                     <li class="mb-3"><a href="{{ route('summaries.show', 'items.summary') }}">Rangkuman Items</a></li>
                                 </ul>
                             </x-div-box-show>
+
+                            <x-div-box-show title="Supplies" class="text-xl font-bold">
+                                <ul>
+                                    <li class="mb-3"><a href="{{ route('supplies.summary') }}">Rangkuman Supplies</a></li>
+                                </ul>
+                            </x-div-box-show>
                         @endif
                     </div>
                 </div>

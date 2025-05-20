@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Response;
 class EximService
 {
     // Export Import
-
     public function convertCSVtoArray($file, $data = []){
         $requiredHeaders = $data['requiredHeaders'] ?? [];
         $data = [];
@@ -77,5 +76,36 @@ class EximService
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0"
         ]);
+    }
+
+
+    // export
+    public function exportQuery($query, $params, $filter_columns = []){
+        // Apply search filter
+        if(!empty($filter_columns)){
+            if (!empty($params['search']['value'])) {
+                $search = $params['search']['value'];
+                $query->where(function ($q) use ($search, $filter_columns) {
+                    $q->where($filter_columns[0], 'like', "%$search%");
+
+                    foreach ($filter_columns as $i => $filter_column) {
+                        if($i === 0) continue;
+                        $q->orWhere($filter_column, 'like', "%$search%");
+                    }
+                });
+            }
+        }
+
+        // Apply ordering
+        if (!empty($params['order'][0])) {
+            $colIdx = $params['order'][0]['column'];
+            $dir = $params['order'][0]['dir'];
+
+            // ambil nama kolom dari index
+            $column = $params['columns'][$colIdx]['data'] ?? 'id';
+            $query->orderBy($column, $dir);
+        }
+
+        return $query;
     }
 }

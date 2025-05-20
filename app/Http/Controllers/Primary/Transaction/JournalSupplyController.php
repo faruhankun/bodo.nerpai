@@ -232,26 +232,8 @@ class JournalSupplyController extends Controller
         $params = json_decode($request->get('params'), true);
         
         $query = $this->getQueryData($request);
-
-        // Apply search filter
-        if (!empty($params['search']['value'])) {
-            $search = $params['search']['value'];
-            $query->where(function ($q) use ($search) {
-                $q->where('sent_time', 'like', "%$search%")
-                ->orWhere('number', 'like', "%$search%")
-                ->orWhere('sender_notes', 'like', "%$search%");
-            });
-        }
-
-        // Apply ordering
-        if (!empty($params['order'][0])) {
-            $colIdx = $params['order'][0]['column'];
-            $dir = $params['order'][0]['dir'];
-
-            // ambil nama kolom dari index
-            $column = $params['columns'][$colIdx]['data'] ?? 'id';
-            $query->orderBy($column, $dir);
-        }
+        // search & order filter
+        $query = $this->eximService->exportQuery($query, $params, ['id', 'sent_time', 'number', 'sender_notes', 'total']);
 
         $query->take(10000);
         $collects = $query->get();
