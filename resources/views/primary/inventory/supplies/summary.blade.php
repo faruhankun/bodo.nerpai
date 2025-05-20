@@ -13,9 +13,9 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
                     <h3 class="text-2xl font-bold text-2xl text-xl dark:text-white">Rangkuman Items</h3>
-                    <div class="flex justify-end">
+                    <div class="flex justify-end border-solid border-2 dark:border-gray-700">
                         <form action="{{ route('supplies.summary') }}" method="GET">
-                            <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 mb-6">
+                            <div class="grid grid-cols-2 sm:grid-cols-2">
                                 <div class="form-group mr-4">
                                     <x-input.input-basic type="date" name="date" value="{{ $date }}" required></x-input.input-basic>
                                 </div>

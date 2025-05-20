@@ -86,7 +86,7 @@ class ItemController extends Controller
     public function getItemsData(){
         $space_id = session('space_id') ?? null;
 
-        $items = Item::query();
+        $items = Item::with('inventories');
         // $items = Item::where('space_type', 'SPACE')
         //     ->where('space_id', $space_id);
 
