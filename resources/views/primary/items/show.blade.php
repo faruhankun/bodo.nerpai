@@ -1,3 +1,16 @@
+@php
+
+    $space_id = session('space_id') ?? null;
+    if(is_null($space_id)){
+        abort(403);
+    }
+    $space = \App\Models\Primary\Space::findOrFail($space_id);
+    $spaces = $space->spaceAndChildren();
+
+    $supplies = $data->inventories
+                    ->whereIn('space_id', $spaces->pluck('id')->toArray());
+@endphp
+
 <x-crud.modal-show title="Item Details" trigger="View">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <x-div-box-show title="Code">{{ $data->code ?? 'N/A' }}</x-div-box-show>
@@ -27,7 +40,7 @@
                 </tr>
             </x-table-thead>
             <x-table-tbody>
-                @foreach ($data->inventories as $supply)
+                @foreach ($supplies as $supply)
                     <x-table-tr>
                         <x-table-td>{{ $supply->code ?? 'N/A' }}</x-table-td>
                         <x-table-td>{{ $supply->space_type ?? 'N/A' }} : {{ $supply->space?->name ?? 'N/A' }}</x-table-td>

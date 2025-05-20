@@ -65,7 +65,7 @@
             processing: true,
             serverSide: true,
             ajax: "{{ route('journal_supplies.data') }}",   
-            pageLength: 25,
+            pageLength: 10,
             columns: [{
                     data: 'id'
                 },

@@ -268,6 +268,11 @@ class InventoryController extends Controller
 
     
     // Summaries
+    public $summary_types = [
+        'txs' => 'Transactions',
+        'items' => 'Items',
+    ];
+
     public function summary(Request $request)
     {
         $space_id = session('space_id') ?? null;
@@ -279,22 +284,38 @@ class InventoryController extends Controller
                             ->where('model_type', 'SUP');
 
         $space = Space::findOrFail($space_id);
-        $spaces = $space->allChildren();
-        $spaces = $spaces->prepend($space);
+        $spaces = $space->spaceAndChildren();
 
 
         // generate data by date
-        $date = $request->date ?? now()->format('Y-m-d');
-        $date_time = Carbon::parse($date)->endOfDay();
+        $validated = $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+        ]);
+
+        $start_date = $validated['start_date'] ?? null;
+        $end_date = $validated['end_date'] ?? now()->format('Y-m-d');
+
+        $end_time = Carbon::parse($end_date)->endOfDay();
+        
         $txs = Transaction::with('input', 'type', 'details', 'details.detail') 
                             ->where('model_type', 'JS')
                             ->where('space_type', 'SPACE')
                             ->whereIn('space_id', $spaces->pluck('id')->toArray())
-                            ->where('sent_time', '<=', $date_time)
+                            ->where('sent_time', '<=', $end_time)
                             ->orderBy('sent_time', 'asc');
+
+        if(!is_null($start_date)){
+            $start_time = Carbon::parse($start_date)->startOfDay();
+            $txs = $txs->where('sent_time', '>=', $start_time);
+        }
         
         $txs = $txs->get();
 
-        return view('primary.inventory.supplies.summary', compact('txs', 'spaces'));
+        $data = collect();
+        $data->summary_types = $this->summary_types;
+        $data->items_list = Item::all()->keyBy('id');
+
+        return view('primary.inventory.supplies.summary', compact('data', 'txs', 'spaces'));
     }
 }

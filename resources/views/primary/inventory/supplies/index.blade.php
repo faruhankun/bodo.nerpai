@@ -106,13 +106,6 @@
                 { data: 'space_display' },
                 { data: 'item_display' },
                 { data: 'balance' },
-                // { data: 'getSupplyBalance', className: 'text-right',
-                //     render: function (data, type, row, meta) {
-                //         return new Intl.NumberFormat('id-ID', { 
-                //             maximumFractionDigits: 2
-                //         }).format(data);
-                //     }
-                //  },
                 { data: 'cost_per_unit' },
                 { data: 'notes' },
                 { data: 'actions', orderable: false, searchable: false }

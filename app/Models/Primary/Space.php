@@ -43,6 +43,12 @@ class Space extends Model
 
 
     // Relations
+    public function spaceAndChildren()
+    {
+        return $this->allChildren()->push($this);
+    }
+
+
     public function allChildren()
     {
         $all = collect();
@@ -55,6 +61,7 @@ class Space extends Model
         return $all->unique('id')->values();
     }
 
+    
     public function allParents()
     {
         $all = collect();
