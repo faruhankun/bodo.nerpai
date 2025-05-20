@@ -10,11 +10,13 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
 use App\Models\Primary\Item;
+use App\Models\Primary\Transaction;
 
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Carbon\Carbon;
 
 class InventoryController extends Controller
 {
@@ -266,7 +268,7 @@ class InventoryController extends Controller
 
     
     // Summaries
-    public function summary()
+    public function summary(Request $request)
     {
         $space_id = session('space_id') ?? null;
         if(is_null($space_id)){
@@ -280,10 +282,19 @@ class InventoryController extends Controller
         $spaces = $space->allChildren();
         $spaces = $spaces->prepend($space);
 
-        $supplies_spaces = $supplies->where('space_type', 'SPACE')
-                                        ->whereIn('space_id', $spaces->pluck('id')->toArray())
-                                        ->get();
 
-        return view('primary.inventory.supplies.summary', compact('supplies_spaces'));
+        // generate data by date
+        $date = $request->date ?? now()->format('Y-m-d');
+        $date_time = Carbon::parse($date)->endOfDay();
+        $txs = Transaction::with('input', 'type', 'details', 'details.detail') 
+                            ->where('model_type', 'JS')
+                            ->where('space_type', 'SPACE')
+                            ->whereIn('space_id', $spaces->pluck('id')->toArray())
+                            ->where('sent_time', '<=', $date_time)
+                            ->orderBy('sent_time', 'asc');
+        
+        $txs = $txs->get();
+
+        return view('primary.inventory.supplies.summary', compact('txs', 'spaces'));
     }
 }
