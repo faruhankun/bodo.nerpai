@@ -2,6 +2,7 @@
     $layout = session('layout');
 
     $start_date = request('start_date') ?? now()->startOfMonth()->format('Y-m-d');
+    $real_start_date = request('start_date') ?? null;
     $end_date = request('end_date') ?? now()->format('Y-m-d');
     $summary_type = request('summary_type') ?? null;
 
@@ -15,7 +16,7 @@
         <div class="max-w-7xl my-10 mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
-                    <h3 class="text-2xl font-bold text-2xl text-xl dark:text-white">Rangkuman Items</h3>
+                    <h3 class="text-3xl font-bold dark:text-white">Rangkuman Supplies</h3>
                     <div class="flex justify-end items-center m-4 border-solid border-2 dark:border-gray-700">
                         <form action="{{ route('supplies.summary') }}" method="GET">
                             <div class="grid grid-cols-4">
@@ -38,7 +39,15 @@
                             </div>
                         </form>
                     </div>
-                    <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+
+                    <!-- Filter -->
+                    <h3 class="text-2xl font-bold text-2xl text-xl dark:text-white">Filter</h3>
+                    <!-- export import  -->
+                    <div class="grid grid-cols-2 sm:grid-cols-2 gap-6">
+                        <x-crud.partials.export></x-crud.partials.export>
+                    </div>
+
+
                     @php
                         // Transaction;
                         $spaces_per_id = $spaces->groupBy('id');
@@ -137,3 +146,56 @@
     </div>
     
 </x-dynamic-component>
+
+
+<script>
+    $(document).ready(function() {
+        // $('#summary_type').on('change', function() {
+        //     this.form.submit();
+        // });
+    });
+</script>
+
+<script>
+    function downloadCSV(csv, filename) {
+        let csvFile = new Blob([csv], { type: "text/csv" });
+        let downloadLink = document.createElement("a");
+
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+    }
+
+    $('#exportVisibleBtn').on('click', function () {
+        const datatable = window.datatableInstances['search-table'];
+        if (!datatable) return;
+
+        let csv = [];
+
+        // Ambil header
+        let headers = [];
+        datatable.data.headings.forEach(heading => {
+            let text = heading.data.trim();
+            text = '"' + text.replace(/"/g, '""') + '"';
+            headers.push(text);
+        });
+        csv.push(headers.join(","));
+
+        // Ambil semua data baris
+        datatable.data.data.forEach(row => {
+            let csvRow = row.cells.map(cell => {
+                let text = cell.text.trim();
+                return '"' + text.replace(/"/g, '""') + '"';
+            });
+            csv.push(csvRow.join(","));
+        });
+
+        // Download
+        let filename = "export-summary-{{ $summary_type }}-{{ $real_start_date }}-{{ $end_date }}.csv";
+        downloadCSV(csv.join("\n"), "data-full.csv");
+    });
+
+</script>

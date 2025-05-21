@@ -240,7 +240,8 @@
                 tableIds.forEach(function (id) {
                     const tableElement = document.getElementById(id);
                     if (tableElement) {
-                        new simpleDatatables.DataTable(`#${id}`, {
+                        window.datatableInstances = window.datatableInstances || {};
+                        window.datatableInstances[id] = new simpleDatatables.DataTable(`#${id}`, {
                             searchable: true,
                             sortable: true
                         });
