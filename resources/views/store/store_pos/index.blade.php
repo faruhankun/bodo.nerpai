@@ -17,41 +17,41 @@
                             </a>
                         </div>
                     </div>
-                    <x-table-table id="search-table">
-                        <x-table-thead >
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead >
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Number</x-table-th>
-                                <x-table-th>Tanggal</x-table-th>
-                                <x-table-th>Customer</x-table-th>
-                                <x-table-th>Cashier</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Number</x-table.table-th>
+                                <x-table.table-th>Tanggal</x-table.table-th>
+                                <x-table.table-th>Customer</x-table.table-th>
+                                <x-table.table-th>Cashier</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($store_pos as $pos)
                                 <tr>
-                                    <x-table-td>{{ $pos->id }}</x-table-td>
-                                    <x-table-td>{{ $pos->number }}</x-table-td>
-                                    <x-table-td>{{ $pos->date?->format('Y-m-d') }}</x-table-td>
-                                    <x-table-td>{{ $pos->store_customer?->customer->name ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $pos->store_employee?->employee?->companyuser->user->name ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $pos->status }}</x-table-td>
-                                    <x-table-td>{{ $pos->notes }}</x-table-td>
-                                    <x-table-td class="flex justify-center items-center gap-2">
+                                    <x-table.table-td>{{ $pos->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $pos->number }}</x-table.table-td>
+                                    <x-table.table-td>{{ $pos->date?->format('Y-m-d') }}</x-table.table-td>
+                                    <x-table.table-td>{{ $pos->store_customer?->customer->name ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $pos->store_employee?->employee?->companyuser->user->name ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $pos->status }}</x-table.table-td>
+                                    <x-table.table-td>{{ $pos->notes }}</x-table.table-td>
+                                    <x-table.table-td class="flex justify-center items-center gap-2">
                                         <div class="flex items-center space-x-2">
                                             <x-button-show :route="route('store_pos.show', $pos->id)" />
                                             @if($pos->status == 'POS_PENDING')
                                                 <x-button-delete :route="route('store_pos.destroy', $pos->id)" />
                                             @endif
                                         </div>
-                                    </x-table-td>
+                                    </x-table.table-td>
                                 </tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

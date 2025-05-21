@@ -37,37 +37,37 @@
 
 
                     <h3 class="text-lg font-bold mt-6">Products</h3>
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>#</x-table-th>
-                                <x-table-th>Produk</x-table-th>
-                                <x-table-th>Harga Barang</x-table-th>
-                                <x-table-th>Qty</x-table-th>
-                                <x-table-th>Discount (%)</x-table-th>
-                                <x-table-th>Subtotal</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Action</x-table-th>
+                                <x-table.table-th>#</x-table.table-th>
+                                <x-table.table-th>Produk</x-table.table-th>
+                                <x-table.table-th>Harga Barang</x-table.table-th>
+                                <x-table.table-th>Qty</x-table.table-th>
+                                <x-table.table-th>Discount (%)</x-table.table-th>
+                                <x-table.table-th>Subtotal</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
+                                <x-table.table-th>Action</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($store_pos->store_pos_products as $index => $store_product)
-                                <x-table-tr>
-                                    <x-table-td>{{ $index + 1 }}</x-table-td>
-                                    <x-table-td>{{ $store_product->id }} : {{ $store_product->store_product->product?->name ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $store_product->store_product->store_price }}</x-table-td>
-                                    <x-table-td>{{ $store_product->quantity }}</x-table-td>
-                                    <x-table-td>{{ $store_product->discount ?? '0' }}%</x-table-td>
-                                    <x-table-td>{{ $store_product->subtotal }}</x-table-td>
-                                    <x-table-td>{{ $store_product->notes ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $index + 1 }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->id }} : {{ $store_product->store_product->product?->name ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->store_product->store_price }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->quantity }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->discount ?? '0' }}%</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->subtotal }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->notes ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                     <div class="mb-3 mt-1 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 
                     

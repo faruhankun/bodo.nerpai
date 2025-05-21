@@ -20,36 +20,36 @@
                     </div>
 
                     <!-- Accounts Table -->
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Date</x-table-th>
-                                <x-table-th>Number</x-table-th>
-                                <x-table-th>Description</x-table-th>
-                                <x-table-th>Total</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Date</x-table.table-th>
+                                <x-table.table-th>Number</x-table.table-th>
+                                <x-table.table-th>Description</x-table.table-th>
+                                <x-table.table-th>Total</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($journal_entries as $journal_entry)
-                                <x-table-tr>
-                                    <x-table-td>{{ $journal_entry->id }}</x-table-td>
-                                    <x-table-td>{{ $journal_entry->date }}</x-table-td>
-                                    <x-table-td>{{ $journal_entry->number }}</x-table-td>
-                                    <x-table-td>{{ $journal_entry->description }}</x-table-td>
-                                    <x-table-td
-                                        class="text-right">{{ number_format($journal_entry->total, 2) }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $journal_entry->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $journal_entry->date }}</x-table.table-td>
+                                    <x-table.table-td>{{ $journal_entry->number }}</x-table.table-td>
+                                    <x-table.table-td>{{ $journal_entry->description }}</x-table.table-td>
+                                    <x-table.table-td
+                                        class="text-right">{{ number_format($journal_entry->total, 2) }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex space-x-2">
                                             <x-button-show :route="route('journal_entries.show', $journal_entry->id)" />
                                             <x-button-delete :route="route('journal_entries.destroy', $journal_entry->id)" />
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

@@ -14,28 +14,28 @@
                                 @include('store.store_restocks.create')
                          </div>
                     </div>
-                    <x-table-table id="search-table">
-                        <x-table-thead >
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead >
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Number</x-table-th>
-                                <x-table-th>Date</x-table-th>
-                                <x-table-th>Amount</x-table-th>
-                                <x-table-th>Team</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Number</x-table.table-th>
+                                <x-table.table-th>Date</x-table.table-th>
+                                <x-table.table-th>Amount</x-table.table-th>
+                                <x-table.table-th>Team</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($store_restocks as $restock)
                                 <tr>
-                                    <x-table-td>{{ $restock->id }}</x-table-td>
-                                    <x-table-td>{{ $restock->number }}</x-table-td>
-                                    <x-table-td>{{ $restock->restock_date }}</x-table-td>
-                                    <x-table-td>{{ $restock->total_amount }}</x-table-td>
-                                    <x-table-td>{{ $restock->store_employee->employee->companyuser->user->name }}</x-table-td>
-                                    <x-table-td>{{ $restock->status }}</x-table-td>
-                                    <x-table-td class="flex justify-center items-center gap-2">
+                                    <x-table.table-td>{{ $restock->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $restock->number }}</x-table.table-td>
+                                    <x-table.table-td>{{ $restock->restock_date }}</x-table.table-td>
+                                    <x-table.table-td>{{ $restock->total_amount }}</x-table.table-td>
+                                    <x-table.table-td>{{ $restock->store_employee->employee->companyuser->user->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $restock->status }}</x-table.table-td>
+                                    <x-table.table-td class="flex justify-center items-center gap-2">
                                     <div class="flex items-center space-x-2">
                                             @if($restock->status == 'STR_REQUEST') 
                                                 <form action="{{ route('store_restocks.cancel', $restock->id) }}" method="POST">
@@ -45,11 +45,11 @@
                                                 </form> 
                                             @endif
                                         </div>
-                                    </x-table-td>
+                                    </x-table.table-td>
                                 </tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

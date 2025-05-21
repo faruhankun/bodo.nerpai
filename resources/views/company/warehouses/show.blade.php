@@ -74,22 +74,22 @@
                         </div>
                     </div>
 
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>Room</x-table-th>
-                                <x-table-th>Rack</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>Room</x-table.table-th>
+                                <x-table.table-th>Rack</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($warehouse->warehouse_locations as $location)
-                                <x-table-tr>
-                                    <x-table-td>{{ $location->room }}</x-table-td>
-                                    <x-table-td>{{ $location->rack }}</x-table-td>
-                                    <x-table-td>{{ $location->notes }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $location->room }}</x-table.table-td>
+                                    <x-table.table-td>{{ $location->rack }}</x-table.table-td>
+                                    <x-table.table-td>{{ $location->notes }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                             <x-button-edit :route="route('warehouse_locations.edit', $location->id)" />
                                             <form action="{{ route('warehouse_locations.destroy', $location->id) }}" method="POST">
@@ -98,11 +98,11 @@
                                                 <x-button-delete :route="route('warehouse_locations.destroy', $location->id)" />
                                             </form>
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
 
                     <div class="flex gap-3 justify mt-8">
                         <a href="{{ route('warehouses.index') }}">

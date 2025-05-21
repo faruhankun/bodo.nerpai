@@ -32,25 +32,25 @@
                         </div>
                     </div>
 
-                    <x-table-table id="{{ $table_id }}">
-                        <x-table-thead>
+                    <x-table.table-table id="{{ $table_id }}">
+                        <x-table.table-thead>
                             <tr>
                                 @foreach($thead as $th)
-                                    <x-table-th>{{ $th }}</x-table-th>
+                                    <x-table.table-th>{{ $th }}</x-table.table-th>
                                 @endforeach
                             </tr>
-                        </x-table-thead>
+                        </x-table.table-thead>
 
-                        <x-table-tbody>
+                        <x-table.table-tbody>
                             @foreach($tbody as $tr)
                                 <tr>
                                     @foreach($tr as $td)
-                                        <x-table-td>{{ $td }}</x-table-td>
+                                        <x-table.table-td>{{ $td }}</x-table.table-td>
                                     @endforeach
                                 </tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

@@ -43,28 +43,28 @@
                     <h3 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 my-6">Customer Information
                     </h3>
 
-                    <x-table-table id="sales-customer-table">
-                        <x-table-thead>
+                    <x-table.table-table id="sales-customer-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Name</x-table-th>
-                                <x-table-th>Address</x-table-th>
-                                <x-table-th>Email </x-table-th>
-                                <x-table-th>Phone Number</x-table-th>
-                                <x-table-th>Notes</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Name</x-table.table-th>
+                                <x-table.table-th>Address</x-table.table-th>
+                                <x-table.table-th>Email </x-table.table-th>
+                                <x-table.table-th>Phone Number</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
-                            <x-table-tr>
-                                <x-table-td>{{ $store_customer->customer->id }}</x-table-td>
-                                <x-table-td>{{ $store_customer->customer->name }}</x-table-td>
-                                <x-table-td>{{ $store_customer->customer->address }}</x-table-td>
-                                <x-table-td>{{ $store_customer->customer->email }}</x-table-td>
-                                <x-table-td>{{ $store_customer->customer->phone_number }}</x-table-td>
-                                <x-table-td>{{ $store_customer->customer->notes }}</x-table-td>
-                            </x-table-tr>
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
+                            <x-table.table-tr>
+                                <x-table.table-td>{{ $store_customer->customer->id }}</x-table.table-td>
+                                <x-table.table-td>{{ $store_customer->customer->name }}</x-table.table-td>
+                                <x-table.table-td>{{ $store_customer->customer->address }}</x-table.table-td>
+                                <x-table.table-td>{{ $store_customer->customer->email }}</x-table.table-td>
+                                <x-table.table-td>{{ $store_customer->customer->phone_number }}</x-table.table-td>
+                                <x-table.table-td>{{ $store_customer->customer->notes }}</x-table.table-td>
+                            </x-table.table-tr>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
 
                     <div class="flex gap-3 justify-end mt-8">
                         <a href="{{ route('store_customers.index') }}">

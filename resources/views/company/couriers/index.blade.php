@@ -20,40 +20,40 @@
                          </div>
                     </div>
 
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Kode</x-table-th>
-                                <x-table-th>Nama</x-table-th>
-                                <x-table-th>Kontak Info</x-table-th>
-                                <x-table-th>Website</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Kode</x-table.table-th>
+                                <x-table.table-th>Nama</x-table.table-th>
+                                <x-table.table-th>Kontak Info</x-table.table-th>
+                                <x-table.table-th>Website</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($couriers as $courier)
-                                <x-table-tr>
-                                    <x-table-td>{{ $courier->id }}</x-table-td>
-                                    <x-table-td>{{ $courier->code }}</x-table-td>
-                                    <x-table-td>{{ $courier->name }}</x-table-td>
-                                    <x-table-td>{{ $courier->contact_info }}</x-table-td>
-                                    <x-table-td>{{ $courier->website }}</x-table-td>
-                                    <x-table-td>{{ $courier->status }}</x-table-td>
-                                    <x-table-td>{{ $courier->notes }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $courier->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $courier->code }}</x-table.table-td>
+                                    <x-table.table-td>{{ $courier->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $courier->contact_info }}</x-table.table-td>
+                                    <x-table.table-td>{{ $courier->website }}</x-table.table-td>
+                                    <x-table.table-td>{{ $courier->status }}</x-table.table-td>
+                                    <x-table.table-td>{{ $courier->notes }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                             <!-- <x-button-show :route="route('couriers.show', $courier->id)" /> -->
                                             <x-button-edit :route="route('couriers.edit', $courier->id)" />
                                             <x-button-delete :route="route('couriers.destroy', $courier->id)" />
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

@@ -26,53 +26,53 @@
 
                     <!-- Overall Stock -->
                     <h3 class="text-lg font-bold dark:text-white">Stock Overview</h3>
-                    <x-table-table class="table table-bordered" id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table class="table table-bordered" id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>Product</x-table-th>
-                                <x-table-th>Available Stock</x-table-th>
-                                <x-table-th>Incoming Stock</x-table-th>
-                                <x-table-th>Reserved Stock</x-table-th>
-                                <x-table-th>In Transit Stock</x-table-th>
+                                <x-table.table-th>Product</x-table.table-th>
+                                <x-table.table-th>Available Stock</x-table.table-th>
+                                <x-table.table-th>Incoming Stock</x-table.table-th>
+                                <x-table.table-th>Reserved Stock</x-table.table-th>
+                                <x-table.table-th>In Transit Stock</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($inventories as $inventory)
-                                <x-table-tr>
-                                    <x-table-td>{{ $inventory->product->name }}</x-table-td>
-                                    <x-table-td>{{ $inventory->quantity }}</x-table-td>
-                                    <x-table-td>0</x-table-td> <!-- Replace with logic for incoming -->
-                                    <x-table-td>{{ $inventory->reserved_quantity }}</x-table-td>
-                                    <x-table-td>{{ $inventory->in_transit_quantity }}</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $inventory->product->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $inventory->quantity }}</x-table.table-td>
+                                    <x-table.table-td>0</x-table.table-td> <!-- Replace with logic for incoming -->
+                                    <x-table.table-td>{{ $inventory->reserved_quantity }}</x-table.table-td>
+                                    <x-table.table-td>{{ $inventory->in_transit_quantity }}</x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
 
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                     <h3 class="text-lg font-bold dark:text-white">Stock by Location</h3>
-                    <x-table-table class="table table-bordered" id="search-table1">
-                        <x-table-thead>
+                    <x-table.table-table class="table table-bordered" id="search-table1">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>Warehouse</x-table-th>
-                                <x-table-th>Product</x-table-th>
-                                <x-table-th>Room</x-table-th>
-                                <x-table-th>Rack</x-table-th>
-                                <x-table-th>Quantity</x-table-th>
+                                <x-table.table-th>Warehouse</x-table.table-th>
+                                <x-table.table-th>Product</x-table.table-th>
+                                <x-table.table-th>Room</x-table.table-th>
+                                <x-table.table-th>Rack</x-table.table-th>
+                                <x-table.table-th>Quantity</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($inventoryByLocations as $locationStock)
-                                <x-table-tr>
-                                    <x-table-td>{{ $locationStock->warehouse->name }}</x-table-td>
-                                    <x-table-td>{{ $locationStock->product->name }}</x-table-td>
-                                    <x-table-td>{{ $locationStock->location->room ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $locationStock->location->rack ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $locationStock->total_quantity }}</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $locationStock->warehouse->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $locationStock->product->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $locationStock->location->room ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $locationStock->location->rack ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $locationStock->total_quantity }}</x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

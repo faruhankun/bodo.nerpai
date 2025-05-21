@@ -29,28 +29,28 @@
     <!-- Supplies -->
     <h3 class="text-lg font-bold my-3">Supplies Details</h3>
     <div class="overflow-x-auto">
-        <x-table-table id="inventories-details">
-            <x-table-thead>
+        <x-table.table-table id="inventories-details">
+            <x-table.table-thead>
                 <tr>
-                    <x-table-th>Code</x-table-th>
-                    <x-table-th>Space</x-table-th>
-                    <x-table-th>Qty</x-table-th>
-                    <x-table-th>Cost/Unit</x-table-th>
-                    <x-table-th>Notes</x-table-th>
+                    <x-table.table-th>Code</x-table.table-th>
+                    <x-table.table-th>Space</x-table.table-th>
+                    <x-table.table-th>Qty</x-table.table-th>
+                    <x-table.table-th>Cost/Unit</x-table.table-th>
+                    <x-table.table-th>Notes</x-table.table-th>
                 </tr>
-            </x-table-thead>
-            <x-table-tbody>
+            </x-table.table-thead>
+            <x-table.table-tbody>
                 @foreach ($supplies as $supply)
-                    <x-table-tr>
-                        <x-table-td>{{ $supply->code ?? 'N/A' }}</x-table-td>
-                        <x-table-td>{{ $supply->space_type ?? 'N/A' }} : {{ $supply->space?->name ?? 'N/A' }}</x-table-td>
-                        <x-table-td>{{ intval($supply->balance) ?? 'N/A' }}</x-table-td>
-                        <x-table-td class="py-4">Rp{{ number_format($supply->cost_per_unit, 2) }}</x-table-td>
-                        <x-table-td>{{ $detail->notes ?? 'N/A' }}</x-table-td>
-                    </x-table-tr>
+                    <x-table.table-tr>
+                        <x-table.table-td>{{ $supply->code ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ $supply->space_type ?? 'N/A' }} : {{ $supply->space?->name ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ intval($supply->balance) ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td class="py-4">Rp{{ number_format($supply->cost_per_unit, 2) }}</x-table.table-td>
+                        <x-table.table-td>{{ $detail->notes ?? 'N/A' }}</x-table.table-td>
+                    </x-table.table-tr>
                 @endforeach
-            </x-table-tbody>
-        </x-table-table>
+            </x-table.table-tbody>
+        </x-table.table-table>
     </div>
     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 

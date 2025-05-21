@@ -24,20 +24,20 @@
 
                     @foreach($warehouses as $warehouse)
                         <x-input-label>{{ $warehouse->name }}</x-input-label>
-                        <x-table-table class="search-table">
-                            <x-table-thead>
+                        <x-table.table-table class="search-table">
+                            <x-table.table-thead>
                                 <tr>
-                                    <x-table-th>Room</x-table-th>
-                                    <x-table-th>Rack</x-table-th>
-                                    <x-table-th>Actions</x-table-th>
+                                    <x-table.table-th>Room</x-table.table-th>
+                                    <x-table.table-th>Rack</x-table.table-th>
+                                    <x-table.table-th>Actions</x-table.table-th>
                                 </tr>
-                            </x-table-thead>
-                            <x-table-tbody>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
                                 @foreach($warehouse->locations as $location)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $location->room }}</x-table-td>
-                                        <x-table-td>{{ $location->rack }}</x-table-td>
-                                        <x-table-td class="flex gap-3">
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $location->room }}</x-table.table-td>
+                                        <x-table.table-td>{{ $location->rack }}</x-table.table-td>
+                                        <x-table.table-td class="flex gap-3">
                                             <div class="flex items-center space-x-2">
                                                 <x-button-edit :route="route('locations.edit', $location->id)" />
 
@@ -49,11 +49,11 @@
                                                 @method('DELETE')
                                                 <x-button-delete :route="route('locations.destroy', $location->id)" />
                                             </form>
-                                        </x-table-td>
-                                    </x-table-tr>
+                                        </x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                            </x-table-tbody>
-                        </x-table-table>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                         <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
                     @endforeach

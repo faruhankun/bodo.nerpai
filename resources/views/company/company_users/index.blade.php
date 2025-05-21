@@ -14,26 +14,26 @@
                                 @include('company.company_users.create')
                          </div>
                     </div>
-                    <x-table-table id="search-table">
-                        <x-table-thead >
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead >
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                {{-- <x-table-th>Username</x-table-th> --}}
-                                <x-table-th>Nama</x-table-th>
-                                <x-table-th>Type</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                {{-- <x-table.table-th>Username</x-table.table-th> --}}
+                                <x-table.table-th>Nama</x-table.table-th>
+                                <x-table.table-th>Type</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($company_users as $user)
                                 <tr>
-                                    <x-table-td>{{ $user->id }}</x-table-td>
-                                    {{-- <x-table-td>{{ $User->username }}</x-table-td> --}}
-                                    <x-table-td>{{ $user->user->name }}</x-table-td>
-                                    <x-table-td>{{ $user->user_type }}</x-table-td>
-                                    <x-table-td>{{ $user->status }}</x-table-td>
-                                    <x-table-td class="flex justify-center items-center gap-2">
+                                    <x-table.table-td>{{ $user->id }}</x-table.table-td>
+                                    {{-- <x-table.table-td>{{ $User->username }}</x-table.table-td> --}}
+                                    <x-table.table-td>{{ $user->user->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $user->user_type }}</x-table.table-td>
+                                    <x-table.table-td>{{ $user->status }}</x-table.table-td>
+                                    <x-table.table-td class="flex justify-center items-center gap-2">
                                     <div class="flex items-center space-x-2">
                                             <!-- <x-button-edit :route="route('company_users.edit', $user->id)" /> -->
                                             @if($user->status == 'invited') 
@@ -49,11 +49,11 @@
                                                 @endif
                                             @endif
                                         </div>
-                                    </x-table-td>
+                                    </x-table.table-td>
                                 </tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

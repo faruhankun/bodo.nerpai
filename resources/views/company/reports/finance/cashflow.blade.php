@@ -55,107 +55,107 @@
 
                         <div id="cashflow_indirect" class="cashflow-section">
                             <h2 class="text-xl font-bold mb-2">Laporan Arus Kas (Metode Tidak Langsung)</h2>
-                            <x-table-table>
-                                <x-table-tr>
-                                    <x-table-th colspan="2" class="font-bold text-l">Arus Kas dari Aktivitas Operasi</x-table-th>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Laba Bersih</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($netIncome, 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Perubahan Piutang</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($changeReceivables, 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Perubahan Persediaan</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($changeInventory, 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Perubahan Hutang Usaha</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($changePayables, 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr class="font-bold">
-                                    <x-table-td>Total Kas dari Aktivitas Operasi</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($cashFromOperations, 2) }}</x-table-td>
-                                </x-table-tr>
+                            <x-table.table-table>
+                                <x-table.table-tr>
+                                    <x-table.table-th colspan="2" class="font-bold text-l">Arus Kas dari Aktivitas Operasi</x-table.table-th>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Laba Bersih</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($netIncome, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Perubahan Piutang</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($changeReceivables, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Perubahan Persediaan</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($changeInventory, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Perubahan Hutang Usaha</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($changePayables, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr class="font-bold">
+                                    <x-table.table-td>Total Kas dari Aktivitas Operasi</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($cashFromOperations, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
 
-                            </x-table-table>
+                            </x-table.table-table>
                         </div>
 
                         <div id="cashflow_direct" class="cashflow-section hidden">
                             <h2 class="text-xl font-bold mb-2">Laporan Arus Kas (Metode Langsung)</h2>
-                            <x-table-table>
-                                <x-table-tr>
-                                    <x-table-th colspan="2" class="font-bold text-l">Arus Kas dari Aktivitas Operasi</x-table-th>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Penerimaan Kas dari Pelanggan</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($accounts->where('code', '4-401')->sum('balance'), 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Pembayaran ke Pemasok</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($accounts->where('code', '5-501')->sum('balance'), 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Pembayaran Biaya Operasional</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($accounts->where('code', '6-601')->sum('balance'), 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr class="font-bold">
-                                    <x-table-td>Total Kas dari Aktivitas Operasi</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($cashFromOperations, 2) }}</x-table-td>
-                                </x-table-tr>
-                            </x-table-table>
+                            <x-table.table-table>
+                                <x-table.table-tr>
+                                    <x-table.table-th colspan="2" class="font-bold text-l">Arus Kas dari Aktivitas Operasi</x-table.table-th>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Penerimaan Kas dari Pelanggan</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($accounts->where('code', '4-401')->sum('balance'), 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Pembayaran ke Pemasok</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($accounts->where('code', '5-501')->sum('balance'), 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Pembayaran Biaya Operasional</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($accounts->where('code', '6-601')->sum('balance'), 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr class="font-bold">
+                                    <x-table.table-td>Total Kas dari Aktivitas Operasi</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($cashFromOperations, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                            </x-table.table-table>
                         </div>
                         
                         <div id="cashflow_all">
                             <br>
-                            <x-table-table>
-                                <x-table-tr>
-                                    <x-table-th colspan="2" class="font-bold text-l">Arus Kas dari Aktivitas Investasi</x-table-th>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Pembelian Aset Tetap</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($purchaseFixedAssets, 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr class="font-bold">
-                                    <x-table-td>Total Kas dari Aktivitas Investasi</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($cashFromInvesting, 2) }}</x-table-td>
-                                </x-table-tr>
-                            </x-table-table>
+                            <x-table.table-table>
+                                <x-table.table-tr>
+                                    <x-table.table-th colspan="2" class="font-bold text-l">Arus Kas dari Aktivitas Investasi</x-table.table-th>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Pembelian Aset Tetap</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($purchaseFixedAssets, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr class="font-bold">
+                                    <x-table.table-td>Total Kas dari Aktivitas Investasi</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($cashFromInvesting, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                            </x-table.table-table>
                             <br>
-                            <x-table-table>
-                                <x-table-tr>
-                                    <x-table-th colspan="2" class="font-bold text-l">Arus Kas dari Aktivitas Pendanaan</x-table-th>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Penerimaan Pinjaman</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($loansReceived, 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Perubahan Ekuitas</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($equityChanges, 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr class="font-bold">
-                                    <x-table-td>Total Kas dari Aktivitas Pendanaan</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($cashFromFinancing, 2) }}</x-table-td>
-                                </x-table-tr>
-                            </x-table-table>
+                            <x-table.table-table>
+                                <x-table.table-tr>
+                                    <x-table.table-th colspan="2" class="font-bold text-l">Arus Kas dari Aktivitas Pendanaan</x-table.table-th>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Penerimaan Pinjaman</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($loansReceived, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Perubahan Ekuitas</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($equityChanges, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr class="font-bold">
+                                    <x-table.table-td>Total Kas dari Aktivitas Pendanaan</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($cashFromFinancing, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                            </x-table.table-table>
                             <br>
-                            <x-table-table>
-                                <x-table-tr>
-                                    <x-table-th class="font-bold text-l">Total Arus Kas</x-table-th>
-                                    <x-table-th class="text-right font-bold text-l">{{ number_format($netCashFlow, 2) }}</x-table-th>
-                                </x-table-tr>
-                                <x-table-tr>
-                                    <x-table-td>Saldo Kas Awal</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($initialCash, 2) }}</x-table-td>
-                                </x-table-tr>
-                                <x-table-tr class="font-bold">
-                                    <x-table-td>Saldo Kas Akhir</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($endingCash, 2) }}</x-table-td>
-                                </x-table-tr>
-                            </x-table-table>
+                            <x-table.table-table>
+                                <x-table.table-tr>
+                                    <x-table.table-th class="font-bold text-l">Total Arus Kas</x-table.table-th>
+                                    <x-table.table-th class="text-right font-bold text-l">{{ number_format($netCashFlow, 2) }}</x-table.table-th>
+                                </x-table.table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td>Saldo Kas Awal</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($initialCash, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                                <x-table.table-tr class="font-bold">
+                                    <x-table.table-td>Saldo Kas Akhir</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($endingCash, 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                            </x-table.table-table>
                         </div>
                     </div>
 

@@ -19,36 +19,36 @@
                                 @include('store.store_employees.create')
                          </div>
                     </div>
-                    <x-table-table id="search-table"> 
-                        <x-table-thead>
+                    <x-table.table-table id="search-table"> 
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>#</x-table-th>
-                                <x-table-th>Employee Name</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Role</x-table-th>
-                                <x-table-th>Store Role</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>#</x-table.table-th>
+                                <x-table.table-th>Employee Name</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Role</x-table.table-th>
+                                <x-table.table-th>Store Role</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
+                        </x-table.table-thead>
                         <tbody>
                             @foreach ($store_employees as $employee)
-                                <x-table-tr>
-                                    <x-table-td>{{ $employee->id }}</x-table-td>
-                                    <x-table-td>{{ $employee->employee->companyuser->user->name }}</x-table-td>
-                                    <x-table-td>{{ $employee->status }}</x-table-td>
-                                    <x-table-td>{{ $employee->employee->role->name }}</x-table-td>
-                                    <x-table-td>{{ $employee?->store_role?->name }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $employee->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $employee->employee->companyuser->user->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $employee->status }}</x-table.table-td>
+                                    <x-table.table-td>{{ $employee->employee->role->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $employee?->store_role?->name }}</x-table.table-td>
+                                    <x-table.table-td>
                                     <div class="flex items-center space-x-2">
                                             
                                             @include('store.store_employees.edit', ['employee' => $employee, 'store_roles' => $store_roles])
                                             <x-button-delete :route="route('store_employees.destroy', $employee->id)" />
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
                         </tbody>
-                    </x-table-table>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

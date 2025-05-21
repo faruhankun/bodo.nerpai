@@ -40,21 +40,21 @@
 
                         <div class="container">
                             <!-- Journal Entry Details Table -->
-                            <x-table-table id="journalDetailTable">
-                                <x-table-thead>
+                            <x-table.table-table id="journalDetailTable">
+                                <x-table.table-thead>
                                     <tr>
-                                        <x-table-th>No</x-table-th>
-                                        <x-table-th>Account</x-table-th>
-                                        <x-table-th>Debit</x-table-th>
-                                        <x-table-th>Credit</x-table-th>
-                                        <x-table-th>Notes</x-table-th>
-                                        <x-table-th>Action</x-table-th>
+                                        <x-table.table-th>No</x-table.table-th>
+                                        <x-table.table-th>Account</x-table.table-th>
+                                        <x-table.table-th>Debit</x-table.table-th>
+                                        <x-table.table-th>Credit</x-table.table-th>
+                                        <x-table.table-th>Notes</x-table.table-th>
+                                        <x-table.table-th>Action</x-table.table-th>
                                     </tr>
-                                </x-table-thead>
-                                <x-table-tbody id="journal-detail-list">
+                                </x-table.table-thead>
+                                <x-table.table-tbody id="journal-detail-list">
                                     <!-- Journal Entry Details rows will be dynamically added -->
-                                </x-table-tbody>
-                            </x-table-table>
+                                </x-table.table-tbody>
+                            </x-table.table-table>
 
                             <div class="mb-4">
                                 <x-button2 type="button" id="add-detail" class="mr-3 m-4">Add Journal
@@ -99,8 +99,8 @@
                 detailIndex++;
                 let newRow =
                     `<tr class="detail-row">
-                        <x-table-td class="mb-2">${detailIndex}</x-table-td>
-                        <x-table-td>
+                        <x-table.table-td class="mb-2">${detailIndex}</x-table.table-td>
+                        <x-table.table-td>
                             <x-input-select name="journal_entry_details[${detailIndex}][account_id]" class="account-select my-3" required>
                                 <option value="">Select Account</option>
                                 <!-- Assuming these account options exist in the server-side -->
@@ -108,21 +108,21 @@
                                     <option value="{{ $account->id }}">{{ $account->name }}</option>
                                 @endforeach
                             </x-input-select>
-                        </x-table-td>
-                        <x-table-td>
+                        </x-table.table-td>
+                        <x-table.table-td>
                             <x-input-input type="number" name="journal_entry_details[${detailIndex}][debit]" class="debit-input" value="0" required min="0">
                             </x-input-input>
-                        </x-table-td>
-                        <x-table-td>
+                        </x-table.table-td>
+                        <x-table.table-td>
                             <x-input-input type="number" name="journal_entry_details[${detailIndex}][credit]" class="credit-input" value="0" required min="0">
                             </x-input-input>
-                        </x-table-td>
-                        <x-table-td>
+                        </x-table.table-td>
+                        <x-table.table-td>
                             <x-input-input type="text" name="journal_entry_details[${detailIndex}][notes]" class="notes-input"></x-input-input>
-                        </x-table-td>
-                        <x-table-td>
+                        </x-table.table-td>
+                        <x-table.table-td>
                             <button type="button" class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
-                        </x-table-td>
+                        </x-table.table-td>
                     </tr>`;
                 $("#journal-detail-list").append(newRow);
             });

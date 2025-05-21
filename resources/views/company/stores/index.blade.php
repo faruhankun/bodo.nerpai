@@ -20,28 +20,28 @@
                     </div>
 
                     <!-- store Table -->
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Kode</x-table-th>
-                                <x-table-th>Nama</x-table-th>
-                                <x-table-th>Alamat</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Manager</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Kode</x-table.table-th>
+                                <x-table.table-th>Nama</x-table.table-th>
+                                <x-table.table-th>Alamat</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Manager</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($stores as $store)
-                                <x-table-tr>
-                                    <x-table-td>{{ $store->id }}</x-table-td>
-                                    <x-table-td>{{ $store->code }}</x-table-td>
-                                    <x-table-td>{{ $store->name }}</x-table-td>
-                                    <x-table-td>{{ $store->address }}</x-table-td>
-                                    <x-table-td>{{ $store->status }}</x-table-td>
-                                    <x-table-td>{{ $store->manager->name ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $store->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store->code }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store->address }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store->status }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store->manager->name ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                             <form method="POST" action="{{ route('stores.switch', $store->id) }}">
                                                 @csrf
@@ -53,11 +53,11 @@
                                             </form>
                                             <x-button-delete :route="route('stores.destroy', $store->id)" />
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

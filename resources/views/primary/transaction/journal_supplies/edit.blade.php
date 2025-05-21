@@ -29,21 +29,21 @@
 
                         <div class="container">
                             <!-- Journal Details Table -->
-                            <x-table-table id="journalDetailTable">
-                                <x-table-thead>
+                            <x-table.table-table id="journalDetailTable">
+                                <x-table.table-thead>
                                     <tr>
-                                        <x-table-th>No</x-table-th>
-                                        <x-table-th>Supply</x-table-th>
-                                        <x-table-th>Qty</x-table-th>
-                                        <x-table-th>Type</x-table-th>
-                                        <x-table-th>Cost/Unit</x-table-th>
-                                        <x-table-th>Notes</x-table-th>
-                                        <x-table-th>Action</x-table-th>
+                                        <x-table.table-th>No</x-table.table-th>
+                                        <x-table.table-th>Supply</x-table.table-th>
+                                        <x-table.table-th>Qty</x-table.table-th>
+                                        <x-table.table-th>Type</x-table.table-th>
+                                        <x-table.table-th>Cost/Unit</x-table.table-th>
+                                        <x-table.table-th>Notes</x-table.table-th>
+                                        <x-table.table-th>Action</x-table.table-th>
                                     </tr>
-                                </x-table-thead>
-                                <x-table-tbody id="journal-detail-list">
-                                </x-table-tbody>
-                            </x-table-table>
+                                </x-table.table-thead>
+                                <x-table.table-tbody id="journal-detail-list">
+                                </x-table.table-tbody>
+                            </x-table.table-table>
 
                             <div class="mb-4">
                                 <x-button2 type="button" id="add-detail" class="mr-3 m-4">Add Journal

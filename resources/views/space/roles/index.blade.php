@@ -42,39 +42,39 @@
                                     <x-button-add :route="route('roles.create')" text="Add Role" />
                                 </div>
                             </div>
-                            <x-table-table id="roles-table">
-                                <x-table-thead>
+                            <x-table.table-table id="roles-table">
+                                <x-table.table-thead>
                                     <tr>
-                                        <x-table-th>#</x-table-th>
-                                        <x-table-th>Role Name</x-table-th>
-                                        <x-table-th>Permissions</x-table-th>
-                                        <x-table-th>Action</x-table-th>
+                                        <x-table.table-th>#</x-table.table-th>
+                                        <x-table.table-th>Role Name</x-table.table-th>
+                                        <x-table.table-th>Permissions</x-table.table-th>
+                                        <x-table.table-th>Action</x-table.table-th>
                                     </tr>
-                                </x-table-thead>
+                                </x-table.table-thead>
                                 <tbody>
                                     @foreach ($roles as $role)
-                                        <x-table-tr>
-                                            <x-table-td>{{ $loop->iteration }}</x-table-td>
-                                            <x-table-th class="dark:text-white">{{ $role->name }}</x-table-th>
-                                            <x-table-td>
+                                        <x-table.table-tr>
+                                            <x-table.table-td>{{ $loop->iteration }}</x-table.table-td>
+                                            <x-table.table-th class="dark:text-white">{{ $role->name }}</x-table.table-th>
+                                            <x-table.table-td>
                                                 @foreach ($role->permissions as $permission)
                                                     <span
                                                         class="inline-block px-2 py-1 bg-blue-100 text-blue-600 text-xs font-medium rounded-lg mr-1 mb-1">
                                                         {{ $permission->name }}
                                                     </span>
                                                 @endforeach
-                                            </x-table-td>
-                                            <x-table-td>
+                                            </x-table.table-td>
+                                            <x-table.table-td>
                                                 <div class="flex inline">
                                                     <x-button-show :route="route('roles.show', $role->id)" />
                                                     <x-button-edit :route="route('roles.edit', $role->id)" />
                                                     <x-button-delete :route="route('roles.destroy', $role->id)" />
                                                 </div>
-                                            </x-table-td>
-                                        </x-table-tr>
+                                            </x-table.table-td>
+                                        </x-table.table-tr>
                                     @endforeach
                         </tbody>
-                        </x-table-table>
+                        </x-table.table-table>
 
 
                     </div>

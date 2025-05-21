@@ -23,41 +23,41 @@
                             $totalEquities = $equities->sum('balance');
                         @endphp
 
-                        <x-table-table>
-                            <x-table-thead>
+                        <x-table.table-table>
+                            <x-table.table-thead>
                                 <tr>
                                     <td colspan="1" class="font-bold text-2xl">Laporan Neraca</td>
-                                    <x-table-td class="text-right font-bold text-2xl">{{ $date }}</x-table-td>
+                                    <x-table.table-td class="text-right font-bold text-2xl">{{ $date }}</x-table.table-td>
                                 </tr>
-                            </x-table-thead>
-                            <x-table-tbody>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
                                 
                                 <!-- ASET -->
-                                <x-table-tr><x-table-td colspan="2" class="font-bold text-2xl">Aset</x-table-td></x-table-tr>
+                                <x-table.table-tr><x-table.table-td colspan="2" class="font-bold text-2xl">Aset</x-table.table-td></x-table.table-tr>
                                 @foreach ($assets->groupBy('type_id') as $type => $accounts)
-                                    <x-table-tr><x-table-td colspan="2" class="font-semibold">{{ $accounts->first()->account_type?->name }}</x-table-td></x-table-tr>
+                                    <x-table.table-tr><x-table.table-td colspan="2" class="font-semibold">{{ $accounts->first()->account_type?->name }}</x-table.table-td></x-table.table-tr>
                                     @foreach ($accounts as $account)
-                                        <x-table-tr>    
-                                            <x-table-td class="pl-8">{{ $account->code }} - {{ $account->name }}</x-table-td>
-                                            <x-table-td class="text-right">{{ number_format($account->balance, 2) }}</x-table-td>
-                                        </x-table-tr>
+                                        <x-table.table-tr>    
+                                            <x-table.table-td class="pl-8">{{ $account->code }} - {{ $account->name }}</x-table.table-td>
+                                            <x-table.table-td class="text-right">{{ number_format($account->balance, 2) }}</x-table.table-td>
+                                        </x-table.table-tr>
                                     @endforeach
                                 @endforeach
-                                <x-table-tr>
+                                <x-table.table-tr>
                                     <td colspan="2" class="font-bold text-2xl">Total Aset</td>
                                     <td class="text-right font-bold">{{ number_format($totalAssets, 2) }}</td>
-                                </x-table-tr>
+                                </x-table.table-tr>
                                 <tr class="border-t border-gray-300 dark:border-gray-700"></tr>
 
                                 <!-- LIABILITAS -->
-                                <x-table-tr><x-table-td colspan="2" class="font-bold text-2xl">Liabilitas</x-table-td></x-table-tr>
+                                <x-table.table-tr><x-table.table-td colspan="2" class="font-bold text-2xl">Liabilitas</x-table.table-td></x-table.table-tr>
                                 @foreach ($liabilities->groupBy('type_id') as $type => $accounts)
-                                    <x-table-tr><x-table-td colspan="2" class="pl-4 font-semibold">{{ $accounts->first()->account_type?->name }}</x-table-td></x-table-tr>
+                                    <x-table.table-tr><x-table.table-td colspan="2" class="pl-4 font-semibold">{{ $accounts->first()->account_type?->name }}</x-table.table-td></x-table.table-tr>
                                     @foreach ($accounts as $account)
-                                        <x-table-tr>
-                                            <x-table-td class="pl-8">{{ $account->code }} - {{ $account->name }}</x-table-td>
-                                            <x-table-td class="text-right">{{ number_format($account->balance, 2) }}</x-table-td>
-                                        </x-table-tr>
+                                        <x-table.table-tr>
+                                            <x-table.table-td class="pl-8">{{ $account->code }} - {{ $account->name }}</x-table.table-td>
+                                            <x-table.table-td class="text-right">{{ number_format($account->balance, 2) }}</x-table.table-td>
+                                        </x-table.table-tr>
                                     @endforeach
                                 @endforeach
                                 <tr>
@@ -66,12 +66,12 @@
                                 </tr>
 
                                 <!-- EKUITAS -->
-                                <x-table-tr><x-table-td colspan="2" class="font-bold text-2xl">Ekuitas</x-table-td></x-table-tr>
+                                <x-table.table-tr><x-table.table-td colspan="2" class="font-bold text-2xl">Ekuitas</x-table.table-td></x-table.table-tr>
                                 @foreach ($equities as $account)
-                                    <x-table-tr>
-                                        <x-table-td class="pl-4">{{ $account->code }} - {{ $account->name }}</x-table-td>
-                                        <x-table-td class="text-right">{{ number_format($account->balance, 2) }}</x-table-td>
-                                    </x-table-tr>
+                                    <x-table.table-tr>
+                                        <x-table.table-td class="pl-4">{{ $account->code }} - {{ $account->name }}</x-table.table-td>
+                                        <x-table.table-td class="text-right">{{ number_format($account->balance, 2) }}</x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
                                 <tr>
                                     <td colspan="2" class="font-bold text-2xl">Total Ekuitas</td>
@@ -82,8 +82,8 @@
                                     <td colspan="2" class="font-bold text-2xl">Total Liabilitas & Ekuitas</td>
                                     <td class="text-right font-bold">{{ number_format($totalLiabilities + $totalEquities, 2) }}</td>
                                 </tr>
-                            </x-table-tbody>
-                        </x-table-table>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                     </div>
 
                     <!-- Back Button -->

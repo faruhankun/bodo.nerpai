@@ -9,29 +9,29 @@
 
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Sales Order</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Sales Order</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach($complaints as $complaint)
-                                <x-table-tr>
-                                    <x-table-td>{{ $complaint->id }}</x-table-td>
-                                    <x-table-td>{{ $complaint->salesOrder->id }}</x-table-td>
-                                    <x-table-td>{{ $complaint->status }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $complaint->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $complaint->salesOrder->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $complaint->status }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <a href="{{ route('customer_complaints.show', $complaint->id) }}"
                                             class="btn btn-info">View</a>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

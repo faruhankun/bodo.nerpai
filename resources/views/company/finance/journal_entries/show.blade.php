@@ -34,29 +34,29 @@
                     <!-- Journal Entry Details Section -->
                     <h3 class="text-lg font-bold my-3">Journal Entry Details</h3>
                     <div class="overflow-x-auto">
-                        <x-table-table id="journal-entry-details">
-                            <x-table-thead>
+                        <x-table.table-table id="journal-entry-details">
+                            <x-table.table-thead>
                                 <tr>
-                                    <x-table-th>Account</x-table-th>
-                                    <x-table-th>Debit</x-table-th>
-                                    <x-table-th>Credit</x-table-th>
-                                    <x-table-th>Notes</x-table-th>
+                                    <x-table.table-th>Account</x-table.table-th>
+                                    <x-table.table-th>Debit</x-table.table-th>
+                                    <x-table.table-th>Credit</x-table.table-th>
+                                    <x-table.table-th>Notes</x-table.table-th>
                                 </tr>
-                            </x-table-thead>
-                            <x-table-tbody>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
                                 @foreach ($journal_entry->journal_entry_details as $detail)
-                                    <x-table-tr>
-                                        <x-table-td>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>
                                             {{ $accounts->find($detail->account_id)?->name ?? 'N/A' }}
-                                        </x-table-td>
-                                        <x-table-td
-                                            class="py-4">Rp{{ number_format($detail->debit, 2) }}</x-table-td>
-                                        <x-table-td>Rp{{ number_format($detail->credit, 2) }}</x-table-td>
-                                        <x-table-td>{{ $detail->notes ?? 'N/A' }}</x-table-td>
-                                    </x-table-tr>
+                                        </x-table.table-td>
+                                        <x-table.table-td
+                                            class="py-4">Rp{{ number_format($detail->debit, 2) }}</x-table.table-td>
+                                        <x-table.table-td>Rp{{ number_format($detail->credit, 2) }}</x-table.table-td>
+                                        <x-table.table-td>{{ $detail->notes ?? 'N/A' }}</x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                            </x-table-tbody>
-                        </x-table-table>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                     </div>
                     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 

@@ -15,45 +15,45 @@
                         </div>
                     </div> -->
 
-                    <x-table-table id="search-table">
-                        <x-table-thead >
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead >
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                {{-- <x-table-th>username</x-table-th> --}}
-                                <x-table-th>Player Code</x-table-th>
-                                <x-table-th>Nama</x-table-th>
-                                <x-table-th>Email</x-table-th>
-                                <x-table-th>Role</x-table-th>
-                                <x-table-th>Companies</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                {{-- <x-table.table-th>username</x-table.table-th> --}}
+                                <x-table.table-th>Player Code</x-table.table-th>
+                                <x-table.table-th>Nama</x-table.table-th>
+                                <x-table.table-th>Email</x-table.table-th>
+                                <x-table.table-th>Role</x-table.table-th>
+                                <x-table.table-th>Companies</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($users as $user)
                                 <tr>
-                                    <x-table-td>{{ $user->id }}</x-table-td>
-                                    {{-- <x-table-td>{{ $user->username }}</x-table-td> --}}
-                                    <x-table-td>{{ $user->player?->code ?? 'N/A'; }}</x-table-td>
-                                    <x-table-td>{{ $user->name }}</x-table-td>
-                                    <x-table-td class="{{ $user->email_verified_at ? 'font-bold text-green-600' : '' }}">{{ $user->email }}</x-table-td>
-                                    <x-table-td>{{ $user->role->name ?? 'N/A'; }}</x-table-td>
-                                    <x-table-td>
+                                    <x-table.table-td>{{ $user->id }}</x-table.table-td>
+                                    {{-- <x-table.table-td>{{ $user->username }}</x-table.table-td> --}}
+                                    <x-table.table-td>{{ $user->player?->code ?? 'N/A'; }}</x-table.table-td>
+                                    <x-table.table-td>{{ $user->name }}</x-table.table-td>
+                                    <x-table.table-td class="{{ $user->email_verified_at ? 'font-bold text-green-600' : '' }}">{{ $user->email }}</x-table.table-td>
+                                    <x-table.table-td>{{ $user->role->name ?? 'N/A'; }}</x-table.table-td>
+                                    <x-table.table-td>
                                         @if(count($user->companies) > 0)
                                             @foreach ($user->companies as $company)
                                                 {{ $company->name }} : {{ $company->pivot->status }}<br>
                                             @endforeach
                                         @endif
-                                    </x-table-td>
-                                    <x-table-td class="flex justify-center items-center gap-2">
+                                    </x-table.table-td>
+                                    <x-table.table-td class="flex justify-center items-center gap-2">
                                     <div class="flex items-center space-x-2">
                                             <x-button-edit :route="route('users.edit', $user->id)" />
                                             <x-button-delete :route="route('users.destroy', $user->id)" />
                                         </div>
-                                    </x-table-td>
+                                    </x-table.table-td>
                                 </tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

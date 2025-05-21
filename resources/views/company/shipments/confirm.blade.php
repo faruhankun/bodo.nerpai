@@ -53,33 +53,33 @@
                             <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 
                             <h3 class="text-lg font-bold mt-6">Products</h3>
-                            <x-table-table id="search-table">
-                                <x-table-thead>
+                            <x-table.table-table id="search-table">
+                                <x-table.table-thead>
                                     <tr>
-                                        <x-table-th>#</x-table-th>
-                                        <x-table-th>Product</x-table-th>
-                                        <x-table-th>Quantity</x-table-th>
-                                        <x-table-th>Kondisi</x-table-th>
-                                        <x-table-th>Notes</x-table-th>
-                                        <x-table-th>Actions</x-table-th>
+                                        <x-table.table-th>#</x-table.table-th>
+                                        <x-table.table-th>Product</x-table.table-th>
+                                        <x-table.table-th>Quantity</x-table.table-th>
+                                        <x-table.table-th>Kondisi</x-table.table-th>
+                                        <x-table.table-th>Notes</x-table.table-th>
+                                        <x-table.table-th>Actions</x-table.table-th>
                                     </tr>
-                                </x-table-thead>
-                                <x-table-tbody>
+                                </x-table.table-thead>
+                                <x-table.table-tbody>
                                     @foreach ($shipment_confirmation->products as $index => $product)
-                                        <x-table-tr>
-                                            <x-table-td>{{ $product->pivot->id }}</x-table-td>
-                                            <x-table-td>{{ $product->id }} : {{ $product->name }}</x-table-td>
-                                            <x-table-td>{{ $product->pivot->quantity }}</x-table-td>
-                                            <x-table-td>{{ $product->pivot->condition }}</x-table-td>
-                                            <x-table-td>{{ $product->pivot->notes ?? 'N/A' }}</x-table-td>
-                                            <x-table-td>
+                                        <x-table.table-tr>
+                                            <x-table.table-td>{{ $product->pivot->id }}</x-table.table-td>
+                                            <x-table.table-td>{{ $product->id }} : {{ $product->name }}</x-table.table-td>
+                                            <x-table.table-td>{{ $product->pivot->quantity }}</x-table.table-td>
+                                            <x-table.table-td>{{ $product->pivot->condition }}</x-table.table-td>
+                                            <x-table.table-td>{{ $product->pivot->notes ?? 'N/A' }}</x-table.table-td>
+                                            <x-table.table-td>
                                                 <div class="flex items-center space-x-2">
                                                 </div>
-                                            </x-table-td>
-                                        </x-table-tr>
+                                            </x-table.table-td>
+                                        </x-table.table-tr>
                                     @endforeach
-                                </x-table-tbody>
-                            </x-table-table>
+                                </x-table.table-tbody>
+                            </x-table.table-table>
                             <!-- <div id="product-selection" class="grid grid-cols-1 sm:grid-cols-1 gap-6">
                                 @foreach ($shipment_confirmation->products as $index => $product)
                                 <div class="product-item mb-4 p-4 border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-600">

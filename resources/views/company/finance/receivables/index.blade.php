@@ -17,18 +17,18 @@
                     </div>
 
                     <!-- Customer Table -->
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Name</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Piutang</x-table-th>
-                                <x-table-th>Note</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Name</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Piutang</x-table.table-th>
+                                <x-table.table-th>Note</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($customers as $customer)
                                 @php
                                     $unpaid_amount = $customer->receivables->sum('total_amount');
@@ -36,22 +36,22 @@
                                 @endphp
 
                                 @if($unpaid_amount != $paid_amount) 
-                                    <x-table-tr>
-                                        <x-table-td>{{ $customer->id }}</x-table-td>
-                                        <x-table-td>{{ $customer->name }}</x-table-td>
-                                        <x-table-td>{{ $customer->status }}</x-table-td>
-                                        <x-table-td>Rp.{{ (number_format($unpaid_amount - $paid_amount, 2)) }}</x-table-td>
-                                        <x-table-td>{{ $customer->notes }}</x-table-td>
-                                        <x-table-td>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $customer->id }}</x-table.table-td>
+                                        <x-table.table-td>{{ $customer->name }}</x-table.table-td>
+                                        <x-table.table-td>{{ $customer->status }}</x-table.table-td>
+                                        <x-table.table-td>Rp.{{ (number_format($unpaid_amount - $paid_amount, 2)) }}</x-table.table-td>
+                                        <x-table.table-td>{{ $customer->notes }}</x-table.table-td>
+                                        <x-table.table-td>
                                             <div class="flex items-center space-x-2">
                                                 <x-button-show :route="route('receivables.show', $customer->id)" />
                                             </div>
-                                        </x-table-td>
-                                    </x-table-tr>
+                                        </x-table.table-td>
+                                    </x-table.table-tr>
                                 @endif
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

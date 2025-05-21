@@ -22,40 +22,40 @@
                             $unpaid_receivables = $customer->receivables->where('status', '!=', 'paid');
                             $unconfirmed_receivables = $customer->receivables->where('status', 'unconfirmed');
                         @endphp
-                        <x-table-table id="search-table">
-                            <x-table-thead>
+                        <x-table.table-table id="search-table">
+                            <x-table.table-thead>
                                 <tr class>
-                                    <x-table-th>Id</x-table-th>
-                                    <x-table-th>Invoice Number</x-table-th>
-                                    <x-table-th>Date</x-table-th>
-                                    <x-table-th>Due Date</x-table-th>
-                                    <x-table-th>Total Amount</x-table-th>
-                                    <x-table-th>Amount Paid</x-table-th>
-                                    <x-table-th>AR Status</x-table-th>
-                                    <x-table-th>AR Notes</x-table-th>
-                                    <x-table-th>Actions</x-table-th>
+                                    <x-table.table-th>Id</x-table.table-th>
+                                    <x-table.table-th>Invoice Number</x-table.table-th>
+                                    <x-table.table-th>Date</x-table.table-th>
+                                    <x-table.table-th>Due Date</x-table.table-th>
+                                    <x-table.table-th>Total Amount</x-table.table-th>
+                                    <x-table.table-th>Amount Paid</x-table.table-th>
+                                    <x-table.table-th>AR Status</x-table.table-th>
+                                    <x-table.table-th>AR Notes</x-table.table-th>
+                                    <x-table.table-th>Actions</x-table.table-th>
                                 </tr>
-                            </x-table-thead>
-                            <x-table-tbody>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
                                 @foreach ($unpaid_receivables as $receivable)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $receivable->id }}</x-table-td>
-                                        <x-table-td>{{ $receivable->invoice?->number }}</x-table-td>
-                                        <x-table-td>{{ $receivable->invoice?->date?->format('Y-m-d') ?? 'N/A' }}</x-table-td>
-                                        <x-table-td>{{ $receivable->invoice->due_date?->format('Y-m-d') ?? 'N/A' }}</x-table-td>
-                                        <x-table-td>Rp{{ number_format($receivable->total_amount, 2) }}</x-table-td>
-                                        <x-table-td>Rp{{ number_format($receivable->balance, 2) }}</x-table-td>
-                                        <x-table-td>{{ $receivable->status }}</x-table-td>
-                                        <x-table-td>{{ $receivable->notes }}</x-table-td>
-                                        <x-table-td>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $receivable->id }}</x-table.table-td>
+                                        <x-table.table-td>{{ $receivable->invoice?->number }}</x-table.table-td>
+                                        <x-table.table-td>{{ $receivable->invoice?->date?->format('Y-m-d') ?? 'N/A' }}</x-table.table-td>
+                                        <x-table.table-td>{{ $receivable->invoice->due_date?->format('Y-m-d') ?? 'N/A' }}</x-table.table-td>
+                                        <x-table.table-td>Rp{{ number_format($receivable->total_amount, 2) }}</x-table.table-td>
+                                        <x-table.table-td>Rp{{ number_format($receivable->balance, 2) }}</x-table.table-td>
+                                        <x-table.table-td>{{ $receivable->status }}</x-table.table-td>
+                                        <x-table.table-td>{{ $receivable->notes }}</x-table.table-td>
+                                        <x-table.table-td>
                                             <div class="flex space-x-2">
                                                 <x-button-show :route="route('sale_invoices.show', $receivable->invoice->id)" />
                                             </div>
-                                        </x-table-td>
-                                    </x-table-tr>
+                                        </x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                            </x-table-tbody>
-                        </x-table-table>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                     </div>
                     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 

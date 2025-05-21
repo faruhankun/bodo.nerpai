@@ -17,40 +17,40 @@
                             </a>    
                         </div>
                     </div>
-                    <x-table-table id="search-table">
-                        <x-table-thead >
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead >
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Number</x-table-th>
-                                <x-table-th>Type</x-table-th>
-                                <x-table-th>Date</x-table-th>
-                                <x-table-th>Consignee</x-table-th>
-                                <x-table-th>Amount</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Number</x-table.table-th>
+                                <x-table.table-th>Type</x-table.table-th>
+                                <x-table.table-th>Date</x-table.table-th>
+                                <x-table.table-th>Consignee</x-table.table-th>
+                                <x-table.table-th>Amount</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($expenses as $expense)
                                 <tr>
-                                    <x-table-td>{{ $expense->id }}</x-table-td>
-                                    <x-table-td>{{ $expense?->number }}</x-table-td>
-                                    <x-table-td>{{ $expense->type }}</x-table-td>
-                                    <x-table-td>{{ $expense->date?->format('Y-m-d') }}</x-table-td>
-                                    <x-table-td>{{ $expense->consignee_type }} : {{ $expense->consignee?->name }}</x-table-td>
-                                    <x-table-td>Rp{{ number_format($expense->amount, 2) }}</x-table-td>
-                                    <x-table-td>{{ $expense->status }}</x-table-td>
-                                    <x-table-td>{{ $expense->notes }}</x-table-td>
-                                    <x-table-td class="flex justify-center items-center gap-2">
+                                    <x-table.table-td>{{ $expense->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $expense?->number }}</x-table.table-td>
+                                    <x-table.table-td>{{ $expense->type }}</x-table.table-td>
+                                    <x-table.table-td>{{ $expense->date?->format('Y-m-d') }}</x-table.table-td>
+                                    <x-table.table-td>{{ $expense->consignee_type }} : {{ $expense->consignee?->name }}</x-table.table-td>
+                                    <x-table.table-td>Rp{{ number_format($expense->amount, 2) }}</x-table.table-td>
+                                    <x-table.table-td>{{ $expense->status }}</x-table.table-td>
+                                    <x-table.table-td>{{ $expense->notes }}</x-table.table-td>
+                                    <x-table.table-td class="flex justify-center items-center gap-2">
                                         <div class="flex items-center space-x-2">
                                             <x-button-show :route="route('expenses.show', $expense->id)" />
                                         </div>
-                                    </x-table-td>
+                                    </x-table.table-td>
                                 </tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

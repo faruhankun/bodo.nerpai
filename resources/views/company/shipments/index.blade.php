@@ -26,38 +26,38 @@
                         </div>
                     </div>
 
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Pengirim</x-table-th>
-                                <x-table-th>Penerima</x-table-th>
-                                <x-table-th>Transaksi</x-table-th>
-                                <x-table-th>Tanggal</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Pengirim</x-table.table-th>
+                                <x-table.table-th>Penerima</x-table.table-th>
+                                <x-table.table-th>Transaksi</x-table.table-th>
+                                <x-table.table-th>Tanggal</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($shipments as $shipment)
-                                <x-table-tr>
-                                    <x-table-td>{{ $shipment->id }}</x-table-td>
-                                    <x-table-td>{{ $shipment->shipper_type }} : {{ $shipment->shipper?->name }}</x-table-td>
-                                    <x-table-td>{{ $shipment->consignee_type }} : {{ $shipment->consignee?->name }}</x-table-td>
-                                    <x-table-td>{{ $shipment->transaction_type }} : {{ $shipment->transaction?->number }}</x-table-td>
-                                    <x-table-td>{{ $shipment->ship_date }}</x-table-td>
-                                    <x-table-td>{{ $shipment->status }}</x-table-td>
-                                    <x-table-td>{{ $shipment->notes }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $shipment->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $shipment->shipper_type }} : {{ $shipment->shipper?->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $shipment->consignee_type }} : {{ $shipment->consignee?->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $shipment->transaction_type }} : {{ $shipment->transaction?->number }}</x-table.table-td>
+                                    <x-table.table-td>{{ $shipment->ship_date }}</x-table.table-td>
+                                    <x-table.table-td>{{ $shipment->status }}</x-table.table-td>
+                                    <x-table.table-td>{{ $shipment->notes }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                             <x-button-show :route="route('shipments.show', $shipment->id)" />
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

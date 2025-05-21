@@ -24,38 +24,38 @@
                         </div>
                     </div>
 
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Sku</x-table-th>
-                                <x-table-th>Name</x-table-th>
-                                <x-table-th>Price</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Sku</x-table.table-th>
+                                <x-table.table-th>Name</x-table.table-th>
+                                <x-table.table-th>Price</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($store_products as $store_product)
-                                <x-table-tr>
-                                    <x-table-td>{{ $store_product->id }}</x-table-td>
-                                    <x-table-td>{{ $store_product->product->sku }}</x-table-td>
-                                    <x-table-td>{{ $store_product->product->name }}</x-table-td>
-                                    <x-table-td>{{ $store_product->store_price }}</x-table-td>
-                                    <x-table-td>{{ $store_product->status }}</x-table-td>
-                                    <x-table-td>{{ $store_product->notes }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $store_product->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->product->sku }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->product->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->store_price }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->status }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_product->notes }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                             <x-button-show :route="route('store_products.show', $store_product->id)" />
                                             <x-button-edit :route="route('store_products.edit', $store_product->id)" />
                                             <x-button-delete :route="route('store_products.destroy', $store_product->id)" />
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

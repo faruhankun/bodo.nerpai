@@ -17,18 +17,18 @@
                      </div>
  
                      <!-- Supplier Table -->
-                     <x-table-table id="search-table">
-                         <x-table-thead>
+                     <x-table.table-table id="search-table">
+                         <x-table.table-thead>
                              <tr>
-                                 <x-table-th>ID</x-table-th>
-                                 <x-table-th>Name</x-table-th>
-                                 <x-table-th>Status</x-table-th>
-                                 <x-table-th>Hutang</x-table-th>
-                                 <x-table-th>Note</x-table-th>
-                                 <x-table-th>Actions</x-table-th>
+                                 <x-table.table-th>ID</x-table.table-th>
+                                 <x-table.table-th>Name</x-table.table-th>
+                                 <x-table.table-th>Status</x-table.table-th>
+                                 <x-table.table-th>Hutang</x-table.table-th>
+                                 <x-table.table-th>Note</x-table.table-th>
+                                 <x-table.table-th>Actions</x-table.table-th>
                              </tr>
-                         </x-table-thead>
-                         <x-table-tbody>
+                         </x-table.table-thead>
+                         <x-table.table-tbody>
                              @foreach ($suppliers as $supplier)
                                  @php
                                      $unpaid_amount = $supplier->payables->sum('total_amount');
@@ -36,22 +36,22 @@
                                  @endphp
  
                                  @if($unpaid_amount != $paid_amount) 
-                                     <x-table-tr>
-                                         <x-table-td>{{ $supplier->id }}</x-table-td>
-                                         <x-table-td>{{ $supplier->name }}</x-table-td>
-                                         <x-table-td>{{ $supplier->status }}</x-table-td>
-                                         <x-table-td>Rp.{{ (number_format($unpaid_amount - $paid_amount, 2)) }}</x-table-td>
-                                         <x-table-td>{{ $supplier->notes }}</x-table-td>
-                                         <x-table-td>
+                                     <x-table.table-tr>
+                                         <x-table.table-td>{{ $supplier->id }}</x-table.table-td>
+                                         <x-table.table-td>{{ $supplier->name }}</x-table.table-td>
+                                         <x-table.table-td>{{ $supplier->status }}</x-table.table-td>
+                                         <x-table.table-td>Rp.{{ (number_format($unpaid_amount - $paid_amount, 2)) }}</x-table.table-td>
+                                         <x-table.table-td>{{ $supplier->notes }}</x-table.table-td>
+                                         <x-table.table-td>
                                              <div class="flex items-center space-x-2">
                                                  <x-button-show :route="route('payables.show', $supplier->id)" />
                                              </div>
-                                         </x-table-td>
-                                     </x-table-tr>
+                                         </x-table.table-td>
+                                     </x-table.table-tr>
                                  @endif
                              @endforeach
-                         </x-table-tbody>
-                     </x-table-table>
+                         </x-table.table-tbody>
+                     </x-table.table-table>
                  </div>
              </div>
          </div>

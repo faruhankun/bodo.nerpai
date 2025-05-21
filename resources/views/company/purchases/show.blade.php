@@ -54,26 +54,26 @@
 
                     <h3 class="text-lg font-bold my-3">Products</h3>
                     <div class="overflow-x-auto">
-                        <x-table-table>
-                            <x-table-thead>
+                        <x-table.table-table>
+                            <x-table.table-thead>
                                 <tr class>
-                                    <x-table-th>Product Name</x-table-th>
-                                    <x-table-th>Quantity</x-table-th>
-                                    <x-table-th>Buying Price</x-table-th>
-                                    <x-table-th>Total Cost</x-table-th>
+                                    <x-table.table-th>Product Name</x-table.table-th>
+                                    <x-table.table-th>Quantity</x-table.table-th>
+                                    <x-table.table-th>Buying Price</x-table.table-th>
+                                    <x-table.table-th>Total Cost</x-table.table-th>
                                 </tr>
-                            </x-table-thead>
-                            <x-table-tbody>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
                                 @foreach ($purchase->products as $product)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $product->name }}</x-table-td>
-                                        <x-table-td>{{ $product->pivot->quantity }}</x-table-td>
-                                        <x-table-td>Rp{{ number_format($product->pivot->buying_price, 2) }}</x-table-td>
-                                        <x-table-td>Rp{{ number_format($product->pivot->total_cost, 2) }}</x-table-td>
-                                    </x-table-tr>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $product->name }}</x-table.table-td>
+                                        <x-table.table-td>{{ $product->pivot->quantity }}</x-table.table-td>
+                                        <x-table.table-td>Rp{{ number_format($product->pivot->buying_price, 2) }}</x-table.table-td>
+                                        <x-table.table-td>Rp{{ number_format($product->pivot->total_cost, 2) }}</x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                            </x-table-tbody>
-                        </x-table-table>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -89,80 +89,80 @@
                     <!-- Invoice Section -->
                     <h3 class="text-lg font-bold my-3">Invoices</h3>
                     <div class="overflow-x-auto">
-                        <x-table-table>
-                            <x-table-thead>
+                        <x-table.table-table>
+                            <x-table.table-thead>
                                 <tr class>
-                                    <x-table-th>Id</x-table-th>
-                                    <x-table-th>Invoice Number</x-table-th>
-                                    <x-table-th>Date</x-table-th>
-                                    <x-table-th>Due Date</x-table-th>
-                                    <x-table-th>Total Amount</x-table-th>
-                                    <x-table-th>Notes</x-table-th>
-                                    <x-table-th>Status</x-table-th>
-                                    <x-table-th>Actions</x-table-th>
+                                    <x-table.table-th>Id</x-table.table-th>
+                                    <x-table.table-th>Invoice Number</x-table.table-th>
+                                    <x-table.table-th>Date</x-table.table-th>
+                                    <x-table.table-th>Due Date</x-table.table-th>
+                                    <x-table.table-th>Total Amount</x-table.table-th>
+                                    <x-table.table-th>Notes</x-table.table-th>
+                                    <x-table.table-th>Status</x-table.table-th>
+                                    <x-table.table-th>Actions</x-table.table-th>
                                 </tr>
-                            </x-table-thead>
-                            <x-table-tbody>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
                                 @foreach ($purchase->purchase_invoices as $invoice)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $invoice->id }}</x-table-td>
-                                        <x-table-td>{{ $invoice->number }}</x-table-td>
-                                        <x-table-td>{{ $invoice->date }}</x-table-td>
-                                        <x-table-td>{{ $invoice->due_date }}</x-table-td>
-                                        <x-table-td>Rp{{ number_format($invoice->total_amount, 2) }}</x-table-td>
-                                        <x-table-td>{{ $invoice->notes }}</x-table-td>
-                                        <x-table-td>{{ $invoice->status }}</x-table-td>
-                                        <x-table-td>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $invoice->id }}</x-table.table-td>
+                                        <x-table.table-td>{{ $invoice->number }}</x-table.table-td>
+                                        <x-table.table-td>{{ $invoice->date }}</x-table.table-td>
+                                        <x-table.table-td>{{ $invoice->due_date }}</x-table.table-td>
+                                        <x-table.table-td>Rp{{ number_format($invoice->total_amount, 2) }}</x-table.table-td>
+                                        <x-table.table-td>{{ $invoice->notes }}</x-table.table-td>
+                                        <x-table.table-td>{{ $invoice->status }}</x-table.table-td>
+                                        <x-table.table-td>
                                             <div class="flex space-x-2">
                                                 <x-button-show :route="route('purchase_invoices.show', $invoice->id)" />
                                             </div>
-                                        </x-table-td>
-                                    </x-table-tr>
+                                        </x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                            </x-table-tbody>
-                        </x-table-table>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                     </div>
                     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 
                     <!-- Shipment Section -->
                     <h3 class="text-lg font-bold my-3">Shipments</h3>
                     <div class="overflow-x-auto">
-                        <x-table-table>
-                            <x-table-thead>
+                        <x-table.table-table>
+                            <x-table.table-thead>
                                 <tr>
-                                    <x-table-th>ID</x-table-th>
-                                    <x-table-th>Pengirim</x-table-th>
-                                    <x-table-th>Penerima</x-table-th>
-                                    <x-table-th>Transaksi</x-table-th>
-                                    <x-table-th>Tanggal</x-table-th>
-                                    <x-table-th>Status</x-table-th>
-                                    <x-table-th>Notes</x-table-th>
-                                    <x-table-th>Actions</x-table-th>
+                                    <x-table.table-th>ID</x-table.table-th>
+                                    <x-table.table-th>Pengirim</x-table.table-th>
+                                    <x-table.table-th>Penerima</x-table.table-th>
+                                    <x-table.table-th>Transaksi</x-table.table-th>
+                                    <x-table.table-th>Tanggal</x-table.table-th>
+                                    <x-table.table-th>Status</x-table.table-th>
+                                    <x-table.table-th>Notes</x-table.table-th>
+                                    <x-table.table-th>Actions</x-table.table-th>
                                 </tr>
-                            </x-table-thead>
-                            <x-table-tbody>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
                                 @foreach ($purchase->shipments as $shipment)
                                     @php
                                         $purchase_shipments_confirmed = $shipment->status == 'SHP_DELIVERY_CONFIRMED';
                                     @endphp
 
-                                    <x-table-tr>
-                                        <x-table-td>{{ $shipment->id }}</x-table-td>
-                                        <x-table-td>{{ $shipment->shipper_type }} : {{ $shipment->shipper_id }}</x-table-td>
-                                        <x-table-td>{{ $shipment->consignee_type }} : {{ $shipment->consignee_id }}</x-table-td>
-                                        <x-table-td>{{ $shipment->transaction_type }} : {{ $shipment->transaction_id }}</x-table-td>
-                                        <x-table-td>{{ $shipment->ship_date }}</x-table-td>
-                                        <x-table-td>{{ $shipment->status }}</x-table-td>
-                                        <x-table-td>{{ $shipment->notes }}</x-table-td>
-                                        <x-table-td>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $shipment->id }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment->shipper_type }} : {{ $shipment->shipper_id }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment->consignee_type }} : {{ $shipment->consignee_id }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment->transaction_type }} : {{ $shipment->transaction_id }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment->ship_date }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment->status }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment->notes }}</x-table.table-td>
+                                        <x-table.table-td>
                                             <div class="flex items-center space-x-2">
                                                 <x-button-show :route="route('shipments.show', $shipment->id)" />
                                             </div>
-                                        </x-table-td>
-                                    </x-table-tr>
+                                        </x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                            </x-table-tbody>
-                        </x-table-table>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                     </div>
                     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 

@@ -125,37 +125,37 @@
                     <h3 class="text-lg font-bold my-3">Shipment Confirmation</h3>
                     <div class="mb-4">
                         @if ($shipment->shipment_confirmations)
-                        <x-table-table>
-                            <x-table-thead>
+                        <x-table.table-table>
+                            <x-table.table-thead>
                                 <tr>
-                                    <x-table-th>ID</x-table-th>
-                                    <x-table-th>Consignee</x-table-th>
-                                    <x-table-th>Received Time</x-table-th>
-                                    <x-table-th>Team</x-table-th>
-                                    <x-table-th>Consignee Name</x-table-th>
-                                    <x-table-th>Notes</x-table-th>
-                                    <x-table-th>Actions</x-table-th>
+                                    <x-table.table-th>ID</x-table.table-th>
+                                    <x-table.table-th>Consignee</x-table.table-th>
+                                    <x-table.table-th>Received Time</x-table.table-th>
+                                    <x-table.table-th>Team</x-table.table-th>
+                                    <x-table.table-th>Consignee Name</x-table.table-th>
+                                    <x-table.table-th>Notes</x-table.table-th>
+                                    <x-table.table-th>Actions</x-table.table-th>
                                 </tr>
-                            </x-table-thead>
-                            <x-table-tbody>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
                                 @foreach ($shipment->shipment_confirmations as $shipment_confirmation)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $shipment_confirmation->id }}</x-table-td>
-                                        <x-table-td>{{ $shipment_confirmation->consignee_type }} : {{ $shipment->consignee->name }}</x-table-td>
-                                        <x-table-td>{{ $shipment_confirmation->received_time ?? 'N/A' }}</x-table-td>
-                                        <x-table-td>{{ $shipment_confirmation->employee->companyuser->user->name }}</x-table-td>
-                                        <x-table-td>{{ $shipment_confirmation->consignee_name ?? 'N/A' }}</x-table-td>
-                                        <x-table-td>{{ $shipment_confirmation->notes }}</x-table-td>
-                                        <x-table-td>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $shipment_confirmation->id }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment_confirmation->consignee_type }} : {{ $shipment->consignee->name }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment_confirmation->received_time ?? 'N/A' }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment_confirmation->employee->companyuser->user->name }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment_confirmation->consignee_name ?? 'N/A' }}</x-table.table-td>
+                                        <x-table.table-td>{{ $shipment_confirmation->notes }}</x-table.table-td>
+                                        <x-table.table-td>
                                             <div class="flex items-center space-x-2">
                                                 <x-button-show :route="route('shipments.confirm-show', $shipment_confirmation->id)" />
                                                 <x-button-edit :route="route('shipments.confirm', $shipment_confirmation->id)" />
                                             </div>
-                                        </x-table-td>
-                                    </x-table-tr>
+                                        </x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                            </x-table-tbody>
-                        </x-table-table>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                         @endif
                     </div>
                     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>

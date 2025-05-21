@@ -18,38 +18,38 @@
                     </div>
 
                     <!-- Settings Table -->
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Module</x-table-th>
-                                <x-table-th>Source</x-table-th>
-                                <x-table-th>Key</x-table-th>
-                                <x-table-th>Value</x-table-th>
-                                <x-table-th>Note</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Module</x-table.table-th>
+                                <x-table.table-th>Source</x-table.table-th>
+                                <x-table.table-th>Key</x-table.table-th>
+                                <x-table.table-th>Value</x-table.table-th>
+                                <x-table.table-th>Note</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($settings as $setting)
-                                <x-table-tr>
-                                    <x-table-td>{{ $setting->id }}</x-table-td>
-                                    <x-table-td>{{ $setting->module ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $setting->source_type ?? 'COMP' }} : {{ $setting->source?->name ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $setting->key ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $setting->value ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $setting->notes ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $setting->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $setting->module ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $setting->source_type ?? 'COMP' }} : {{ $setting->source?->name ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $setting->key ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $setting->value ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $setting->notes ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex space-x-2">
                                             <x-button2 onclick="editSetting({{ $setting }})" class="btn btn-primary">Edit</x-button2>
                                             <!-- <button type="button" @click="editSetting({{ $setting }})" class="btn btn-primary">Edit</button> -->
                                             <x-button-delete :route="route('company_settings.destroy', $setting->id)" />
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
 
                     <div
                         class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 mb-4">

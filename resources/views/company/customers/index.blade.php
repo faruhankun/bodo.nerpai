@@ -14,20 +14,20 @@
                             <x-button-add :route="route('customers.create')" text="Tambah Customer" />
                         </div>
                     </div>
-                    <x-table-table id="customersTable">
-                        <x-table-thead >
+                    <x-table.table-table id="customersTable">
+                        <x-table.table-thead >
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Name</x-table-th>
-                                <x-table-th>Email</x-table-th>
-                                <x-table-th>Phone Number</x-table-th>
-                                <x-table-th>Address</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Reg Date</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Name</x-table.table-th>
+                                <x-table.table-th>Email</x-table.table-th>
+                                <x-table.table-th>Phone Number</x-table.table-th>
+                                <x-table.table-th>Address</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Reg Date</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                    </x-table-table>
+                        </x-table.table-thead>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

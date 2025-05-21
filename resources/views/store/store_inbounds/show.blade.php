@@ -32,35 +32,35 @@
 
 
                     <h3 class="text-lg font-bold mt-6">Products</h3>
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>#</x-table-th>
-                                <x-table-th>Product</x-table-th>
-                                <x-table-th>Quantity</x-table-th>
-                                <x-table-th>Cost</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Location</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>#</x-table.table-th>
+                                <x-table.table-th>Product</x-table.table-th>
+                                <x-table.table-th>Quantity</x-table.table-th>
+                                <x-table.table-th>Cost</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
+                                <x-table.table-th>Location</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($inbound->store_inbound_products as $index => $inbound_product)
-                                <x-table-tr>
-                                    <x-table-td>{{ $inbound_product->id }}</x-table-td>
-                                    <x-table-td>{{ $inbound_product->id }} : {{ $inbound_product->store_product->product->name }}</x-table-td>
-                                    <x-table-td>{{ $inbound_product->quantity }}</x-table-td>
-                                    <x-table-td>{{ number_format($inbound_product->cost_per_unit ?? 0, 2) }}</x-table-td>
-                                    <x-table-td>{{ $inbound_product->notes ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $inbound_product->store_location?->print_location() ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $inbound_product->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $inbound_product->id }} : {{ $inbound_product->store_product->product->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $inbound_product->quantity }}</x-table.table-td>
+                                    <x-table.table-td>{{ number_format($inbound_product->cost_per_unit ?? 0, 2) }}</x-table.table-td>
+                                    <x-table.table-td>{{ $inbound_product->notes ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $inbound_product->store_location?->print_location() ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
 
 
                     <!-- Action Section -->

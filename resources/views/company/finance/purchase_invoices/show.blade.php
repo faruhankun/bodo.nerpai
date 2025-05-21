@@ -34,28 +34,28 @@
                     @endphp
                     <h3 class="text-lg font-bold my-3">Invoices</h3>
                     <div class="overflow-x-auto">
-                        <x-table-table>
-                            <x-table-thead>
-                                <x-table-tr>
-                                    <x-table-th>No</x-table-th>
-                                    <x-table-th>Name</x-table-th>
-                                    <x-table-th class="text-right">Subtotal</x-table-th>
-                                </x-table-tr>
-                            </x-table-thead>
-                            <x-table-tbody>
+                        <x-table.table-table>
+                            <x-table.table-thead>
+                                <x-table.table-tr>
+                                    <x-table.table-th>No</x-table.table-th>
+                                    <x-table.table-th>Name</x-table.table-th>
+                                    <x-table.table-th class="text-right">Subtotal</x-table.table-th>
+                                </x-table.table-tr>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
                                 @foreach ($invoice_items as $key => $item)
-                                    <x-table-tr>
-                                        <x-table-td>#</x-table-td>
-                                        <x-table-td>{{ $item }}</x-table-td>
-                                        <x-table-td class="text-right">Rp{{ number_format($purchase_invoice->$key, 2) }}</x-table-td>
-                                    </x-table-tr>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>#</x-table.table-td>
+                                        <x-table.table-td>{{ $item }}</x-table.table-td>
+                                        <x-table.table-td class="text-right">Rp{{ number_format($purchase_invoice->$key, 2) }}</x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                                <x-table-tr>
-                                    <x-table-th colspan="2" class="font-bold text-xl">Total</x-table-th>
-                                    <x-table-th class="text-right font-bold text-xl">Rp{{ number_format($purchase_invoice->total_amount, 2) }}</x-table-th>
-                                </x-table-tr>
-                            </x-table-tbody>
-                        </x-table-table>
+                                <x-table.table-tr>
+                                    <x-table.table-th colspan="2" class="font-bold text-xl">Total</x-table.table-th>
+                                    <x-table.table-th class="text-right font-bold text-xl">Rp{{ number_format($purchase_invoice->total_amount, 2) }}</x-table.table-th>
+                                </x-table.table-tr>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                     </div>
                     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 

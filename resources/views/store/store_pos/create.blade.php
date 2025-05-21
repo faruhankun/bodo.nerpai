@@ -42,23 +42,23 @@
 
                             <div class="container">
                                 <!-- Tabel Produk yang Dibeli -->
-                                <x-table-table id="productTable">
-                                    <x-table-thead>
+                                <x-table.table-table id="productTable">
+                                    <x-table.table-thead>
                                         <tr>
-                                            <x-table-th>No</x-table-th>
-                                            <x-table-th>Produk</x-table-th>
-                                            <x-table-th>Harga Barang</x-table-th>
-                                            <x-table-th>Qty</x-table-th>
-                                            <x-table-th>Discount (%)</x-table-th>
-                                            <x-table-th>Subtotal</x-table-th>
-                                            <x-table-th>Notes</x-table-th>
-                                            <x-table-th>Action</x-table-th>
+                                            <x-table.table-th>No</x-table.table-th>
+                                            <x-table.table-th>Produk</x-table.table-th>
+                                            <x-table.table-th>Harga Barang</x-table.table-th>
+                                            <x-table.table-th>Qty</x-table.table-th>
+                                            <x-table.table-th>Discount (%)</x-table.table-th>
+                                            <x-table.table-th>Subtotal</x-table.table-th>
+                                            <x-table.table-th>Notes</x-table.table-th>
+                                            <x-table.table-th>Action</x-table.table-th>
                                         </tr>
-                                    </x-table-thead>
-                                    <x-table-tbody id="item-list">
+                                    </x-table.table-thead>
+                                    <x-table.table-tbody id="item-list">
                                         
-                                    </x-table-tbody>
-                                </x-table-table>
+                                    </x-table.table-tbody>
+                                </x-table.table-table>
                                 <div class="mb-4">
                                     <x-button2 type="button" id="add-item" class="mr-3 m-4">Add Another Product</x-button2>
                                 </div>
@@ -164,8 +164,8 @@
             productIndex++;
             let newRow = `
                 <tr class="item-row">
-                    <x-table-td class="mb-2">${productIndex}</x-table-td>
-                    <x-table-td class="mb-4">
+                    <x-table.table-td class="mb-2">${productIndex}</x-table.table-td>
+                    <x-table.table-td class="mb-4">
                         <x-input-select name="products[${productIndex}][product_id]" class="item-select" required>
                             <option value="">Select Product</option>
                             @foreach ($store_products as $store_product)
@@ -177,29 +177,29 @@
                                                 : {{ $store_product->quantity }}pcs</option>
                             @endforeach
                         </x-input-select>
-                    </x-table-td>
-                    <x-table-td>
+                    </x-table.table-td>
+                    <x-table.table-td>
                         <x-input-input type="number" size="10" name="products[${productIndex}][price]" class="item-price" required></x-input-input>
-                    </x-table-td>
-                    <x-table-td>
+                    </x-table.table-td>
+                    <x-table.table-td>
                         <x-input-input type="number" name="products[${productIndex}][quantity]" class="item-quantity" placeholder="1" min="1" required>
                         </x-input-input>
-                    </x-table-td>
-                    <x-table-td>
+                    </x-table.table-td>
+                    <x-table.table-td>
                         <x-input-input type="number" name="products[${productIndex}][discount]" class="item-discount" placeholder="0" value="0"></x-input-input>
-                    </x-table-td>
-                    <x-table-td>
+                    </x-table.table-td>
+                    <x-table.table-td>
                         <x-input-input type="number" name="products[${productIndex}][subtotal]" class="item-subtotal" readonly></x-input-input>
-                    </x-table-td>
-                    <x-table-td>
+                    </x-table.table-td>
+                    <x-table.table-td>
                         <x-input-input type="text" name="products[${productIndex}][notes]" class="item-notes"></x-input-input>
-                    </x-table-td>
-                    <x-table-td>
+                    </x-table.table-td>
+                    <x-table.table-td>
                         <button type="button"
                             class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-item">
                             Remove
                         </button>
-                    </x-table-td>
+                    </x-table.table-td>
                     <input type="hidden" class="item-weight" value="0"> <!-- Weight per unit -->
                     <input type="hidden" class="item-subweight" value="0"> <!-- Total weight per row -->
                     <input type="hidden" name="products[${productIndex}][cost_per_unit]" class="item-cost" value="0"> <!-- Cost per unit -->

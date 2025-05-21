@@ -24,39 +24,39 @@
                         </div>
                     </div>
 
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Name</x-table-th>
-                                <x-table-th>Address</x-table-th>
-                                <x-table-th>Email </x-table-th>
-                                <x-table-th>Phone Number</x-table-th>
-                                <x-table-th>Status</x-table-th>
-                                <x-table-th>Notes</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Name</x-table.table-th>
+                                <x-table.table-th>Address</x-table.table-th>
+                                <x-table.table-th>Email </x-table.table-th>
+                                <x-table.table-th>Phone Number</x-table.table-th>
+                                <x-table.table-th>Status</x-table.table-th>
+                                <x-table.table-th>Notes</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($store_customers as $store_customer)
-                                <x-table-tr>
-                                    <x-table-td>{{ $store_customer->id }}</x-table-td>
-                                    <x-table-td>{{ $store_customer->customer->name }}</x-table-td>
-                                    <x-table-td>{{ $store_customer->customer->address }}</x-table-td>
-                                    <x-table-td>{{ $store_customer->customer->email }}</x-table-td>
-                                    <x-table-td>{{ $store_customer->customer->phone_number }}</x-table-td>
-                                    <x-table-td>{{ $store_customer->status }}</x-table-td>
-                                    <x-table-td>{{ $store_customer->notes }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $store_customer->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_customer->customer->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_customer->customer->address }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_customer->customer->email }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_customer->customer->phone_number }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_customer->status }}</x-table.table-td>
+                                    <x-table.table-td>{{ $store_customer->notes }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                             <x-button-show :route="route('store_customers.show', $store_customer->id)" />
                                             <x-button-delete :route="route('store_customers.destroy', $store_customer->id)" />
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

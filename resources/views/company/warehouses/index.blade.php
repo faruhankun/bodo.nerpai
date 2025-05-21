@@ -24,24 +24,24 @@
                     </div>
 
                     <!-- Warehouse Table -->
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-                                <x-table-th>ID</x-table-th>
-                                <x-table-th>Code</x-table-th>
-                                <x-table-th>Name</x-table-th>
-                                <x-table-th>Address</x-table-th>
-                                <x-table-th>Actions</x-table-th>
+                                <x-table.table-th>ID</x-table.table-th>
+                                <x-table.table-th>Code</x-table.table-th>
+                                <x-table.table-th>Name</x-table.table-th>
+                                <x-table.table-th>Address</x-table.table-th>
+                                <x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($warehouses as $warehouse)
-                                <x-table-tr>
-                                    <x-table-td>{{ $warehouse->id }}</x-table-td>
-                                    <x-table-td>{{ $warehouse->code }}</x-table-td>
-                                    <x-table-td>{{ $warehouse->name }}</x-table-td>
-                                    <x-table-td>{{ $warehouse->address }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $warehouse->id }}</x-table.table-td>
+                                    <x-table.table-td>{{ $warehouse->code }}</x-table.table-td>
+                                    <x-table.table-td>{{ $warehouse->name }}</x-table.table-td>
+                                    <x-table.table-td>{{ $warehouse->address }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                             <form method="POST" action="{{ route('warehouses.switch', $warehouse->id) }}">
                                                 @csrf
@@ -54,11 +54,11 @@
 
                                             <x-button-delete :route="route('warehouses.destroy', $warehouse->id)" />
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

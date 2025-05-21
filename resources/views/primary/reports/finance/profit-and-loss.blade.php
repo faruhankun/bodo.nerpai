@@ -26,100 +26,100 @@
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
                     <div id="profit_loss" class="w-full">
-                        <x-table-table>
-                            <x-table-thead>
-                                <x-table-tr>
-                                    <x-table-td class="font-bold text-3xl">Laporan Laba Rugi</x-table-td>
-                                    <x-table-td class="text-right font-bold text-2xl">Periode: {{ $start_date }} - {{ $end_date }}</x-table-td>
-                                </x-table-tr>
-                            </x-table-thead>
-                            <x-table-tbody>
-                                <x-table-tr>
-                                    <x-table-td class="font-bold text-xl">Pendapatan</x-table-td>
-                                </x-table-tr>
+                        <x-table.table-table>
+                            <x-table.table-thead>
+                                <x-table.table-tr>
+                                    <x-table.table-td class="font-bold text-3xl">Laporan Laba Rugi</x-table.table-td>
+                                    <x-table.table-td class="text-right font-bold text-2xl">Periode: {{ $start_date }} - {{ $end_date }}</x-table.table-td>
+                                </x-table.table-tr>
+                            </x-table.table-thead>
+                            <x-table.table-tbody>
+                                <x-table.table-tr>
+                                    <x-table.table-td class="font-bold text-xl">Pendapatan</x-table.table-td>
+                                </x-table.table-tr>
                                 @foreach ($data['pendapatan'] as $item)
-                                    <x-table-tr>
-                                        <x-table-td class="pl-16">{{ $item->code}} - {{ $item->name }}</x-table-td>
-                                        <x-table-td class="text-right pr-8">{{ number_format($item->balance , 2) }}</x-table-td>
-                                    </x-table-tr>
+                                    <x-table.table-tr>
+                                        <x-table.table-td class="pl-16">{{ $item->code}} - {{ $item->name }}</x-table.table-td>
+                                        <x-table.table-td class="text-right pr-8">{{ number_format($item->balance , 2) }}</x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                                <x-table-tr class="font-bold text-xl">
-                                    <x-table-td class="pl-8">Total Pendapatan</x-table-td>
-                                    <x-table-td class="text-right pr-8">{{ number_format($data['total_pendapatan'], 2) }}</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr class="font-bold text-xl">
+                                    <x-table.table-td class="pl-8">Total Pendapatan</x-table.table-td>
+                                    <x-table.table-td class="text-right pr-8">{{ number_format($data['total_pendapatan'], 2) }}</x-table.table-td>
+                                </x-table.table-tr>
 
-                                <x-table-tr>
-                                    <x-table-td class="font-bold text-xl">Beban Pokok Penjualan</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td class="font-bold text-xl">Beban Pokok Penjualan</x-table.table-td>
+                                </x-table.table-tr>
                                 @foreach ($data['beban_pokok'] as $item)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $item->code}} - {{ $item->name }}</x-table-td>
-                                        <x-table-td class="text-right">{{ number_format($item->balance, 2) }}</x-table-td>
-                                    </x-table-tr>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $item->code}} - {{ $item->name }}</x-table.table-td>
+                                        <x-table.table-td class="text-right">{{ number_format($item->balance, 2) }}</x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                                <x-table-tr class="font-bold text-xl">
-                                    <x-table-td>Total Beban Pokok Penjualan</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($data['total_beban_pokok'], 2) }}</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr class="font-bold text-xl">
+                                    <x-table.table-td>Total Beban Pokok Penjualan</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($data['total_beban_pokok'], 2) }}</x-table.table-td>
+                                </x-table.table-tr>
 
-                                <x-table-tr class="font-bold text-xl">
-                                    <x-table-td>Laba Kotor</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($data['laba_kotor'], 2) }}</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr class="font-bold text-xl">
+                                    <x-table.table-td>Laba Kotor</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($data['laba_kotor'], 2) }}</x-table.table-td>
+                                </x-table.table-tr>
 
-                                <x-table-tr>
-                                    <x-table-td class="font-bold text-xl">Biaya Operasional</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td class="font-bold text-xl">Biaya Operasional</x-table.table-td>
+                                </x-table.table-tr>
                                 @foreach ($data['biaya_operasional'] as $item)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $item->code}} - {{ $item->name }}</x-table-td>
-                                        <x-table-td class="text-right">{{ number_format($item->balance, 2) }}</x-table-td>
-                                    </x-table-tr>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $item->code}} - {{ $item->name }}</x-table.table-td>
+                                        <x-table.table-td class="text-right">{{ number_format($item->balance, 2) }}</x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                                <x-table-tr class="font-bold text-xl">
-                                    <x-table-td>Total Biaya Operasional</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($data['total_biaya_operasional'], 2) }}</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr class="font-bold text-xl">
+                                    <x-table.table-td>Total Biaya Operasional</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($data['total_biaya_operasional'], 2) }}</x-table.table-td>
+                                </x-table.table-tr>
 
-                                <x-table-tr class="font-bold text-xl">
-                                    <x-table-td>Laba Operasional</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($data['laba_operasional'], 2) }}</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr class="font-bold text-xl">
+                                    <x-table.table-td>Laba Operasional</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($data['laba_operasional'], 2) }}</x-table.table-td>
+                                </x-table.table-tr>
 
-                                <x-table-tr>
-                                    <x-table-td class="font-bold text-xl">Pendapatan Lainnya</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td class="font-bold text-xl">Pendapatan Lainnya</x-table.table-td>
+                                </x-table.table-tr>
                                 @foreach ($data['pendapatan_lainnya'] as $item)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $item->code}} - {{ $item->name }}</x-table-td>
-                                        <x-table-td class="text-right">{{ number_format($item->balance , 2) }}</x-table-td>
-                                    </x-table-tr>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $item->code}} - {{ $item->name }}</x-table.table-td>
+                                        <x-table.table-td class="text-right">{{ number_format($item->balance , 2) }}</x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                                <x-table-tr class="font-bold text-xl">
-                                    <x-table-td>Total Pendapatan Lainnya</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($data['total_pendapatan_lainnya'], 2) }}</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr class="font-bold text-xl">
+                                    <x-table.table-td>Total Pendapatan Lainnya</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($data['total_pendapatan_lainnya'], 2) }}</x-table.table-td>
+                                </x-table.table-tr>
 
-                                <x-table-tr>
-                                    <x-table-td class="font-bold text-xl">Beban Lainnya</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr>
+                                    <x-table.table-td class="font-bold text-xl">Beban Lainnya</x-table.table-td>
+                                </x-table.table-tr>
                                 @foreach ($data['beban_lainnya'] as $item)
-                                    <x-table-tr>
-                                        <x-table-td>{{ $item->code}} - {{ $item->name }}</x-table-td>
-                                        <x-table-td class="text-right">{{ number_format($item->balance, 2) }}</x-table-td>
-                                    </x-table-tr>
+                                    <x-table.table-tr>
+                                        <x-table.table-td>{{ $item->code}} - {{ $item->name }}</x-table.table-td>
+                                        <x-table.table-td class="text-right">{{ number_format($item->balance, 2) }}</x-table.table-td>
+                                    </x-table.table-tr>
                                 @endforeach
-                                <x-table-tr class="font-bold text-xl">
-                                    <x-table-td>Total Beban Lainnya</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($data['total_beban_lainnya'], 2) }}</x-table-td>
-                                </x-table-tr>
+                                <x-table.table-tr class="font-bold text-xl">
+                                    <x-table.table-td>Total Beban Lainnya</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($data['total_beban_lainnya'], 2) }}</x-table.table-td>
+                                </x-table.table-tr>
 
-                                <x-table-tr class="font-bold text-xl">
-                                    <x-table-td>Laba Bersih</x-table-td>
-                                    <x-table-td class="text-right">{{ number_format($data['laba_bersih'], 2) }}</x-table-td>
-                                </x-table-tr>
-                            </x-table-tbody>
-                        </x-table-table>
+                                <x-table.table-tr class="font-bold text-xl">
+                                    <x-table.table-td>Laba Bersih</x-table.table-td>
+                                    <x-table.table-td class="text-right">{{ number_format($data['laba_bersih'], 2) }}</x-table.table-td>
+                                </x-table.table-tr>
+                            </x-table.table-tbody>
+                        </x-table.table-table>
                     </div>
 
                     <!-- Back Button -->

@@ -31,27 +31,27 @@
                             <div class="p-6 text-gray-900 dark:text-white">
 
 
-                                <x-table-table id="search-table">
-                                    <x-table-thead class="mt-3">
+                                <x-table.table-table id="search-table">
+                                    <x-table.table-thead class="mt-3">
                                         <tr>
-                                            <x-table-th>Nama Permission</x-table-th>
-                                            <x-table-th>Aksi</x-table-th>
+                                            <x-table.table-th>Nama Permission</x-table.table-th>
+                                            <x-table.table-th>Aksi</x-table.table-th>
                                         </tr>
-                                    </x-table-thead>
+                                    </x-table.table-thead>
                                     <tbody>
                                         @foreach($permissions as $permission)
-                                            <x-table-tr>
-                                                <x-table-td>{{ $permission->name }}</x-table-td>
-                                                <x-table-td>
+                                            <x-table.table-tr>
+                                                <x-table.table-td>{{ $permission->name }}</x-table.table-td>
+                                                <x-table.table-td>
                                                     <div class="flex inline">
                                                         <x-button-edit :route="route('permissions.edit', $permission->id)" />
                                                         {{-- <x-button-delete :route="route('permissions.destroy', $permission->id)" /> --}}
                                                     </div>
-                                                </x-table-td>
-                                            </x-table-tr>
+                                                </x-table.table-td>
+                                            </x-table.table-tr>
                                         @endforeach
                                     </tbody>
-                                </x-table-table>
+                                </x-table.table-table>
                             </div>
                         </div>
                     </div>

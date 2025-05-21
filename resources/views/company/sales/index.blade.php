@@ -24,32 +24,32 @@
                         </div>
                     </div>
 
-                    <x-table-table id="search-table">
-                        <x-table-thead>
+                    <x-table.table-table id="search-table">
+                        <x-table.table-thead>
                             <tr>
-								<x-table-th>SO</x-table-th>
-								<x-table-th>Date</x-table-th>
-								<x-table-th>Warehouse</x-table-th>
-                                <x-table-th>Consignee</x-table-th>
-								<x-table-th>Total Amount</x-table-th>
-								<x-table-th>Team</x-table-th>
-								<x-table-th>Status</x-table-th> <!-- New column -->
-								<x-table-th>Actions</x-table-th>
+								<x-table.table-th>SO</x-table.table-th>
+								<x-table.table-th>Date</x-table.table-th>
+								<x-table.table-th>Warehouse</x-table.table-th>
+                                <x-table.table-th>Consignee</x-table.table-th>
+								<x-table.table-th>Total Amount</x-table.table-th>
+								<x-table.table-th>Team</x-table.table-th>
+								<x-table.table-th>Status</x-table.table-th> <!-- New column -->
+								<x-table.table-th>Actions</x-table.table-th>
                             </tr>
-                        </x-table-thead>
-                        <x-table-tbody>
+                        </x-table.table-thead>
+                        <x-table.table-tbody>
                             @foreach ($sales as $sale)
-                                <x-table-tr>
-                                    <x-table-td>{{ $sale->number }}</x-table-td>
-                                    <x-table-td>{{ $sale->date }}</x-table-td>
-                                    <x-table-td>{{ $sale->warehouse->name }}</x-table-td>
-                                    <x-table-td>
+                                <x-table.table-tr>
+                                    <x-table.table-td>{{ $sale->number }}</x-table.table-td>
+                                    <x-table.table-td>{{ $sale->date }}</x-table.table-td>
+                                    <x-table.table-td>{{ $sale->warehouse->name }}</x-table.table-td>
+                                    <x-table.table-td>
                                         {{ $sale?->consignee_type ?? 'N/A' }} : {{ $sale->consignee?->name ?? 'N/A' }}
-                                    </x-table-td>
-                                    <x-table-td>{{ $sale->total_amount }}</x-table-td>
-                                    <x-table-td>{{ $sale->employee->companyuser->user->name ?? 'N/A' }}</x-table-td>
-                                    <x-table-td>{{ $sale->status }}</x-table-td>
-                                    <x-table-td>
+                                    </x-table.table-td>
+                                    <x-table.table-td>{{ $sale->total_amount }}</x-table.table-td>
+                                    <x-table.table-td>{{ $sale->employee->companyuser->user->name ?? 'N/A' }}</x-table.table-td>
+                                    <x-table.table-td>{{ $sale->status }}</x-table.table-td>
+                                    <x-table.table-td>
                                         <div class="flex items-center space-x-2">
                                             <x-button-show :route="route('sales.show', $sale->id)" />
                                             @if ($sale->status == 'SO_OFFER' ||
@@ -57,11 +57,11 @@
                                                 <x-button-delete :route="route('sales.destroy', $sale->id)" />
                                             @endif
                                         </div>
-                                    </x-table-td>
-                                </x-table-tr>
+                                    </x-table.table-td>
+                                </x-table.table-tr>
                             @endforeach
-                        </x-table-tbody>
-                    </x-table-table>
+                        </x-table.table-tbody>
+                    </x-table.table-table>
                 </div>
             </div>
         </div>

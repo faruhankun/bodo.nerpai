@@ -23,31 +23,31 @@
         <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
         <x-input-label>Requested Products</x-input-label>
-        <x-table-table id="search-table" >
-    <x-table-thead>
+        <x-table.table-table id="search-table" >
+    <x-table.table-thead>
         <tr>
-            <x-table-th rowspan="2">Product</x-table-th>
-            <x-table-th rowspan="2">Requested Quantity</x-table-th>
-            <x-table-th rowspan="2">Stock in Warehouse</x-table-th>
-            <x-table-th class="text-center" colspan="3">Locations</x-table-th>
+            <x-table.table-th rowspan="2">Product</x-table.table-th>
+            <x-table.table-th rowspan="2">Requested Quantity</x-table.table-th>
+            <x-table.table-th rowspan="2">Stock in Warehouse</x-table.table-th>
+            <x-table.table-th class="text-center" colspan="3">Locations</x-table.table-th>
         </tr>
         <tr>
-            <x-table-th class="text-center border-t border-gray-400 ">Room & Rack</x-table-th>
-            <x-table-th class="text-center border-t border-gray-400 ">Quantity</x-table-th>
-            <x-table-th class="text-center border-t border-gray-400 ">Action</x-table-th>
+            <x-table.table-th class="text-center border-t border-gray-400 ">Room & Rack</x-table.table-th>
+            <x-table.table-th class="text-center border-t border-gray-400 ">Quantity</x-table.table-th>
+            <x-table.table-th class="text-center border-t border-gray-400 ">Action</x-table.table-th>
         </tr>
-    </x-table-thead>
-    <x-table-tbody>
+    </x-table.table-thead>
+    <x-table.table-tbody>
         @foreach ($outboundRequest->requested_quantities as $productId => $quantity)
-            <x-table-tr>
-                <x-table-td>{{ $outboundRequest->sales->products->find($productId)?->name ?? 'Product not found' }}</x-table-td>
-                <x-table-td>{{ $quantity }}</x-table-td>
-                <x-table-td id="stock-in-warehouse-{{ $productId }}">
+            <x-table.table-tr>
+                <x-table.table-td>{{ $outboundRequest->sales->products->find($productId)?->name ?? 'Product not found' }}</x-table.table-td>
+                <x-table.table-td>{{ $quantity }}</x-table.table-td>
+                <x-table.table-td id="stock-in-warehouse-{{ $productId }}">
                     {{ \App\Models\Inventory::where('warehouse_id', $outboundRequest->warehouse_id)
                         ->where('product_id', $productId)
                         ->sum('quantity') }}
-                </x-table-td>
-                <x-table-td class="p-2">
+                </x-table.table-td>
+                <x-table.table-td class="p-2">
                     <select name="locations[{{ $productId }}][room_rack]" class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white">
                         @foreach ($availableLocations[$productId] ?? [] as $availableLocation)
                             <option value="{{ $availableLocation->id }}">
@@ -55,22 +55,22 @@
                             </option>
                         @endforeach
                     </select>
-                </x-table-td>
-                <x-table-td>
+                </x-table.table-td>
+                <x-table.table-td>
                     <x-text-input type="number" name="locations[{{ $productId }}][quantity]" value="0" class="form-control" />
-                </x-table-td>
-                <x-table-td>
+                </x-table.table-td>
+                <x-table.table-td>
                     @if ($outboundRequest->status == 'Requested')
                         <button type="button"
                              class="ml-3 bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-location">
                              Remove
                         </button>
                      @endif
-                </x-table-td>
-            </x-table-tr>
+                </x-table.table-td>
+            </x-table.table-tr>
         @endforeach
-    </x-table-tbody>
-</x-table-table>
+    </x-table.table-tbody>
+</x-table.table-table>
 
         <input type="hidden" id="deleted_locations" name="deleted_locations" value="">
             
@@ -201,20 +201,20 @@
 
                 // Add a new row
                 const newRow = `
-                    <x-table-tr>
-                        <x-table-td>
+                    <x-table.table-tr>
+                        <x-table.table-td>
                             <select name="locations[${productId}][${rowCount}][location_id]" class="bg-gray-100 w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white location-select">
                                 <option value="" selected>Select a location</option>
                                 ` + select[productId] + `
                             </select>
-                        </x-table-td>
-                        <x-table-td>
+                        </x-table.table-td>
+                        <x-table.table-td>
                             <input type="number" name="locations[${productId}][${rowCount}][quantity]" class="form-control" value="0">
-                        </x-table-td>
-                        <x-table-td>
+                        </x-table.table-td>
+                        <x-table.table-td>
                             <x-button2 type="button" class="remove-location mr-3 bg-blue-700">Add Another Product</x-button2>
-                        </x-table-td>
-                    </x-table-tr>
+                        </x-table.table-td>
+                    </x-table.table-tr>
                 `;
                 tbody.insertAdjacentHTML('beforeend', newRow);
 
