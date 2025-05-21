@@ -47,3 +47,10 @@
     </div>
     
 </x-dynamic-component>
+
+
+<script>
+    $(document).ready(function() {
+        
+    });
+</script>

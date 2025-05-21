@@ -280,11 +280,9 @@ class InventoryController extends Controller
             abort(403);
         }
 
-        $supplies = Inventory::with('type', 'item', 'tx_details')
-                            ->where('model_type', 'SUP');
-
         $space = Space::findOrFail($space_id);
         $spaces = $space->spaceAndChildren();
+
 
 
         // generate data by date
@@ -312,6 +310,7 @@ class InventoryController extends Controller
         
         $txs = $txs->get();
 
+        
         $data = collect();
         $data->summary_types = $this->summary_types;
         $data->items_list = Item::all()->keyBy('id');
