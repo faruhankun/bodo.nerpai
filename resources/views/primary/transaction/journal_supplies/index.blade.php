@@ -7,7 +7,8 @@
     $player = session('player_id') ? \App\Models\Primary\Player::findOrFail(session('player_id')) : Auth::user()->player;
 @endphp
 
-<x-crud.index-basic header="Journal Supplies" model="journal supplies" table_id="indexTable" :thead="['ID', 'Date', 'Number', 'Description', 'Total', 'Actions']">
+<x-crud.index-basic header="Journal Supplies" model="journal supplies" table_id="indexTable" 
+                    :thead="['ID', 'Date', 'Number', 'Description', 'SKU','Total', 'Actions']">
     <x-slot name="buttons">
         @include('primary.transaction.journal_supplies.create')
     </x-slot>
@@ -81,6 +82,26 @@
                 {
                     data: 'handler_notes'
                 },
+                {
+                    data: 'sku',
+                    name: 'sku', // penting biar bisa search & sort
+                    render: function(data) {
+                        return data || '-';
+                    }
+                },
+                // {
+                //     data: 'details',
+                //     render: function(data) {
+                //         if (!Array.isArray(data)) return '-';
+                        
+                //         const list_sku = data.map(d => {
+                //             const item = d.detail?.item;
+                //             return item ? `${item.sku} - ${item.name}` : null;
+                //         }).filter(Boolean);
+
+                //         return list_sku.join('<br>');
+                //     }
+                // },
                 {
                     data: 'total',
                     className: 'text-right',
