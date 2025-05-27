@@ -10,6 +10,8 @@ use App\Models\Primary\Player;
 use App\Models\Primary\Space;
 use App\Models\Primary\Group;
 use App\Models\Primary\Item;
+use App\Models\Primary\Transaction;
+use App\Models\Primary\Inventory;
 
 use App\Models\Company\Supplier;
 use App\Models\Company\Warehouse;
@@ -19,7 +21,7 @@ use App\Models\Company\Store;
 use App\Models\Company\Product;
 use App\Models\Company\Inventory\InventoryTransfer;
 use App\Models\Warehouse\Outbound;
-use App\Models\Company\Inventory\Inventory;
+// use App\Models\Company\Inventory\Inventory;
 
 use App\Models\Space\Person;
 use App\Models\Space\Company;
@@ -84,7 +86,7 @@ class AppServiceProvider extends ServiceProvider
             'ACC' => Account::class,
             'ACCT' => AccountType::class,
             'JE' => JournalEntry::class,
-            'IV' => \App\Models\Primary\Inventory::class,
+            // 'IV' => \App\Models\Primary\Inventory::class,
             'ITM' => Item::class,
         ]);
 	}

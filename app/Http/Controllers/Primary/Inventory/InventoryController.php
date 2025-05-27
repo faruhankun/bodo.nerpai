@@ -287,6 +287,7 @@ class InventoryController extends Controller
 
         // generate data by date
         $validated = $request->validate([
+            'summary_type' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
         ]);
@@ -310,11 +311,99 @@ class InventoryController extends Controller
         
         $txs = $txs->get();
 
-        
+
+        // generate data by item
         $data = collect();
         $data->summary_types = $this->summary_types;
         $data->items_list = Item::all()->keyBy('id');
+        $data = $this->getSummaryData($data, $txs, $spaces, $validated);
 
         return view('primary.inventory.supplies.summary', compact('data', 'txs', 'spaces'));
+    }
+
+    
+
+    public function getSummaryData($data, $txs, $spaces, $validated){
+        $summary_type = $validated['summary_type'] ?? null;
+        if(is_null($summary_type)){
+            return $data;
+        }
+
+        // Transaction;
+        $spaces_per_id = $spaces->groupBy('id');
+        $txs_per_space = $txs->groupBy('space_id');
+        $spaces_data = collect();                           
+        $items_data = collect();
+
+        foreach($txs_per_space as $id => $txs){
+            $txs_per_date = $txs->groupBy('sent_time');
+
+            $space_supply = 0;
+
+            $space_supply_per_date = collect();
+            $items_per_space = collect();
+            $items = [];
+
+            foreach($txs_per_date as $end_date => $txs){
+                $per_date_change = [
+                    'PO' => 0,
+                    'SO' => 0,
+                    'FND' => 0,
+                    'LOSS' => 0,
+                    'RTR' => 0,
+                    'DMG' => 0,
+                    'MV' => 0,
+                    'UNDF' => 0,
+                ];
+                
+                $per_date = [
+                    'change' => 0,
+                    'balance' => $space_supply,
+                ];
+
+                foreach($txs as $tx){
+                    foreach($tx->details as $detail){
+                        // tx
+                        $per_date_change[$detail->model_type] += $detail->quantity * $detail->cost_per_unit;
+
+                        // item
+                        $item = $data->items_list[$detail->detail->item_id] ?? null;
+                        if(!isset($items[$item->id])){
+                            $items[$item->id] = [
+                                'item' => $item, 
+                                'in' => 0, 
+                                'out' => 0,
+                                'in_subtotal' => 0,
+                                'out_subtotal' => 0,
+                                'omzet' => 0,
+                                'margin' => 0,
+                            ];
+                        }
+
+                        $items[$item->id]['in'] += $detail->debit;
+                        $items[$item->id]['out'] += $detail->credit;
+                        $items[$item->id]['in_subtotal'] += $detail->debit * $detail->cost_per_unit;
+                        $items[$item->id]['out_subtotal'] += $detail->credit * $detail->cost_per_unit;
+                        $items[$item->id]['omzet'] += $detail->credit * $item->price;
+                        $items[$item->id]['margin'] += $items[$item->id]['omzet'] - $items[$item->id]['out_subtotal'];
+                    }
+                }
+
+                $per_date['change'] += array_sum($per_date_change);
+                $per_date['balance'] += $per_date['change'];
+                $space_supply = $per_date['balance'];
+
+                $per_date = array_merge($per_date, $per_date_change);
+                $space_supply_per_date->put($end_date, $per_date);
+            }
+
+            $spaces_data->put($id, $space_supply_per_date);
+            $items_data->put($id, $items);
+        }
+
+        $data->spaces_data = $spaces_data;
+        $data->items_data = $items_data;
+
+        return $data;
     }
 }

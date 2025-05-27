@@ -182,7 +182,17 @@ class JournalSupplyController extends Controller
     public function getJournalSuppliesData(Request $request)
     {
         $query = $this->getQueryData($request);       
-                                            
+                                  
+        if ($request->has('search') && $request->search['value']) {
+            $search = $request->search['value'];
+
+            $query->where(function ($q) use ($search) {
+                $q->where('items.sku', 'like', "%$search%")
+                ->orWhere('items.name', 'like', "%$search%")
+                ->orWhere('transactions.number', 'like', "%$search%");
+            });
+        }
+
         return DataTables::of($query)
             ->addColumn('actions', function ($data) {
                 $route = 'journal_supplies';
@@ -196,6 +206,9 @@ class JournalSupplyController extends Controller
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
+            ->addColumn('sku', function ($data){
+                return $data->sku_list;
+            })
             ->rawColumns(['actions'])
             ->make(true);
     }
@@ -207,12 +220,27 @@ class JournalSupplyController extends Controller
             abort(403);
         }
 
-        $query = Transaction::with('input', 'type', 'details', 'details.detail')
-            ->where('model_type', 'JS')
-            ->orderBy('sent_time', 'desc');
+        // $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
+        //     ->where('model_type', 'JS')
+        //     ->orderBy('sent_time', 'desc');
+        $query = Transaction::query()
+            ->selectRaw('transactions.*, GROUP_CONCAT(items.name SEPARATOR ", ") as sku_list')
+            ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->join('inventories', function ($join) {
+                $join->on('inventories.id', '=', 'transaction_details.detail_id')
+                    ->where('transaction_details.detail_type', '=', 'IVT');
+            })
+            ->join('items', function ($join) {
+                $join->on('items.id', '=', 'inventories.item_id')
+                    ->where('inventories.item_type', '=', 'ITM');
+            })
+            ->where('transactions.model_type', 'JS') // atau sesuaikan kebutuhanmu
+            ->groupBy('transactions.id')
+            ->limit(10);
 
-        $query = $query->where('space_type', 'SPACE')
-                        ->where('space_id', $space_id);
+
+        $query = $query->where('transactions.space_type', 'SPACE')
+                        ->where('transactions.space_id', $space_id);
 
         return $query;
     }
