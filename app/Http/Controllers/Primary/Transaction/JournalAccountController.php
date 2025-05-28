@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company\Finance\Account;
 use App\Models\Company\Finance\AccountType;
 use App\Services\Primary\Transaction\JournalAccountService;
+use App\Services\Primary\Basic\EximService;
 use Illuminate\Http\Request;
 
 use Yajra\DataTables\Facades\DataTables;
@@ -18,10 +19,16 @@ use Illuminate\Support\Facades\Response;
 class JournalAccountController extends Controller
 {
     protected $journalEntryAccount;
+    protected $eximService;
 
-    public function __construct(JournalAccountService $journalEntryAccount)
+    public $import_columns = ['date', 'number', 'description', 'account_code', 'account_name', 'notes', 'debit', 'credit', 'tags'];
+
+
+
+    public function __construct(JournalAccountService $journalEntryAccount, EximService $eximService)
     {
         $this->journalEntryAccount = $journalEntryAccount;
+        $this->eximService = $eximService;
     }
 
 
@@ -61,36 +68,24 @@ class JournalAccountController extends Controller
         try {
             $validated = $request->validate([
                 'space_id' => 'required',
-                'date' => 'required|date',
-                'description' => 'nullable|string|max:255',
-                'journal_entry_details' => 'required|array',
-                'journal_entry_details.*.account_id' => 'required',
-                'journal_entry_details.*.debit' => 'required|numeric|min:0',
-                'journal_entry_details.*.credit' => 'required|numeric|min:0',
-                'journal_entry_details.*.notes' => 'nullable|string|max:255',
+                'sender_id' => 'required',
+                'sent_time' => 'required',
+                'sender_notes' => 'nullable|string|max:255',
             ]);
 
-            $totalDebit = array_sum(array_column($validated['journal_entry_details'], 'debit'));
-            $totalCredit = array_sum(array_column($validated['journal_entry_details'], 'credit'));
-
-            if ($totalDebit != $totalCredit) {
-                return back()->with('error', 'Total debits and credits must be equal.');
-            }
-
-            $player = auth()->user()->player;
             $data = [
                 'space_id' => $validated['space_id'],
-                'sender_id' => $player->id,
-                'sent_time' => $validated['date'],
-                'sender_notes' => $validated['description'],
-                'total' => $totalDebit,
+                'sender_id' => $validated['sender_id'],
+                'sent_time' => $validated['sent_time'],
+                'sender_notes' => $validated['sender_notes'],
             ];
 
-            $journal_entry = $this->journalEntryAccount->addJournalEntry($data, $validated['journal_entry_details']);
+            $journal_entry = $this->journalEntryAccount->addJournalEntry($data);
 
-            return redirect()->route('journal_accounts.index')->with('success', 'Journal Entry Created Successfully!');
+            return redirect()->route('journal_accounts.edit', $journal_entry->id)
+                            ->with('success', 'Journal Entry Created Successfully!');
         } catch (\Throwable $th) {
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return back()->with('error', 'Something went wrong. Please try again.' . $th->getMessage());
         }
     }
 
@@ -290,27 +285,21 @@ class JournalAccountController extends Controller
         }
     }
 
-    public function downloadTemplate()
-    {
-        $headers = ['Content-Type' => 'text/csv'];
-        $filename = "template.csv";
 
-        // Define your column headers (template)
-        $columns = ['date', 'number', 'description', 'account_code', 'account_name', 'notes', 'debit', 'credit', 'tags'];
+    // Export Import
+    public function importTemplate(){
+        $response = $this->eximService->exportCSV(['filename' => 'journal_import_template.csv'], $this->import_columns);
 
-        // Open a memory "file" for writing CSV data
-        $callback = function () use ($columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-            fclose($file);
-        };
+        return $response;
+    }
 
-        return Response::stream($callback, 200, [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$filename",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        ]);
+
+    public function importData(Request $request) {
+        return $this->readCsv($request);
+    }
+
+
+    public function exportData(){
+        return back()->with('error', 'Under Construction');
     }
 }
