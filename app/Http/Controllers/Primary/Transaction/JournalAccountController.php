@@ -54,6 +54,14 @@ class JournalAccountController extends Controller
 
 
 
+    public function show($id)
+    {
+        $data = Transaction::with(['details'])->findOrFail($id);
+
+        return view('primary.transaction.journal_accounts.before.show', compact('data'));
+    }
+
+
     public function create()
     {
         $accountsp = $this->get_account();
@@ -181,7 +189,7 @@ class JournalAccountController extends Controller
 
                 $actions = [
                     'show' => 'modal',
-                    'show_modal' => 'primary.transaction.journal_accounts.show',
+                    'show_modal' => 'primary.transaction.journal_accounts.show-modal',
                     'edit' => 'button',
                     'delete' => 'button',
                 ];

@@ -93,5 +93,4 @@
 
         delete window.datatableInstances['search-table'];
     });
-
 </script>

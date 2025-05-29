@@ -57,8 +57,6 @@ Route::middleware([
     Route::get('journal_accounts/import', [JournalAccountController::class, 'importTemplate'])->name('journal_accounts.import_template');
     Route::post('journal_accounts/import', [JournalAccountController::class, 'importData'])->name('journal_accounts.import');
     Route::get('journal_accounts/data', [JournalAccountController::class, 'getJournalAccountsData'])->name('journal_accounts.data');
-    Route::get('journal_accounts/template', [JournalAccountController::class, 'downloadTemplate'])->name('journal_accounts.template');
-    Route::post('journal_accounts/import', [JournalAccountController::class, 'readCsv'])->name('journal_accounts.import');
     Route::resource('journal_accounts', JournalAccountController::class);
 
 
@@ -79,6 +77,7 @@ Route::middleware([
     Route::get('supplies/data', [InventoryController::class, 'getSuppliesData'])->name('supplies.data');
     Route::resource('supplies', InventoryController::class);
 
+    Route::get('accountsp/summary', [AccountController::class, 'summary'])->name('accountsp.summary');
     Route::get('accountsp/data', [AccountController::class, 'getAccountsData'])->name('accountsp.data');
     Route::resource('accountsp', AccountController::class);
 
