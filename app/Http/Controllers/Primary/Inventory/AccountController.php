@@ -135,9 +135,10 @@ class AccountController extends Controller
                                 ->where('model_type', 'ACC');
 
         if($space_id){
-            $space = Space::findOrFail($space_id);
+            // $space = Space::findOrFail($space_id);
 
-            $spaceIds = $space->AllChildren()->pluck('id')->toArray();
+            // $spaceIds = $space->AllChildren()->pluck('id')->toArray();
+            $spaceIds = [];
             $spaceIds = array_merge($spaceIds, [$space_id]);
 
             $accountsp = $accountsp->where('space_type', 'SPACE')
@@ -148,7 +149,8 @@ class AccountController extends Controller
 
         return DataTables::of($accountsp)
             ->addColumn('getAccountBalance', function ($data) {
-                return $data->getAccountBalance();
+                // return $data->getAccountBalance();
+                return 0;
             })
             ->addColumn('actions', function ($data) {
                 $route = 'accountsp';
@@ -169,7 +171,7 @@ class AccountController extends Controller
     // Summaries
     public $summary_types = [
         'balance_sheet' => 'Neraca',
-        'cashflow' => 'Cashflow',
+        // 'cashflow' => 'Cashflow',
         'profit_loss' => 'Laba Rugi',
     ];
 
@@ -181,8 +183,8 @@ class AccountController extends Controller
         }
 
         $space = Space::findOrFail($space_id);
-        $spaces = $space->spaceAndChildren();
-
+        // $spaces = $space->spaceAndChildren();
+        $spaces = collect([$space]);
 
 
         // generate data by date
@@ -194,6 +196,7 @@ class AccountController extends Controller
 
         $start_date = $validated['start_date'] ?? null;
         $end_date = $validated['end_date'] ?? now()->format('Y-m-d');
+        $validated['summary_type'] = $validated['summary_type'] ?? '';
 
         $end_time = Carbon::parse($end_date)->endOfDay();
         
@@ -204,12 +207,13 @@ class AccountController extends Controller
                             ->where('sent_time', '<=', $end_time)
                             ->orderBy('sent_time', 'asc');
 
-        if(!is_null($start_date)){
+        if(!is_null($start_date) && $validated['summary_type'] != 'balance_sheet'){
             $start_time = Carbon::parse($start_date)->startOfDay();
             $txs = $txs->where('sent_time', '>=', $start_time);
         }
         
         $txs = $txs->get();
+
 
 
         // generate data by account
@@ -228,13 +232,23 @@ class AccountController extends Controller
 
 
     public function getSummaryData($data, $txs, $spaces, $validated){
+        if($validated['summary_type'] == null){
+            // return $data;
+        }
+
         $account = [];
         foreach($txs as $tx){
             foreach($tx->details as $detail){
                 $acc = $detail->detail;
 
                 if(!isset($account[$acc->id])){
-                    $account[$acc->id] = array_merge($acc->toArray(),
+                    $account[$acc->id] = array_merge(
+                        [
+                            'id' => $acc->id,
+                            'code' => $acc->code,
+                            'name' => $acc->name,
+                            'type_id' => $acc->type_id,
+                        ],
                         [
                             'type' => $acc->type,
                             'debit' => 0,
@@ -247,9 +261,18 @@ class AccountController extends Controller
                 $account[$acc->id]['debit'] += $detail->debit;
                 $account[$acc->id]['credit'] += $detail->credit;
 
-                $tx_data = $tx->toArray();
-                $detail->tx = $tx_data;
-                $account[$acc->id]['details'][] = $detail;
+                $detail->tx = [
+                    "id" => $tx->id,
+                    "sent_time" => $tx->sent_time,
+                    "number" => $tx->number,
+                    "sender_notes" => $tx->sender_notes,
+                ];
+                $account[$acc->id]['details'][] = [
+                    'tx' => $detail->tx,
+                    'debit' => $detail->debit,
+                    'credit' => $detail->credit,
+                    'notes' => $detail->notes,
+                ];
             }
         }
 
@@ -258,7 +281,18 @@ class AccountController extends Controller
         }
         $data->account = collect($account);
 
-        $data->profit_loss = $this->calculate_profit_loss($data->account);
+        switch($validated['summary_type']){
+            case 'balance_sheet':
+                $data->balance_sheet = $this->calculate_balance_sheet($data->account);
+                break;
+            case 'cashflow':
+                $data->cashflow = $this->calculate_cashflow($data->account);
+                break;
+            case 'profit_loss':
+                $data->profit_loss = $this->calculate_profit_loss($data->account);
+                break;
+            default: ;
+        }
 
         return $data;
     }
@@ -282,6 +316,26 @@ class AccountController extends Controller
         $data['laba_operasional'] = $data['laba_kotor'] - $data['total_biaya_operasional'];
         $data['laba_bersih'] = $data['laba_operasional'] + $data['total_pendapatan_lainnya'] - $data['total_beban_lainnya'];
 
+        return $data;
+    }
+
+
+    public function calculate_balance_sheet($accounts){
+        $data = [];
+    
+        $data['assets'] = $accounts->whereBetween('type_id', [1, 7]);
+        $data['liabilities'] = $accounts->whereBetween('type_id', [8, 10]);
+        $data['equities'] = $accounts->where('type_id', 11);
+
+        $data['pnl'] = $this->calculate_profit_loss($accounts);
+        // $data['pnl_before'] = $data['pnl'];
+
+        $data['totalAssets'] = $data['assets']->sum('balance');
+        $data['totalLiabilities'] = $data['liabilities']->sum('balance');
+        $data['totalEquities'] = $data['equities']->sum('balance') 
+                                    // + $data['pnl_before']['laba_bersih']
+                                    + $data['pnl']['laba_bersih'];
+    
         return $data;
     }
 }

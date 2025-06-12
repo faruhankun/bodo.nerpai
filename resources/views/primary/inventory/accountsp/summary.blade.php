@@ -1,9 +1,13 @@
 @php
+    use Carbon\Carbon;
+
     $layout = session('layout');
 
-    $start_date = request('start_date') ?? now()->startOfMonth()->format('Y-m-d');
     $real_start_date = request('start_date') ?? null;
     $end_date = request('end_date') ?? now()->format('Y-m-d');
+    
+    $start_date = request('start_date') ?? Carbon::parse($end_date)->startOfMonth()->format('Y-m-d');
+
     $summary_type = request('summary_type') ?? null;
 
     $space_id = session('space_id') ?? null;

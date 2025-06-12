@@ -294,6 +294,7 @@ class JournalAccountController extends Controller
     }
 
 
+    
     // Export Import
     public function importTemplate(){
         $response = $this->eximService->exportCSV(['filename' => 'journal_import_template.csv'], $this->import_columns);
