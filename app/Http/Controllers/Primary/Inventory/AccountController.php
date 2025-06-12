@@ -87,7 +87,7 @@ class AccountController extends Controller
             $request->validate([
                 'name' => 'required',
                 'type_id' => 'required',
-                'basecode' => 'required',
+                // 'basecode' => 'required',
                 'code' => 'required',
                 'status' => 'required|string|max:50',
                 'parent_id' => 'nullable',
@@ -95,15 +95,23 @@ class AccountController extends Controller
             ]);
 
             $requestData = $request->all();
-            $requestData['code'] = $request->input('basecode') . $request->input('code');
+            // $requestData['code'] = $request->input('basecode') . $request->input('code');
             
             $account = Inventory::findOrFail($id);
             $account->update($requestData);
 
-            return redirect()->route('accountsp.index')->with('success', "Accounts {$account->name} updated successfully.");
+            return response()->json([
+                'status' => 'success',
+                'message' => "Accounts {$account->name} updated successfully.",
+                'data' => $account,
+            ]);
+            // return redirect()->route('accountsp.index')->with('success', "Accounts {$account->name} updated successfully.");
         } catch (\Exception $e) {
-            dd($e);
-            return redirect()->back()->withErrors($e->getMessage())->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+            // return redirect()->back()->withErrors($e->getMessage())->withInput();
         }
     }
 

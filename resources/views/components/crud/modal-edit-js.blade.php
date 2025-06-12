@@ -1,5 +1,8 @@
 <!-- Modal Edit Setting -->
-<div x-data="{ isOpen: false }" @edit-modal-js.window="isOpen = true" class="relative">
+<div x-data="{ isOpen: false }" 
+    @edit-modal-js.window="isOpen = true" 
+    @close-edit-modal-js.window="isOpen = false"
+    class="relative">
     <div x-cloak x-show="isOpen" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-6xl p-6">
             <!-- Modal Header -->

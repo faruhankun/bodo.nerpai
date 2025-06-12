@@ -74,6 +74,15 @@
             document.documentElement.classList.remove('dark')
         }
     </script>
+
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
+
     <!-- <script src="//unpkg.com/alpinejs" defer></script> -->
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])

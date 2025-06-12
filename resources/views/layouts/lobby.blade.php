@@ -41,37 +41,6 @@
                 ],
             ]
         ],
-        'Transaction' => [
-            'dropdown_id' => 'transactions',
-            'dropdown_text' => 'Transactions',
-            'dropdown_items' => [
-                
-            ]
-        ],
-        'Inventory' => [
-            'dropdown_id' => 'inventories',
-            'dropdown_text' => 'Inventory',
-            'dropdown_items' => [
-                'items' => [
-                    'auth' => $sidebar_access['items'],
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "items.index",
-                    'text' => 'Items',
-                ],
-                'inventories' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "lobby",
-                    'text' => 'Inventory',
-                ],
-                'accountsp' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "accountsp.index",
-                    'text' => 'Accounts',
-                ],
-            ]
-        ],
         'Players' => [
             'dropdown_id' => 'players',
             'dropdown_text' => 'Players',
