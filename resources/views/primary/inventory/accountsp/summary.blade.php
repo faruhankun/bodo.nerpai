@@ -39,12 +39,13 @@
                             <div class="grid grid-cols-4 border-solid">
                                 <x-div.box-input label="Tipe Laporan" class="m-4">
                                     <select name="summary_type" id="summary_type">
+                                        <option value="">-- Tipe Laporan --</option>
                                         @foreach($data->summary_types as $key => $value)
                                             <option value="{{ $key }}" {{ $key == $summary_type ? 'selected' : '' }}>{{ $value }}</option>
                                         @endforeach
                                     </select>
                                 </x-div.box-input>
-                                <x-div.box-input label="Start Date" class="m-4" id="start_date" style="display: none">
+                                <x-div.box-input label="Start Date" class="m-4" id="start_date">
                                     <x-input.input-basic type="date" name="start_date" value="{{ $start_date }}"></x-input.input-basic>
                                 </x-div.box-input>
                                 <x-div.box-input label="End Date" class="m-4">

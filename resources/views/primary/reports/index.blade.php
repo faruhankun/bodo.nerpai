@@ -21,9 +21,7 @@
                             <x-div-box-show title="Accounting" class="text-xl font-bold">
                                 <ul>
                                     <li class="mb-3"><a href="{{ route('accountsp.summary') }}">Rangkuman Akun</a></li>
-                                    <li class="mb-3"><a href="{{ route('summaries.show', 'profit-and-loss') }}">Laba Rugi</a></li>
                                     <li class="mb-3"><a href="{{ route('summaries.show', 'cashflow') }}">Cashflow</a></li>
-                                    <li class="mb-3"><a href="{{ route('summaries.show', 'balance-sheet') }}">Neraca</a></li>
                                 </ul>
                             </x-div-box-show>
                         @endif
