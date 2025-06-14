@@ -6,7 +6,13 @@
     $real_start_date = request('start_date') ?? null;
     $end_date = request('end_date') ?? now()->format('Y-m-d');
     
-    $start_date = request('start_date') ?? Carbon::parse($end_date)->startOfMonth()->format('Y-m-d');
+
+    if(request()->has('start_date')) {
+        $start_date = request('start_date');    
+    } else {
+        $start_date = Carbon::parse($end_date)->startOfMonth()->format('Y-m-d');
+    }
+
 
     $summary_type = request('summary_type') ?? null;
 
@@ -28,9 +34,9 @@
 
 
 
-                    <div class="flex justify-between items-center m-4 border-solid border-2 dark:border-gray-700">    
+                    <div class="flex justify-between items-center m-4 border-t dark:border-gray-700">    
                         <form action="{{ route('accountsp.summary') }}" method="GET">
-                            <div class="grid grid-cols-4 border-solid border-2">
+                            <div class="grid grid-cols-4 border-solid">
                                 <x-div.box-input label="Tipe Laporan" class="m-4">
                                     <select name="summary_type" id="summary_type">
                                         @foreach($data->summary_types as $key => $value)
@@ -38,7 +44,7 @@
                                         @endforeach
                                     </select>
                                 </x-div.box-input>
-                                <x-div.box-input label="Start Date" class="m-4">
+                                <x-div.box-input label="Start Date" class="m-4" id="start_date" style="display: none">
                                     <x-input.input-basic type="date" name="start_date" value="{{ $start_date }}"></x-input.input-basic>
                                 </x-div.box-input>
                                 <x-div.box-input label="End Date" class="m-4">
@@ -50,11 +56,11 @@
                             </div>
                         </form>
 
-                        @if(!is_null($summary_type))
+                        <!-- @if(!is_null($summary_type))
                             <x-div.box-input label="Export" class="m-4">
                                 <x-secondary-button class="ml-4" id="exportVisibleBtn">Export</x-secondary-button>
                             </x-div.box-input>
-                        @endif
+                        @endif -->
                     </div>
 
                     <!-- Filter -->
@@ -171,4 +177,12 @@
         // Dispatch event ke Alpine.js untuk membuka modal
         window.dispatchEvent(new CustomEvent('edit-modal-js'));
     }
+
+    $('#summary_type').on('change', function () {
+        $('#start_date').show();
+        
+        if (this.value == 'balance_sheet') {
+            $('#start_date').hide();
+        }
+    });
 </script>

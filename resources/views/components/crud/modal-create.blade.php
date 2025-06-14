@@ -10,7 +10,6 @@
     <!-- Modal Dialog -->
     <div x-cloak x-show="isOpen" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
         <div
-            @click.away="isOpen = false" 
             class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-6xl p-6">
             <!-- Modal Header -->
             <div class="flex justify-between items-center mb-4">

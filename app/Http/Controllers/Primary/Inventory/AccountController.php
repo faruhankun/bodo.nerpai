@@ -326,6 +326,7 @@ class AccountController extends Controller
         $data['assets'] = $accounts->whereBetween('type_id', [1, 7]);
         $data['liabilities'] = $accounts->whereBetween('type_id', [8, 10]);
         $data['equities'] = $accounts->where('type_id', 11);
+        $data['passive'] = $accounts->whereBetween('type_id', [8, 11]);
 
         $data['pnl'] = $this->calculate_profit_loss($accounts);
         // $data['pnl_before'] = $data['pnl'];
