@@ -7,6 +7,12 @@
         @include('primary.inventory.accountsp.create')
     </x-slot>
 
+    <x-slot name="filters">
+        <!-- export import  -->
+        <x-crud.exim-csv route_import="{{ route('accountsp.import') }}" route_template="{{ route('accountsp.import_template') }}">
+        </x-crud.exim-csv>
+    </x-slot>
+
     <x-slot name="modals">
         @include('primary.inventory.accountsp.edit')
     </x-slot>
@@ -103,26 +109,38 @@
 </script>
 
 <script>
-$(document).ready(function() {
-    $('#indexTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('accountsp.data') }}",
-        pageLength: 10,
-        columns: [
-            { data: 'code' },
-            { data: 'name' },
-            { data: 'type.name' },
-            { data: 'getAccountBalance', className: 'text-right',
-                render: function (data, type, row, meta) {
-                    return new Intl.NumberFormat('id-ID', { 
-                        maximumFractionDigits: 2
-                    }).format(data);
-                }
-             },
-            { data: 'notes' },
-            { data: 'actions', orderable: false, searchable: false }
-        ]
+    $(document).ready(function() {
+        let indexTable = $('#indexTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('accountsp.data') }}",
+            pageLength: 10,
+            columns: [
+                { data: 'code' },
+                { data: 'name' },
+                { data: 'type.name' },
+                { data: 'getAccountBalance', className: 'text-right',
+                    render: function (data, type, row, meta) {
+                        return new Intl.NumberFormat('id-ID', { 
+                            maximumFractionDigits: 2
+                        }).format(data);
+                    }
+                },
+                { data: 'notes' },
+                { data: 'actions', orderable: false, searchable: false }
+            ]
+        });
+
+
+        // Export Import
+        $('#exportVisibleBtn').on('click', function(e) {
+            e.preventDefault();
+
+            let params = indexTable.ajax.params();
+            
+            let exportUrl = '{{ route("accountsp.export") }}' + '?params=' + encodeURIComponent(JSON.stringify(params));
+
+            window.location.href = exportUrl;
+        });
     });
-});
 </script>

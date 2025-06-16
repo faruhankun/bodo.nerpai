@@ -77,6 +77,9 @@ Route::middleware([
     Route::get('supplies/data', [InventoryController::class, 'getSuppliesData'])->name('supplies.data');
     Route::resource('supplies', InventoryController::class);
 
+    Route::post('accountsp/import', [AccountController::class, 'importData'])->name('accountsp.import');
+    Route::get('accountsp/import', [AccountController::class, 'importTemplate'])->name('accountsp.import_template');
+    Route::get('accountsp/export', [AccountController::class, 'exportData'])->name('accountsp.export');
     Route::get('accountsp/summary', [AccountController::class, 'summary'])->name('accountsp.summary');
     Route::get('accountsp/data', [AccountController::class, 'getAccountsData'])->name('accountsp.data');
     Route::resource('accountsp', AccountController::class);

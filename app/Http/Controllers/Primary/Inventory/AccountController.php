@@ -16,6 +16,10 @@ use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
 use App\Models\Primary\Transaction;
 
+use App\Services\Primary\Basic\EximService;
+
+
+
 enum Status: string
 {
     case Active = 'Active';
@@ -24,6 +28,26 @@ enum Status: string
 
 class AccountController extends Controller
 {
+    protected $eximService;
+
+    protected $import_columns = [
+        'account_code', 
+        'account_name',
+        'type_id', 
+        'type_name', 
+        'parent_code',
+        'parent_name',
+        'notes',
+    ];
+
+
+
+    public function __construct(EximService $eximService)
+    {
+        $this->eximService = $eximService;
+    }
+
+
     public function index()
     {
         $accounts = Inventory::where('model_type', 'ACC')->get();
@@ -128,24 +152,8 @@ class AccountController extends Controller
 
 
 
-    public function getAccountsData(){
-        $space_id = session('space_id') ?? null;
-
-        $accountsp = Inventory::with('type', 'parent', 'tx_details')
-                                ->where('model_type', 'ACC');
-
-        if($space_id){
-            // $space = Space::findOrFail($space_id);
-
-            // $spaceIds = $space->AllChildren()->pluck('id')->toArray();
-            $spaceIds = [];
-            $spaceIds = array_merge($spaceIds, [$space_id]);
-
-            $accountsp = $accountsp->where('space_type', 'SPACE')
-                                    ->whereIn('space_id', $spaceIds);
-        } else {
-            $accountsp->whereRaw('1 = 0');
-        }
+    public function getAccountsData(Request $request){
+        $accountsp = $this->getQueryData($request);
 
         return DataTables::of($accountsp)
             ->addColumn('getAccountBalance', function ($data) {
@@ -164,6 +172,201 @@ class AccountController extends Controller
             })
             ->rawColumns(['actions'])
             ->make(true);
+    }
+
+
+    public function getQueryData(Request $request){
+        $space_id = $request->space_id ?? (session('space_id') ?? null);
+        if(is_null($space_id)){
+            abort(403);
+        }
+
+        $query = Inventory::with('type', 'parent')
+                            ->where('model_type', 'ACC')
+                            ->where('space_type', 'SPACE')
+                            ->where('space_id', $space_id);
+
+        return $query;
+    }
+
+
+
+    // Export Import
+    public function importTemplate(){
+        $response = $this->eximService->exportCSV(['filename' => 'accountsp_import_template.csv'], $this->import_columns);
+
+        return $response;
+    }
+
+    public function exportData(Request $request)
+    {
+        $params = json_decode($request->get('params'), true);
+        
+        $query = $this->getQueryData($request);
+        // search & order filter
+        $query = $this->eximService->exportQuery($query, $params, ['code', 'name', 'type_id', 'notes']);
+
+        $query->take(10000);
+        $collects = $query->get();
+
+
+        // Prepare the CSV data
+        $filename = 'export_accountsp_' . now()->format('Ymd_His') . '.csv';
+        $data = collect();
+
+        // fetch transation into array
+        // grouped by number
+        foreach($collects as $collect){
+            $row = [];
+
+            $row['account_code'] = $collect->code;
+            $row['account_name'] = $collect->name;
+            
+            $row['type_id'] = $collect->type_id;
+            $row['type_name'] = $collect->type->name ?? '';
+
+            $row['parent_code'] = $collect->parent->code ?? '';
+            $row['parent_name'] = $collect->parent->name ?? '';
+            
+            $row['status'] = $collect->status;
+            $row['notes'] = $collect->notes;
+
+            $data[] = $row;
+        }
+
+        $response = $this->eximService->exportCSV(['filename' => $filename], $data);
+
+        return $response;
+    }
+
+    public function importData(Request $request)
+    {
+        $space_id = $request->space_id ?? (session('space_id') ?? null);
+        $player_id = $request->player_id ?? (session('player_id') ?? auth()->user()->player->id);
+
+        try {
+            $validated = $request->validate([
+                'file' => 'required|mimes:csv,txt'
+            ]);
+
+            $file = $validated['file'];
+            $data = collect();
+            $failedRows = collect();
+            $requiredHeaders = ['account_code', 'account_name'];
+
+            // Read the CSV into an array of associative rows
+            $data = $this->eximService->convertCSVtoArray($file, ['requiredHeaders' => $requiredHeaders]);
+
+            
+            $accountsp = $this->getQueryData($request)->get();
+            $account_types = AccountType::all();
+            
+            // process data
+            foreach($data as $i => $row){
+                try {
+                    $account_data = [
+                        'code' => $row['account_code'],
+                        'name' => $row['account_name'],
+                        'notes' => $row['notes'] ?? null,
+
+                        'model_type' => 'ACC',
+                        'type_type' => 'ACCT',
+                        'parent_type' => 'IVT',
+                        'space_type' => 'SPACE',
+                        'space_id' => $space_id,
+                    ];
+                    // skip if no code or name
+                    // if (empty($row['type_id']) && empty($row['type_name'])) {
+                    //     throw new \Exception('Missing required field: type_id or type_name');
+                    // }
+
+
+                    // look for type
+                    if(!empty($row['type_name'])){
+                        $type = $account_types->where('name', $row['type_name'])->first();
+
+                        if(!$type){
+                            if(empty($row['type_id'])){
+                                $type = $account_types->where('id', '1')->first();
+                            }
+                        } 
+
+                        $row['type_id'] = $type->id;
+                    }
+                    if($row['type_id']){
+                        $account_data['type_id'] = $row['type_id'];
+                    } else {
+                        $account_data['type_id'] = 1;
+                    }
+
+
+
+                    // look for parent
+                    if(!empty($row['parent_code']) || !empty($row['parent_name'])){
+                        $parent = $accountsp->filter(function ($account) use ($row) {
+                            return $account->code == $row['parent_code'] || $account->name == $row['parent_name'];
+                        })->first();
+
+                        // create or use parent
+                        if(!$parent){
+                            $parent = Account::create([
+                                'code' => $row['parent_code'],
+                                'name' => $row['parent_name'],
+                                'notes' => $row['notes'] ?? null,
+                            ]);
+    
+                            $accountsp->push($parent);
+                        }
+
+                        $account_data['parent_id'] = $parent->id;
+                    }
+
+
+
+                    // look for account
+                    $account = $accountsp->filter(function ($account) use ($row) {
+                        return $account->code == $row['account_code'] && $account->name == $row['account_name'];
+                    })->first();
+                    
+
+                    if ($account) {
+                        // update ke DB
+                        $account->update($account_data);
+
+                        // update juga ke Collection manual (kalau perlu)
+                        $index = $accountsp->search(function ($acc) use ($account) {
+                            return $acc->id === $account->id;
+                        });
+
+                        if ($index !== false) {
+                            $accountsp->put($index, $account); // replace data di Collection dengan yang baru
+                        }
+
+                    } else {
+                        // kalau tidak ketemu, create
+                        $account = Inventory::create($account_data);
+                        $accountsp->push($account); // tambahkan ke Collection
+                    }
+                } catch (\Throwable $e) {
+                    $row['row'] = $i + 2; 
+                    $row['error'] = $e->getMessage();
+                    $failedRows[] = $row;
+                }
+            }
+
+
+            // Jika ada row yang gagal, langsung return CSV dari memory
+            if (count($failedRows) > 0) {
+                $filename = 'failed_import_accountsp_' . now()->format('Ymd_His') . '.csv';
+                
+                return $this->eximService->exportCSV(['filename' => $filename], $failedRows);
+            }
+
+
+            return redirect()->route('accountsp.index')->with('success', 'CSV uploaded and processed Successfully!');
+        } catch (\Throwable $th) {
+            return back()->with('error', 'Failed to import csv. Please try again.' . $th->getMessage());
+        }
     }
 
 

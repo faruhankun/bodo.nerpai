@@ -13,8 +13,13 @@
         ],
     ];
 
+
+    $pnl_type = collect();
+    $pnl_type->name = 'Ekuitas';
+
     $pnl = array(
         'type_id' => 11,
+        'type' => $pnl_type,
         'code' => 'pnl',
         'name' => 'Laba Rugi periode ini',
         'balance' => $data->balance_sheet['pnl']['laba_bersih'],
