@@ -32,8 +32,11 @@
                     <!-- Modals  -->
                     @include('primary.inventory.accountsp.partials.summary-show')
 
+                    <div id="react-account-modal" data-id="" data-start_date="{{ $start_date }}" data-end_date="{{ $end_date }}"></div>
 
+                    <x-primary-button onclick="show_account_modal(1290)">Open modal 1290</x-primary-button>
 
+                    
                     <div class="flex justify-between items-center m-4 border-t dark:border-gray-700">    
                         <form action="{{ route('accountsp.summary') }}" method="GET">
                             <div class="grid grid-cols-4 border-solid">
@@ -48,7 +51,7 @@
                                 <x-div.box-input label="Start Date" class="m-4" id="start_date">
                                     <x-input.input-basic type="date" name="start_date" value="{{ $start_date }}"></x-input.input-basic>
                                 </x-div.box-input>
-                                <x-div.box-input label="End Date" class="m-4">
+                                <x-div.box-input label="End Date" class="m-4" id="end_date">
                                     <x-input.input-basic type="date" name="end_date" value="{{ $end_date }}" required></x-input.input-basic>
                                 </x-div.box-input>
                                 <x-div.box-input label="Filter" class="m-4">
@@ -124,6 +127,16 @@
     }
 
 
+    function show_account_modal(id){
+        const container = document.getElementById('react-account-modal');
+        container.setAttribute('data-id', id);
+        container.setAttribute('data-start_date', $('#start_date').val());
+        container.setAttribute('data-end_date', $('#end_date').val());
+
+        window.dispatchEvent(new CustomEvent('showAccountModal'));
+    }
+
+
     function show_details(data){
         console.log(data);
 
@@ -187,3 +200,5 @@
         }
     });
 </script>
+
+@vite('resources/js/app.jsx')

@@ -15,6 +15,7 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
 use App\Models\Primary\Transaction;
+use App\Models\Primary\TransactionDetail;
 
 use App\Services\Primary\Basic\EximService;
 
@@ -541,5 +542,53 @@ class AccountController extends Controller
                                     + $data['pnl']['laba_bersih'];
     
         return $data;
+    }
+
+
+
+    // testing react
+    public function getAccountTransactions(Request $request)
+    {
+        $validated = $request->validate([
+            'account_id' => 'required|integer',
+            'start_date' => 'nullable|date',
+            'end_date' => 'required|date',
+            'search' => 'nullable|string',
+            'page' => 'nullable|integer',
+            'per_page' => 'nullable|integer',
+        ]);
+
+
+        $page = $request->get('page', 1);
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search');
+
+        $query = TransactionDetail::with(['transaction', 'detail'])
+                    ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+                    ->where('detail_id', $validated['account_id'])
+                    ->whereBetween('sent_time', [
+                            Carbon::parse($validated['start_date'])->startOfDay(),
+                            Carbon::parse($validated['end_date'])->endOfDay()
+                    ])
+                    ->select('transaction_details.*');
+
+        if ($search) {
+            $query->whereHas('transaction', function ($q) use ($search) {
+                $q->where('number', 'like', "%{$search}%")
+                ->orWhere('sender_notes', 'like', "%{$search}%");
+            });
+        }
+
+        $total = $query->count();
+        $results = $query->skip(($page - 1) * $perPage)
+                        ->take($perPage)
+                        ->get();
+
+        // dd($results);
+
+        return response()->json([
+            'data' => $results,
+            'total' => $total,
+        ]);
     }
 }
