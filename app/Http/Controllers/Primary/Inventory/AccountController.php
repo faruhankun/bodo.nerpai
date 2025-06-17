@@ -561,34 +561,69 @@ class AccountController extends Controller
 
         $page = $request->get('page', 1);
         $perPage = $request->get('per_page', 10);
+        $offset = ($page - 1) * $perPage;
         $search = $request->get('search');
 
-        $query = TransactionDetail::with(['transaction', 'detail'])
-                    ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
-                    ->where('detail_id', $validated['account_id'])
-                    ->whereBetween('sent_time', [
-                            Carbon::parse($validated['start_date'])->startOfDay(),
-                            Carbon::parse($validated['end_date'])->endOfDay()
-                    ])
-                    ->select('transaction_details.*');
+        $baseQuery = TransactionDetail::with(['transaction', 'detail'])
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->where('detail_id', $validated['account_id'])
+            ->whereBetween('sent_time', [
+                Carbon::parse($validated['start_date'])->startOfDay(),
+                Carbon::parse($validated['end_date'])->endOfDay()
+            ])
+            ->select('transaction_details.*')
+            ->orderBy('transactions.sent_time', 'asc');
 
         if ($search) {
-            $query->whereHas('transaction', function ($q) use ($search) {
+            $baseQuery->whereHas('transaction', function ($q) use ($search) {
                 $q->where('number', 'like', "%{$search}%")
                 ->orWhere('sender_notes', 'like', "%{$search}%");
             });
         }
 
-        $total = $query->count();
-        $results = $query->skip(($page - 1) * $perPage)
-                        ->take($perPage)
-                        ->get();
+        // Total
+        $total = (clone $baseQuery)->count();
 
-        // dd($results);
+        // Get full data before current page for initial balance
+        $initials = (clone $baseQuery)
+            ->skip(0)
+            ->take($offset)
+            ->get();
+
+        $initialDebit = $initials->sum(function ($item) {
+            return floatval($item->debit ?? 0);
+        });
+        $initialCredit = $initials->sum(function ($item) {
+            return floatval($item->credit ?? 0);
+        });
+        $initialBalance = $initialDebit - $initialCredit;
+
+        // Current page data
+        $results = (clone $baseQuery)
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        $pageDebit = $results->sum(function ($item) {
+            return floatval($item->debit ?? 0);
+        });
+        $pageCredit = $results->sum(function ($item) {
+            return floatval($item->credit ?? 0);
+        });
+
+        $finalBalance = $initialBalance + $pageDebit - $pageCredit;
 
         return response()->json([
-            'data' => $results,
             'total' => $total,
+            'initial_balance' => $initialBalance,
+            'final_balance' => $finalBalance,
+            'initial_debit' => $initialDebit,
+            'initial_credit' => $initialCredit,
+            'page_debit' => $pageDebit,
+            'page_credit' => $pageCredit,
+            'page' => $page,
+            'per_page' => $perPage,
+            'data' => $results,
         ]);
     }
 }

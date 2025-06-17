@@ -32,9 +32,9 @@
                     <!-- Modals  -->
                     @include('primary.inventory.accountsp.partials.summary-show')
 
-                    <div id="react-account-modal" data-id="" data-start_date="{{ $start_date }}" data-end_date="{{ $end_date }}"></div>
+                    <div id="react-account-modal" data-id="" data-start_date="" data-end_date="" data-account_data></div>
 
-                    <x-primary-button onclick="show_account_modal(1290)">Open modal 1290</x-primary-button>
+                    <!-- <x-primary-button onclick="show_account_modal(1290)">Open modal 1290</x-primary-button> -->
 
                     
                     <div class="flex justify-between items-center m-4 border-t dark:border-gray-700">    
@@ -48,11 +48,11 @@
                                         @endforeach
                                     </select>
                                 </x-div.box-input>
-                                <x-div.box-input label="Start Date" class="m-4" id="start_date">
-                                    <x-input.input-basic type="date" name="start_date" value="{{ $start_date }}"></x-input.input-basic>
+                                <x-div.box-input label="Start Date" class="m-4">
+                                    <x-input.input-basic type="date" id="start_date" name="start_date" value="{{ $start_date }}"></x-input.input-basic>
                                 </x-div.box-input>
-                                <x-div.box-input label="End Date" class="m-4" id="end_date">
-                                    <x-input.input-basic type="date" name="end_date" value="{{ $end_date }}" required></x-input.input-basic>
+                                <x-div.box-input label="End Date" class="m-4">
+                                    <x-input.input-basic type="date" id="end_date" name="end_date" value="{{ $end_date }}" required></x-input.input-basic>
                                 </x-div.box-input>
                                 <x-div.box-input label="Filter" class="m-4">
                                     <x-primary-button class="ml-4">Filter</x-primary-button>
@@ -127,11 +127,15 @@
     }
 
 
-    function show_account_modal(id){
+    function show_account_modal(acc){
         const container = document.getElementById('react-account-modal');
-        container.setAttribute('data-id', id);
+        
+        container.setAttribute('data-id', acc.id);
         container.setAttribute('data-start_date', $('#start_date').val());
         container.setAttribute('data-end_date', $('#end_date').val());
+        container.setAttribute('data-account_data', JSON.stringify(acc));
+
+        console.log(acc);
 
         window.dispatchEvent(new CustomEvent('showAccountModal'));
     }
