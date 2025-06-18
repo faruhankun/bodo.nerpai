@@ -132,6 +132,10 @@
 
 
     function show_account_modal(acc){
+        if(acc.id == null){
+            return;
+        }
+
         const container = document.getElementById('react-account-modal');
         
         container.setAttribute('data-id', acc.id);
@@ -140,6 +144,11 @@
         container.setAttribute('data-account_data', JSON.stringify(acc));
 
         console.log(acc);
+
+        let summary_type = $('#summary_type').val();
+        if(summary_type == 'balance_sheet'){
+            container.setAttribute('data-start_date', '');
+        }
 
         window.dispatchEvent(new CustomEvent('showAccountModal'));
     }
@@ -205,6 +214,7 @@
         
         if (this.value == 'balance_sheet') {
             $('#start_date').hide();
+            $('#start_date').val('');
         }
     });
 </script>

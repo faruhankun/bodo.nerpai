@@ -24,6 +24,7 @@
         'name' => 'Laba Rugi periode ini',
         'balance' => $data->balance_sheet['pnl']['laba_bersih'],
         'details' => [],
+        'link' => route('accountsp.summary') . '?summary_type=profit_loss' . '&start_date=' . $start_date . '&end_date=' . $end_date,
     );
     $data->balance_sheet['equities']->push($pnl);
     $data->balance_sheet['passive']->push($pnl);
@@ -72,14 +73,20 @@
 
                 @foreach($accs as $acc)
                     <x-table.table-tr class="border-t border-gray-300 dark:border-gray-700 p-8" 
-                        onclick="show_details({{ collect($acc['details']) }})">
+                        onclick="
+                                show_account_modal({{ json_encode($acc) }})
+                        ">
                         <x-table.table-td style="padding-left: 45px;">
                             {{ $acc['code'] }}   {{ $acc['name'] }}
                         </x-table.table-td>
                         <x-table.table-td class="text-right" style="padding-right: 10px;">
-                            <a onclick="show_details({{ collect($acc['details']) }})" class="text-primary">
+                            @if($acc['code'] == 'pnl')
                                 {{ format_number($acc['balance']) }}
-                            </a>
+                            @else
+                                <a onclick="show_account_modal({{ json_encode($acc) }})" class="text-primary">
+                                    {{ format_number($acc['balance']) }}
+                                </a>
+                            @endif
                         </x-table.table-td>
                     </x-table.table-tr>
                 @endforeach

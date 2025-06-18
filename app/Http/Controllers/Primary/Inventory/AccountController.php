@@ -567,12 +567,19 @@ class AccountController extends Controller
         $baseQuery = TransactionDetail::with(['transaction', 'detail'])
             ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->where('detail_id', $validated['account_id'])
-            ->whereBetween('sent_time', [
-                Carbon::parse($validated['start_date'])->startOfDay(),
-                Carbon::parse($validated['end_date'])->endOfDay()
-            ])
+            // ->whereBetween('sent_time', [
+            //     Carbon::parse($validated['start_date'])->startOfDay(),
+            //     Carbon::parse($validated['end_date'])->endOfDay()
+            // ])
             ->select('transaction_details.*')
             ->orderBy('transactions.sent_time', 'asc');
+        if(!is_null($validated['start_date']) && $validated['start_date'] != ''){
+            $baseQuery->where('transactions.sent_time', '>=', Carbon::parse($validated['start_date'])->startOfDay());
+        }
+        if(!is_null($validated['end_date']) && $validated['end_date'] != ''){
+            $baseQuery->where('transactions.sent_time', '<=', Carbon::parse($validated['end_date'])->endOfDay());
+        }
+            
 
         if ($search) {
             $baseQuery->whereHas('transaction', function ($q) use ($search) {
