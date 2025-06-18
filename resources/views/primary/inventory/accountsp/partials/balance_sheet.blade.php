@@ -37,10 +37,10 @@
 
 
 <!-- Rangkuman Neraca   -->
-<h1 class="text-3xl font-bold dark:text-white">Laporan Neraca</h1>
+<h1 class="text-3xl font-bold dark:text-white" id="summary-title">Laporan Neraca</h1>
 <br>
 
-<x-table.table-table>
+<x-table.table-table id="summary-table">
     <x-table.table-thead>
         <x-table.table-tr></x-table.table-tr>
     </x-table.table-thead>

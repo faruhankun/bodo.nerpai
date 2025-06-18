@@ -12,22 +12,31 @@
         "alpinejs": "^3.4.2",
         "autoprefixer": "^10.4.20",
         "axios": "^1.10.0",
+        "babel-plugin-import": "^1.13.8",
         "concurrently": "^9.0.1",
         "flowbite": "^2.5.2",
         "laravel-vite-plugin": "^1.0",
         "postcss": "^8.4.49",
         "tailwindcss": "^3.4.17",
-        "vite": "^5.4.19"
+        "unplugin-auto-import": "^19.3.0",
+        "unplugin-react-components": "^0.1.4",
+        "vite": "^5.4.19",
+        "vite-plugin-style-import": "^2.0.0"
     },
     "dependencies": {
         "antd": "^5.26.0",
+        "consola": "^3.4.2",
         "datatables.net-bs5": "^2.2.2",
         "dayjs": "^1.11.13",
+        "file-saver": "^2.0.5",
         "flatpickr": "^4.6.13",
+        "html2canvas": "^1.4.1",
         "jquery": "^3.7.1",
+        "jspdf": "^3.0.1",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "select2": "^4.1.0-rc.0",
-        "sweetalert2": "^11.15.3"
+        "sweetalert2": "^11.15.3",
+        "xlsx": "^0.18.5"
     }
 }

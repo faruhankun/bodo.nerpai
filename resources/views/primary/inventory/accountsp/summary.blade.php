@@ -65,6 +65,10 @@
                                 <x-secondary-button class="ml-4" id="exportVisibleBtn">Export</x-secondary-button>
                             </x-div.box-input>
                         @endif -->
+                        <x-div.box-input label="Export" class="m-4">
+                            <x-secondary-button onclick="exim.exportTableToPDF('summary-table', '{{ $summary_type }}', $('#summary-title').text())">PDF</x-secondary-button>
+                            <x-secondary-button onclick="exim.exportTableToExcel('summary-table', $('#summary-title').text() + '.xlsx')">Excel</x-secondary-button>
+                        </x-div.box-input>
                     </div>
 
                     <!-- Filter -->
