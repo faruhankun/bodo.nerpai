@@ -18,6 +18,7 @@
 
 
     <x-slot name="modals">
+        @include('primary.player.contacts.show')
     </x-slot>
 </x-crud.index-basic>
 
@@ -25,7 +26,15 @@
 
 <script>
     function showjs(data){
-        alert(JSON.stringify(data));
+        let trigger = 'show_modal_js';
+
+        let html = '<pre>' + JSON.stringify(data, null, 2) + '<br><br>';
+        // html += '<pre>' + JSON.stringify(data.model2, null, 2) + '<br><br>'
+        // html += '<pre>' + JSON.stringify(data.model2.size, null, 2) + '<br><br>';
+
+        $('#dataform_' + trigger).html(html);
+
+        window.dispatchEvent(new CustomEvent('open-' + trigger));
     }
 
     function edit(data) {
