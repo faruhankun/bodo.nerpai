@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Space;
+namespace App\Models\Primary;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -30,9 +30,7 @@ class Person extends Model
 
     protected function casts(): array
     {
-        return [
-            'birth_date' => 'date',    
-            'death_date' => 'date',   
+        return [  
             'address' => 'json',
         ];
     }

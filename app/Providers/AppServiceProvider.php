@@ -23,7 +23,7 @@ use App\Models\Company\Inventory\InventoryTransfer;
 use App\Models\Warehouse\Outbound;
 // use App\Models\Company\Inventory\Inventory;
 
-use App\Models\Space\Person;
+use App\Models\Primary\Person;
 use App\Models\Space\Company;
 
 use App\Models\Store\StorePos;

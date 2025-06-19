@@ -30,6 +30,13 @@ class Player extends Model
         'notes',
     ];
 
+    protected function casts(): array
+    {
+        return [ 
+            'address' => 'json',
+        ];
+    }
+
 
     // relations
     public function size()

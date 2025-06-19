@@ -69,11 +69,11 @@
             'dropdown_id' => 'players',
             'dropdown_text' => 'Players',
             'dropdown_items' => [
-                'players' => [
+                'contacts' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "players.index",
-                    'text' => 'Players',
+                    'route' => "contacts.index",
+                    'text' => 'Contacts',
                 ],
                 'space_players' => [
                     'auth' => true,

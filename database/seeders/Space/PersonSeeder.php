@@ -2,7 +2,7 @@
 
 namespace Database\Seeders\Space;
 
-use App\Models\Space\Person;
+use App\Models\Primary\Person;
 use Illuminate\Database\Seeder;
 
 class PersonSeeder extends Seeder

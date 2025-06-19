@@ -11,6 +11,7 @@
         @include('primary.players.create')
     </x-slot>
 
+
     <x-slot name="modals">
         @include('primary.players.edit', ['edit' => ['data' => 'Edit Account']])
     </x-slot>
@@ -37,23 +38,23 @@
 </script>
 
 <script>
-$(document).ready(function() {
-    $('#indexTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('players.related') }}",
-        columns: [
-            { data: 'id' },
-            { data: 'number' },
-            { data: 'size_display' },
-            { data: 'model1.name' },
-            { data: 'type' },
-            { data: 'status' },
-            { data: 'notes' },
-            { data: 'actions', orderable: false, searchable: false }
-        ]
+    $(document).ready(function() {
+        let indexTable = $('#indexTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('players.related') }}",
+            columns: [
+                { data: 'id' },
+                { data: 'number' },
+                { data: 'size_display' },
+                { data: 'model1.name' },
+                { data: 'type' },
+                { data: 'status' },
+                { data: 'notes' },
+                { data: 'actions', orderable: false, searchable: false }
+            ]
+        });
     });
-});
 </script>
 
 

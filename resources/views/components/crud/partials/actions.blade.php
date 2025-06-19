@@ -22,6 +22,8 @@
         @endif
     @elseif($actions['show'] == 'button')
         <x-button-show :route="route($route . '.show', $data->id)" />
+    @elseif($actions['show'] == 'modaljs')
+        <x-buttons.button-showjs onclick="showjs({{ $data }})"></x-buttons.button-showjs>
     @endif
 
     @if($actions['edit'] == 'modal')

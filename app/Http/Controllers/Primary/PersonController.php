@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Primary;
 use App\Http\Controllers\Controller;
 
-use App\Models\Space\Person;
+use App\Models\Primary\Person;
 use Illuminate\Http\Request;
 
 use Yajra\DataTables\Facades\DataTables;

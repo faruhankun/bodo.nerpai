@@ -41,7 +41,7 @@ class EximService
 
     public function exportCSV($data = [], $columns = [])
     {
-        $filename = $data['filename'] ?? "import_template.csv";
+        $filename = $data['filename'] ?? "export_template.csv";
 
         // Open a memory "file" for writing CSV data
         $callback = function () use ($columns) {

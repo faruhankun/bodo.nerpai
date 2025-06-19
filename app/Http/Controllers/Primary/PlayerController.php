@@ -7,6 +7,9 @@ use App\Models\Primary\Player;
 use App\Models\Primary\Space;
 use App\Models\Primary\Relation;
 
+use App\Services\Primary\Basic\EximService;
+use App\Services\Primary\Player\PlayerService;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -14,11 +17,46 @@ use Yajra\DataTables\Facades\DataTables;
 
 class PlayerController extends Controller
 {
-    /**
-     * Display a listing of the players.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    protected $eximService;
+    protected $playerService;
+
+    public function __construct(EximService $eximService, PlayerService $playerService)
+    {
+        $this->eximService = $eximService;
+        $this->playerService = $playerService;
+    }
+
+
+
+    // Export Import
+    public function eximData(Request $request){
+        $query = $request->get('query');
+        
+        try {
+            switch($query){
+                case 'importTemplate':
+                    $response = $this->playerService->getImportTemplate();
+                    break;
+                case 'export':
+                    $response = $this->playerService->exportData($request);
+                    break;
+                case 'import':
+                    $response = $this->playerService->importData($request);
+                    break;
+                default:
+                    $response = response()->json(['error' => 'Invalid query'], 400);
+                    break;
+
+            }
+            
+            return $response;
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+
     public function index()
     {
         $players = Player::paginate(10);

@@ -8,6 +8,8 @@ use App\Http\Middleware\Space\SpaceMiddleware;
 use App\Http\Controllers\Primary\SpaceController;
 
 use App\Http\Controllers\Primary\PlayerController;
+use App\Http\Controllers\Primary\Player\ContactController;
+
 use App\Http\Controllers\Primary\PersonController;
 use App\Http\Controllers\Primary\GroupController;
 
@@ -89,6 +91,15 @@ Route::middleware([
 
 
 
+    // Contacts
+    Route::post('contacts/exim', [ContactController::class, 'eximData'])->name('contacts.exim');
+    Route::get('contacts/exim', [ContactController::class, 'eximData'])->name('contacts.exim');
+
+    Route::get('contacts/data', [ContactController::class, 'getContactsData'])->name('contacts.data');
+    Route::resource('contacts', ContactController::class);
+
+
+    
     // Players
     Route::post('/players/switch/{id}', [PlayerController::class, 'switchPlayer'])->name('players.switch');
     Route::get('players/exit/{route}', [PlayerController::class, 'exitPlayer'])->name('players.exit');

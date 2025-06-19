@@ -16,7 +16,7 @@ use Spatie\Permission\Models\Role;
 
 use App\Models\Primary\Player;
 
-use App\Models\Space\Person;
+use App\Models\Primary\Person;
 
 
 class RegisteredUserController extends Controller

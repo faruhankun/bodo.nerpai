@@ -4,9 +4,10 @@
     @close-edit-modal-js.window="isOpen = false"
     @keydown.escape.window="isOpen = false"
     class="relative">
-    <div x-cloak x-show="isOpen" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+    <div x-cloak x-show="isOpen" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 overflow-y-auto">
         <div 
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-6xl p-6">
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+            style="width: 90%">
             <!-- Modal Header -->
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">{{ $title }}</h3>
