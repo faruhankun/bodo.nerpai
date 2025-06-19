@@ -5,7 +5,7 @@
 <x-crud.index-basic header="Contacts" 
                 model="Contact" 
                 table_id="indexTable"
-                :thead="['Code', 'Name', 'Role', 'Status', 'Notes', 'Actions']"
+                :thead="['Id', 'Name', 'Role', 'Status', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
     </x-slot>
@@ -52,11 +52,11 @@
             serverSide: true,
             ajax: "{{ route('contacts.data') }}",
             columns: [
-                { data: 'code' },
-                { data: 'size.name' },
-                { data: 'pivot.type' },
-                { data: 'pivot.status' },
-                { data: 'pivot.notes' },
+                { data: 'id' },
+                { data: 'model2.size.name' },
+                { data: 'type' },
+                { data: 'status' },
+                { data: 'notes' },
                 { data: 'actions', orderable: false, searchable: false }
             ]
         });

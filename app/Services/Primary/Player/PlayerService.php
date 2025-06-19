@@ -67,7 +67,7 @@ class PlayerService
                         ->whereIn('id', function ($query) use ($space_id) {
                             $query->select('model2_id')
                                 ->from('relations')
-                                ->where('model2_type', 'PLY')
+                                ->where('model2_type', 'PLAY')
                                 ->where('model1_type', 'SPACE')
                                 ->where('model1_id', $space_id);
                         });
@@ -158,13 +158,15 @@ class PlayerService
 
                     $player_data = [
                         'code' => $row['code'] && !empty($row['code']) ? $row['code'] : null,
-                        'size_type' => $row['size_type (*) (PERS/GRP)'] ?? 'PERS',
-                        'size_id' => $row['size_id (id)'] ?? null,
-                        'name' => $row['name (*)'] ?? '',
+                        'size_type' => $row['size_type (*) (PERS/GRP)'] && !empty($row['size_type (*) (PERS/GRP)']) ? $row['size_type (*) (PERS/GRP)'] : 'PERS',
+                        'size_id' => $row['size_id (id)'] && !empty($row['size_id (id)']) ? $row['size_id (id)'] : null,
+                        'name' => $row['name (*)'] && !empty($row['name (*)']) ? $row['name (*)'] : null,
                         'address' => $row['address (json)'] ?? '',
                         'notes' => $row['notes'] ?? null,
                     ];
 
+                    $birthDate = $row['birth_date'] ?? null;
+                    $deathDate = $row['death_date'] ?? null;
                     $size_data = [
                         'name' => $row['name (*)'] && !empty($row['name (*)']) ? $row['name (*)'] : null,
                         'full_name' => $row['full_name'] ?? null,
@@ -181,53 +183,56 @@ class PlayerService
 
 
                     // look for size
-                    $size = null;
+                    if($player_data['size_type'] == 'PERS'){
+                        $size = Person::where('name', $size_data['name']);
+                    } else if($player_data['size_type'] == 'GRP'){
+                        $size = Group::where('name', $size_data['name']);
+                    }
+                    
                     if(!empty($player_data['size_id'])){
-                        if($player_data['size_type'] == 'PERS'){
-                            $size = Person::find($player_data['size_id']);
-                        } else {
-                            $size = Group::find($player_data['size_id']);
-                        }
+                        $size->where('id', $player_data['size_id']);
+                    }
 
-                        if($size){
-                            // update size
-                            $size->update($size_data);
-                        } else {
-                            // create size
-                            if($player_data['size_type'] == 'PERS'){
-                                $size = Person::create($size_data);
-                            } else {
-                                $size = Group::create($size_data);
-                            }
-                        }
+                    if(!empty($player_data['email'])){
+                        $size->where('email', $player_data['email']);
+                    }
+
+                    if(!empty($player_data['phone_number'])){
+                        $size->where('phone_number', $player_data['phone_number']);
+                    }
+
+                    $size = $size->first();
+
+                    if($size){
+                        // update size
+                        $size->update($size_data);
                     } else {
                         // create size
                         if($player_data['size_type'] == 'PERS'){
                             $size = Person::create($size_data);
-                        } else {
+                        } else if($player_data['size_type'] == 'GRP'){
                             $size = Group::create($size_data);
                         }
-                        $player_data['size_id'] = $size->id;
                     }
 
 
 
                     // look for player
                     $player = Player::with('type', 'size')
-                                    ->join('persons', 'players.size_id', '=', 'persons.id')
-                                    ->where('persons.name', $player_data['name'])
-                                    ->orWhere('persons.email', $size_data['email'])
-                                    ->orWhere('persons.phone_number', $size_data['phone_number'])
+                                    ->where('size_id', $size->id)
+                                    ->where('size_type', $player_data['size_type'])
+                                    ->where('name', $size_data['name'])
                                     ->first();
 
+                    $player_data['size_id'] = $size->id;
                     if($player){
                         // update player
                         $player->update($player_data);  
                     } else {
                         // create player
-                        $player_data['size_id'] = $size->id;
                         $player = Player::create($player_data);
                     }
+
 
 
                     // connect player to space
@@ -262,7 +267,7 @@ class PlayerService
             }
 
 
-            return redirect()->route("{$this->routerName}.index")->with('success', 'CSV uploaded and processed Successfully!');
+            return back()->with('success', 'CSV uploaded and processed Successfully!');
         } catch (\Throwable $th) {
             return back()->with('error', 'Failed to import csv. Please try again.' . $th->getMessage());
         }

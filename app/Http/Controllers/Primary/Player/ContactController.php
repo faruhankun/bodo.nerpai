@@ -89,11 +89,20 @@ class ContactController extends Controller
 
 
 
-    public function getContactsData(){
-        $space_id = Session::get('space_id') ?? null;
+    public function getQueryData(Request $request){
+        $space_id = $this->playerService->getSpaceId($request);
 
-        $space = Space::find($space_id);
-        $contacts = $space->players;
+        $query = Relation::with('model2', 'model2.type', 'model2.size')
+                        ->where('model1_type', 'SPACE')
+                        ->where('model1_id', $space_id)
+                        ->where('model2_type', 'PLAY');
+
+        return $query;
+    }
+
+
+    public function getContactsData(Request $request){
+        $contacts = $this->getQueryData($request);
 
         return DataTables::of($contacts)
             ->addColumn('size_display', function ($data) {
