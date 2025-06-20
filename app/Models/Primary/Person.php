@@ -20,7 +20,16 @@ class Person extends Model
         'birth_date',
         'death_date',
         'gender',
+        
         'address',
+        'country',
+        'province',
+        'regency',
+        'district',
+        'village',
+        'postal_code',
+        'address_detail',
+
         'email',
         'phone_number',    
         'status',

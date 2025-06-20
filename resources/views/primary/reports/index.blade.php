@@ -39,6 +39,12 @@
                                 </ul>
                             </x-div-box-show>
                         @endif
+
+                            <x-div-box-show title="Contact" class="text-xl font-bold">
+                                <ul>
+                                    <li class="mb-3"><a href="{{ route('contacts.summary') }}">Rangkuman Contact</a></li>
+                                </ul>
+                            </x-div-box-show>
                     </div>
                 </div>
             </div>

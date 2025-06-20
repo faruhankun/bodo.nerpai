@@ -17,7 +17,16 @@ return new class extends Migration
             
             $table->string('name');
             $table->string('full_name')->nullable();
+
             $table->json('address')->nullable();
+            $table->string('country')->nullable();
+            $table->string('province')->nullable();
+            $table->string('regency')->nullable();
+            $table->string('district')->nullable();
+            $table->string('sub_district')->nullable();
+            $table->string('village')->nullable();
+            $table->string('postal_code')->nullable();
+            $table->text('address_detail')->nullable();
 
             $table->date('birth_date')->nullable();
             $table->date('death_date')->nullable();

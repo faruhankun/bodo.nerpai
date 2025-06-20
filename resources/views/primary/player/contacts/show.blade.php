@@ -1,6 +1,4 @@
 @php
-    $size_display = ($data->model2?->size_type ?? '?') . ' : ' . ($data->model2?->size?->number ?? $data->model2?->size?->code ?? '?');
-
     $router = 'contacts';
 
     $trigger = $trigger ?? 'show_modal_js';

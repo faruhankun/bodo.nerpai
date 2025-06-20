@@ -7,8 +7,7 @@ use App\Models\Primary\Player;
 use App\Models\Primary\Space;
 use App\Models\Primary\Relation;
 
-use App\Services\Primary\Basic\EximService;
-use App\Services\Primary\Player\PlayerService;
+use App\Services\Primary\Player\ContactService;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -18,13 +17,11 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ContactController extends Controller
 {
-    protected $eximService;
-    protected $playerService;
+    protected $contactService;
 
-    public function __construct(EximService $eximService, PlayerService $playerService)
+    public function __construct(ContactService $contactService)
     {
-        $this->eximService = $eximService;
-        $this->playerService = $playerService;
+        $this->contactService = $contactService;
     }
 
 
@@ -36,13 +33,13 @@ class ContactController extends Controller
         try {
             switch($query){
                 case 'importTemplate':
-                    $response = $this->playerService->getImportTemplate();
+                    $response = $this->contactService->getImportTemplate();
                     break;
                 case 'export':
-                    $response = $this->playerService->exportData($request);
+                    $response = $this->contactService->exportData($request);
                     break;
                 case 'import':
-                    $response = $this->playerService->importData($request);
+                    $response = $this->contactService->importData($request);
                     break;
                 default:
                     $response = response()->json(['error' => 'Invalid query'], 400);
@@ -90,7 +87,7 @@ class ContactController extends Controller
 
 
     public function getQueryData(Request $request){
-        $space_id = $this->playerService->getSpaceId($request);
+        $space_id = $this->contactService->getSpaceId($request);
 
         $query = Relation::with('model2', 'model2.type', 'model2.size')
                         ->where('model1_type', 'SPACE')
@@ -122,5 +119,29 @@ class ContactController extends Controller
             })
             ->rawColumns(['actions'])
             ->make(true);
+    }
+
+
+
+    // Summary
+    public function summary(Request $request)
+    {
+        // generate data by date
+        $validated = $request->validate([
+            'summary_type' => 'nullable|string',
+            'query' => 'nullable|string',
+        ]);
+
+        if(isset($validated['query'])){
+            if($validated['query'] == 'summary'){
+                $response = $this->contactService->getSummaryData($request);
+                return $response;
+            }
+        }
+
+        $data = collect();
+        $data->summary_types = $this->contactService->summary_types;
+
+        return view('primary.player.contacts.summary', compact('data'));
     }
 }

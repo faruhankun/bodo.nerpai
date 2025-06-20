@@ -95,6 +95,7 @@ Route::middleware([
     Route::post('contacts/exim', [ContactController::class, 'eximData'])->name('contacts.exim');
     Route::get('contacts/exim', [ContactController::class, 'eximData'])->name('contacts.exim');
 
+    Route::get('contacts/summary', [ContactController::class, 'summary'])->name('contacts.summary');
     Route::get('contacts/data', [ContactController::class, 'getContactsData'])->name('contacts.data');
     Route::resource('contacts', ContactController::class);
 
