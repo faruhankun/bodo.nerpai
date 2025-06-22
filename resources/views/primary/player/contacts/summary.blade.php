@@ -3,12 +3,13 @@
 
     $layout = session('layout');
 
+    $end_date = request('end_date') ?? now()->format('Y-m-d');
+    
     $start_date = Carbon::parse($end_date)->startOfMonth()->format('Y-m-d');
     if(request()->has('start_date')) {
         $start_date = request('start_date');    
     } 
 
-    $end_date = request('end_date') ?? now()->format('Y-m-d');
     
 
     $summary_type = request('summary_type') ?? null;

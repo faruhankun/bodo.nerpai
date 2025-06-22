@@ -11,10 +11,6 @@ use App\Http\Controllers\Space\PermissionController;
 
 use App\Http\Controllers\Space\CompanyController;
 
-use App\Http\Controllers\Company\StoreController;
-
-use App\Http\Controllers\Company\WarehouseController;
-
 use App\Http\Controllers\Company\Client\MigrateClientController;
 
 use App\Http\Middleware\AppMiddleware;
@@ -97,24 +93,6 @@ Route::middleware(['auth',
                 CompanyMiddleware::class,
 ])->group(function () {
     Route::get('/dashboard-company', function () { return view('company.dashboard-company'); })->name('dashboard-company');
-
-    // Stores
-    Route::resource('stores', StoreController::class);
-    
-    Route::post('/stores/switch/{stores}', [StoreController::class, 'switchStore'])->name('stores.switch');
-    Route::get('/exit-store/{route}', [StoreController::class, 'exitStore'])->name('exit.store');
-
-
-
-    // Warehouse
-    Route::get('/dashboard-warehouse', function () { return view('company.dashboard-warehouse');})->name('dashboard-warehouse');
-
-    Route::resource('warehouses', WarehouseController::class);
-
-    Route::post('warehouses/switch/{warehouses}', [WarehouseController::class, 'switchWarehouse'])->name('warehouses.switch'); 
-    Route::get('warehuses/exit/{route}', [WarehouseController::class, 'exitWarehouse'])->name('warehouses.exit');
-
-
 
     
     // file migrate client

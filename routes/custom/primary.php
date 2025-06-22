@@ -46,6 +46,9 @@ Route::middleware([
     Route::get('trades/po', [TradeController::class, 'indexPO'])->name('trades.po');
     Route::get('trades/so/data', [TradeController::class, 'getTradesSOData'])->name('trades.so.data');
     Route::get('trades/so', [TradeController::class, 'indexSO'])->name('trades.so');
+
+    Route::post('trades/exim', [TradeController::class, 'eximData'])->name('trades.exim');
+    Route::get('trades/exim', [TradeController::class, 'eximData'])->name('trades.exim');
     Route::get('trades/data', [TradeController::class, 'getTradesData'])->name('trades.data');
     Route::resource('trades', TradeController::class);
 

@@ -1,27 +1,72 @@
 @php
-    $layout = session('layout');
+    $player_id = session('player_id') ?? auth()->user()->player->id;
 @endphp
-<x-dynamic-component :component="'layouts.' . $layout">
-    <div class="py-12">
-        <div class="max-w-7xl my-10 mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-white">
-                    <h3 class="text-2xl font-bold dark:text-white">Trading Panel</h3>
-                    <p class="text-sm dark:text-gray-200 mb-6">Cek, Evaluasi, Control your trades</p>
-                    <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
-                    
-                    <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 mb-6">
-                        <x-div-box-show title="Trades" class="text-xl font-bold">
-                            <ul>
-                                <li class="mb-3"><a href="{{ route('trades.po') }}">Purchases</a></li>
-                                <li class="mb-3"><a href="{{ route('trades.so') }}">Sales</a></li>
-                            </ul>
-                        </x-div-box-show>
 
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<x-crud.index-basic header="Trades" 
+                model="Trade" 
+                table_id="indexTable"
+                :thead="['ID', 'Date', 'Number', 'Description', 'Total', 'Actions']"
+                >
+    <x-slot name="buttons">
+    </x-slot>
+
+    <x-slot name="filters">
+        <!-- export import  -->
+        <x-crud.exim-csv route_import="{{ route('trades.exim') . '?query=import' }}" route_template="{{ route('trades.exim') . '?query=importTemplate' }}">
+        </x-crud.exim-csv>
+    </x-slot>
+
+
+    <x-slot name="modals">
+        @include('primary.transaction.trades.show')
+    </x-slot>
+</x-crud.index-basic>
+
+
+
+<script>
+    function showjs(data){
+        let trigger = 'show_modal_js';
+
+        let html = '<pre>' + JSON.stringify(data, null, 2) + '<br><br>';
+
+        $('#dataform_' + trigger).html(html);
+
+        window.dispatchEvent(new CustomEvent('open-' + trigger));
+    }
+</script>
+
+<script>
+    $(document).ready(function() {
+        let indexTable = $('#indexTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('trades.data') }}",
+            columns: [
+                { data: 'id' },
+                { data: 'sent_date' },
+                { data: 'number' },
+                { data: 'sender_notes' },
+                { data: 'total', className: 'text-right',
+                    render: function (data, type, row, meta) {
+                        return new Intl.NumberFormat('id-ID', { 
+                            maximumFractionDigits: 2
+                        }).format(data);
+                    }},
+                { data: 'actions', orderable: false, searchable: false }
+            ]
+        });
+
     
-</x-dynamic-component>
+        // Export Import
+        $('#exportVisibleBtn').on('click', function(e) {
+            e.preventDefault();
+
+            let params = indexTable.ajax.params();
+            
+            let exportUrl = '{{ route("trades.exim") }}' + '?query=export&params=' + encodeURIComponent(JSON.stringify(params));
+
+            window.location.href = exportUrl;
+        });
+    });
+</script>

@@ -6,10 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Company\Finance\Account;
 use App\Models\Company\Finance\JournalEntry;
 use App\Models\Employee;
-use App\Services\Primary\Transaction\JournalAccountService;
-use Illuminate\Http\Request;
-
-use Yajra\DataTables\Facades\DataTables;
 
 use App\Models\Primary\Transaction;
 use App\Models\Primary\Inventory;
@@ -18,14 +14,63 @@ use App\Models\Primary\Player;
 use App\Models\Primary\Access\Variable;
 
 
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Http\Request;
+
+use App\Services\Primary\Transaction\TradeService;
+use App\Services\Primary\Transaction\JournalAccountService;
+
+
 class TradeController extends Controller
 {
     protected $journalEntryAccount;
+    protected $tradeService;
 
-    public function __construct(JournalAccountService $journalEntryAccount)
+    public function __construct(JournalAccountService $journalEntryAccount
+                                , TradeService $tradeService)
     {
         $this->journalEntryAccount = $journalEntryAccount;
+        $this->tradeService = $tradeService;
     }
+
+
+
+    // index
+    public function getTradesData(Request $request){
+        $response = $this->tradeService->getIndexData($request);
+
+        return $response;
+    }
+
+
+
+    // Export Import
+    public function eximData(Request $request){
+        $query = $request->get('query');
+        
+        try {
+            switch($query){
+                case 'importTemplate':
+                    $response = $this->tradeService->getImportTemplate();
+                    break;
+                case 'export':
+                    $response = $this->tradeService->exportData($request);
+                    break;
+                case 'import':
+                    $response = $this->tradeService->importData($request);
+                    break;
+                default:
+                    $response = response()->json(['error' => 'Invalid query'], 400);
+                    break;
+
+            }
+            
+            return $response;
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
 
 
     public function get_account()
@@ -233,15 +278,15 @@ class TradeController extends Controller
 
 
     public function getTradesPOData(){
-        return $this->getTradesData('PO');
+        return $this->getTradesDataModel('PO');
     }
 
     public function getTradesSOData(){
-        return $this->getTradesData('SO');
+        return $this->getTradesDataModel('SO');
     }
 
 
-    public function getTradesData($model_type){
+    public function getTradesDataModel($model_type){
         $trades = [];
 
         $space_id = session('space_id') ?? null;
