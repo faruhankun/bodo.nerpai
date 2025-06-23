@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
@@ -24,7 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $connection = 'primary';
 
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
     protected $guard_name = 'web';
 
