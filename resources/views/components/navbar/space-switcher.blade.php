@@ -13,7 +13,7 @@
         $children_spaces = $related_spaces->where('parent_id', '==', $space_id) ?? [];
         
         $related_spaces = $parent_space->merge($children_spaces);
-    } else { 
+    } else {
         $related_spaces = $player?->spacesWithDescendants() ?? [];
     }
 @endphp

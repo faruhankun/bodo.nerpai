@@ -11,6 +11,31 @@ use App\Models\Primary\Access\Variable;
 
 class VariableController extends Controller
 {
+    public function getVariable(Request $request) {
+        try {
+            $validated = $request->validate([
+                'key' => 'required',
+                'space_id' => 'nullable',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        $space_id = get_space_id($request, false);
+
+        $variable = get_variable($validated['key'], 'SPACE', $space_id);
+
+        return response()->json([
+            'data' => $variable,
+            'status' => 'success',
+        ]);
+    }
+    
+    
     public function index(Request $request)
     {
         return view('primary.access.variables.index');
@@ -89,12 +114,10 @@ class VariableController extends Controller
 
 
 
-    public function getVariablesData(){
-        $variables = [];
+    public function getVariablesData(Request $request){
+        $space_id = get_space_id($request, false);
 
-        $space_id = session('space_id') ?? null;
-
-        $variables = Variable::with('type', 'parent')->get();
+        $variables = Variable::with('type', 'parent');
 
         if($space_id){
             $variables = $variables->where('space_type', 'SPACE')

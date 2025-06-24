@@ -27,6 +27,25 @@ class PlayerController extends Controller
     }
 
 
+    public function getRelatedSpaces(Request $request){
+        $player_id = $request->get('player_id');
+
+        try {
+            $player = Player::findOrFail($player_id);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Player not found'], 404);
+        }
+
+        $spaces = $player->spacesWithDescendants() ?? [];
+
+        return response()->json(
+            [
+                'data' => $spaces,
+                'success' => true,
+            ]
+        );
+    }
+
 
     // Export Import
     public function eximData(Request $request){

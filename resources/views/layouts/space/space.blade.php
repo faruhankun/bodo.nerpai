@@ -11,8 +11,8 @@
 
     // Navbar
     $navbar_right = [
-        'navbar.space-switcher',
         'navbar.player-switcher',
+        'navbar.space-switcher',
     ];
 
 
@@ -20,7 +20,7 @@
     $settings = [
         'supplies' => get_variable('space.setting.supplies') ?? false,
 
-        'accounting' => get_variable('space.setting.accounting') ?? false,
+        'accounting' => get_variable('space.setting.accounting') ?? true,
     ];
 
     $sidebar = [

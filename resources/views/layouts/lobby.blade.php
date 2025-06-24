@@ -69,12 +69,6 @@
                     'route' => "groups.index",
                     'text' => 'Groups',
                 ],
-                'companies' => [
-                    'auth' => $sidebar_access['companies'],
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "companies.index",
-                    'text' => 'Companies',
-                ],
             ]
         ],
         'World Access' => [

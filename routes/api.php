@@ -12,13 +12,7 @@ use App\Http\Controllers\Primary\Inventory\AccountController;
 
 Route::middleware([
 ])->group(function () {
-    Route::get('trades/data', [TradeController::class, 'getTradesData'])->name('trades.data');
-
-    Route::get('contacts/data', [ContactController::class, 'getContactsData'])->name('contacts.data');
-
-
-    // Account
-    Route::get('accounts/data', [AccountController::class, 'getAccountsData'])->name('accounts.data');
+    
 });
 
 
@@ -56,3 +50,9 @@ Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+// require routes dari primary
+foreach (glob(base_path('routes/api/*.php')) as $file) {
+    require $file;
+}
