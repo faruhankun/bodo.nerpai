@@ -1,4 +1,6 @@
 
+                    <input type="hidden" name="request_type" class="w-full" value="web"></input>
+
                     <div class="form-group mb-4">
                         <x-input-label for="name">Name</x-input-label>
                         <x-text-input name="name" id="{{ $form['mode'] ?? '' }}_name" class="w-full" placeholder="Account Name" required></x-text-input>
@@ -19,7 +21,7 @@
                     <div class="form-group mb-4">
                         <x-input-label for="code">Code</x-input-label>
                         <div class="flex gap-2">
-                                <input type="{{ $form['mode'] == 'create' ? 'text' : 'hidden' }}"
+                                <input type="hidden"
                                     class="w-20 flex items-center justify-center bg-gray-50 border-indigo-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:text-gray-300"
                                     id="{{ $form['mode'] ?? '' }}_basecode" name="basecode" readonly></input>
                             <x-text-input class="flex-1" name="code" id="{{ $form['mode'] ?? '' }}_code" class="w-full"

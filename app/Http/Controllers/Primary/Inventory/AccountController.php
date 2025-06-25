@@ -42,6 +42,53 @@ class AccountController extends Controller
     ];
 
 
+    public function search(Request $request){
+        $query = $this->getQueryData($request);
+
+        $keyword = $request->get('q');
+        if($keyword){
+            $query->where(function($q) use ($keyword){
+                $q->where('code', 'like', "%{$keyword}%")
+                ->orWhere('name', 'like', "%{$keyword}%")
+                ->orWhere('notes', 'like', "%{$keyword}%");
+            });
+        }
+
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            }
+        } else {
+            $query->limit(50);
+        }
+
+        $query->orderBy('code', 'asc');
+
+        return DataTables::of($query)
+            ->make(true);
+    }
+
+
+
+    public function show($id){
+        try {
+            $account = Inventory::findOrFail($id);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'data' => [],
+                'recordsFiltered' => 0,
+                'error' => $th->getMessage(),
+            ]);
+        }
+
+        return response()->json([
+            'data' => array($account),
+            'recordsFiltered' => 1,
+        ]);
+    }
+
+
 
     public function __construct(EximService $eximService)
     {
@@ -69,21 +116,21 @@ class AccountController extends Controller
 
     public function store(Request $request)
     {
-        $space_id = session('space_id') ?? null;
+        $space_id = get_space_id($request);
+        $request_type = $request->input('request_type') ?? 'api';
 
         try {
             $request->validate([
                 'name' => 'required',
                 'type_id' => 'required',
-                'basecode' => 'required',
+                // 'basecode' => 'nullable',
                 'code' => 'required',
-                'status' => 'required|string|max:50',
+                'status' => 'nullable|string|max:50',
                 'parent_id' => 'nullable',
                 'notes' => 'nullable',
             ]);
 
             $requestData = $request->all();
-            $requestData['code'] = $request->input('basecode') . $request->input('code');
 
             if($space_id){
                 $requestData['space_type'] = 'SPACE';
@@ -98,9 +145,23 @@ class AccountController extends Controller
 
             $account = Inventory::create($requestData);
 
+            if($request_type == 'api'){
+                return response()->json([
+                    'success' => true,
+                    'message' => "Accounts {$account->name} created successfully.",
+                    'data' => $account,
+                ]);
+            }
+
             return redirect()->route('accountsp.index')->with('success', "Accounts {$account->name} created successfully.");
         } catch (\Exception $e) {
-            dd($e);
+            if($request_type == 'api'){
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
             return redirect()->back()->withErrors($e->getMessage())->withInput();
         }
     }
@@ -114,7 +175,7 @@ class AccountController extends Controller
                 'type_id' => 'required',
                 // 'basecode' => 'required',
                 'code' => 'required',
-                'status' => 'required|string|max:50',
+                'status' => 'nullable|string|max:50',
                 'parent_id' => 'nullable',
                 'notes' => 'nullable',
             ]);
@@ -126,14 +187,15 @@ class AccountController extends Controller
             $account->update($requestData);
 
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'message' => "Accounts {$account->name} updated successfully.",
                 'data' => $account,
             ]);
             // return redirect()->route('accountsp.index')->with('success', "Accounts {$account->name} updated successfully.");
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
+                'input' => $request->all(),
+                'error' => $e->getMessage(),
                 'message' => $e->getMessage(),
             ], 500);
             // return redirect()->back()->withErrors($e->getMessage())->withInput();
@@ -142,11 +204,20 @@ class AccountController extends Controller
 
 
 
-    public function destroy(String $id)
+    public function destroy(Request $request, String $id)
     {
         $account = Inventory::findOrFail($id);
 
         $account->delete();
+
+        $request_source = $request->input('request_source') ?? 'api';
+        if($request_source == 'api'){
+            return response()->json([
+                'success' => true,
+                'message' => "Accounts {$account->name} deleted successfully.",
+                'data' => $account,
+            ]);
+        }
 
         return redirect()->route('accountsp.index')->with('success', "Accounts {$account->name} deleted successfully.");
     }
@@ -176,11 +247,16 @@ class AccountController extends Controller
     }
 
 
+    public function getAccountTypesData(Request $request){
+        $account_types = AccountType::all();
+
+        return DataTables::of($account_types)
+            ->make(true);
+    }
+
+
     public function getQueryData(Request $request){
-        $space_id = $request->space_id ?? (session('space_id') ?? null);
-        if(is_null($space_id)){
-            abort(403);
-        }
+        $space_id = get_space_id($request);
 
         $query = Inventory::with('type', 'parent')
                             ->where('model_type', 'ACC')

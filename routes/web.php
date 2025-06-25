@@ -30,7 +30,7 @@ Route::middleware([
     // Lobby
     Route::get('/lobby', function () {
         session(['layout' => 'lobby']);
-        return view('space.lobby');
+        return view('primary.spaces.index');
     })->name('lobby');
 
     
@@ -73,7 +73,7 @@ Route::middleware([
     AppMiddleware::class,
     SpaceMiddleware::class,
 ])->group(function () {
-    Route::get('/dashboard-space', function () { return view('space.dashboard'); })->name('dashboard_space');
+    Route::get('/dashboard-space', function () { return view('primary.reports.index'); })->name('dashboard_space');
 });
 
 

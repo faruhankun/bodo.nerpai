@@ -44,7 +44,10 @@ Route::post('/login', function (Request $request) {
 Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
     $request->user()->currentAccessToken()->delete();
 
-    return response()->json(['message' => 'Logout berhasil']);
+    return response()->json([
+        'success' => true,
+        'message' => 'Logout berhasil'
+    ]);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

@@ -21,6 +21,7 @@
                 <form id="delete-form" method="POST">
                     @csrf
                     @method('DELETE')
+                    <input type="hidden" name="request_source" value="web">
                     <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg">Delete</button>
                 </form>
             </div>

@@ -1,4 +1,7 @@
-<x-lobby-layout>
+@php
+    $layout = $layout ?? session('layout');
+@endphp
+<x-dynamic-component :component="'layouts.' . $layout">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Profile') }}
@@ -26,4 +29,4 @@
             </div>
         </div>
     </div>
-</x-lobby-layout>
+</x-dynamic-component>
