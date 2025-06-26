@@ -21,7 +21,7 @@ if (!function_exists('get_variable')) {
 use App\Models\Primary\Space;
 if(!function_exists('get_space_id')) {
     function get_space_id(Request $request, $abort = true) {
-        $space_id = $request->space_id ?? (session('space_id') ?? null);
+        $space_id = $request->space_id ?? ($request->header('X-Space-Id') ?? (session('space_id') ?? null));
         if(is_null($space_id) && $abort) {
             abort(403);
         }

@@ -16,11 +16,59 @@ use Yajra\DataTables\Facades\DataTables;
 
 class SpaceController extends Controller
 {
-    /**
-     * Display a listing of the spaces.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function getSpacesDT(Request $request){
+        $space_id = get_space_id($request, false);
+        $include_self = $request->get("include_self") ?? false;
+        $include_parent = $request->get("include_parent") ?? false;
+
+        $player_id = $request->get('player_id') ?? (session('player_id') ?? (Auth::user()->player_id ?? null));
+        
+        if(!$space_id && !$player_id){
+            return response()->json(['error' => 'require space_id OR player_id'], 403);
+        }
+
+        $query = Space::with('parent', 'children');
+
+        $query->where(function($q) use ($space_id, $player_id, $include_parent){
+            // children
+            if($space_id){
+                $q->where(function ($q2) use ($space_id, $include_parent) {
+                    $q2->where('parent_type', 'SPACE')
+                        ->where('parent_id', $space_id);
+
+                    if($include_parent){
+                        $q2->orWhere('id', function ($q3) use ($space_id) {
+                            $q3->select('parent_id')
+                                ->from('spaces')
+                                ->where('id', $space_id)
+                                ->limit(1);
+                        });
+                    }
+                });
+            }
+
+            if($player_id){
+                $q->whereIn('id', function ($sub) use ($player_id) {
+                    $sub->select('model1_id')
+                        ->from('relations')
+                        ->where('model1_type', 'SPACE')
+                        ->where('model2_type', 'PLAY')
+                        ->where('model2_id', $player_id);
+                });
+            }
+        });
+
+        
+        if($include_self){
+            $query->orWhere('id', $space_id);
+        }
+
+        return DataTables::of($query)
+            ->make(true);
+    }
+
+
+
     public function index()
     {
         $spaces = Space::paginate(10);
@@ -122,7 +170,7 @@ class SpaceController extends Controller
 
 
     public function getSpacesData(Request $request){
-        $space_id = Session::get('space_id');
+        $space_id = get_space_id($request, false);
         $player_id = session('player_id') ?? Auth::user()->player_id;
         
         $player = Player::findOrFail($player_id);
