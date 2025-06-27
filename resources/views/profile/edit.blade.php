@@ -1,5 +1,5 @@
 @php
-    $layout = $layout ?? session('layout');
+    $layout = $layout ?? session('layout') ?? 'lobby';
 @endphp
 <x-dynamic-component :component="'layouts.' . $layout">
     <x-slot name="header">
