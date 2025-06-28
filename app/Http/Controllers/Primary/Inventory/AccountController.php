@@ -206,7 +206,16 @@ class AccountController extends Controller
 
     public function destroy(Request $request, String $id)
     {
-        $account = Inventory::findOrFail($id);
+        $account = Inventory::with('tx_details')->findOrFail($id);
+
+        // check apakah ada transaksi
+        if ($account->tx_details->count() > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account has related transaction. Cannot delete.',
+            ], 500);
+        }
+
 
         $account->delete();
 

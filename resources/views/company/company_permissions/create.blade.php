@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-16">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class=" sm:px-6 lg:px-8">
             <div class="bg-white border-b border-gray-500 dark:bg-gray-800 dark:border-gray-700 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
                     <h3 class="text-lg font-medium leading-tight">Buat Permission Baru</h3>

@@ -51,7 +51,7 @@ class AccessMiddleware
         $first_uri = explode('/', $route->uri)[0];
 
         $settings = [
-            'accounting' => get_variable('space.setting.accounting') ?? false,
+            'accounting' => get_variable('space.setting.accounting') ?? true,
         ];
 
         // accounting

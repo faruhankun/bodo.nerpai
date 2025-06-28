@@ -2,15 +2,13 @@
     <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
         <x-div-box-show title="Number">{{ $data->number }}</x-div-box-show>
         <x-div-box-show title="Date">{{ optional($data->sent_time)?->format('Y-m-d') ?? '??' }}</x-div-box-show>
-        <x-div-box-show title="Source">
+        <!-- <x-div-box-show title="Source">
             {{ $data->input_type ?? 'N/A' }} : {{ $data->input?->number ?? 'N/A' }}
-        </x-div-box-show>
+        </x-div-box-show> -->
 
         <x-div-box-show title="Created By">{{ $data->sender?->name ?? 'N/A' }}</x-div-box-show>
         <x-div-box-show title="Updated By">{{ $data?->handler?->name ?? 'N/A' }}</x-div-box-show>
-        <x-div-box-show title="Total Amount">Rp{{ number_format($data->total, 2) }}</x-div-box-show>
-        
-        <x-div-box-show title="Status">{{ $data->status }}</x-div-box-show>
+
         <x-div-box-show title="Description">{{ $data->sender_notes ?? 'N/A' }}</x-div-box-show>
         <x-div-box-show title="Notes">
             {{ $data->notes ?? 'N/A' }}
@@ -37,7 +35,7 @@
                 @foreach ($data->details as $detail)
                     <x-table.table-tr>
                         <x-table.table-td>
-                            {{ $detail->detail?->name ?? 'N/A' }}
+                            {{ $detail->detail?->code ?? '-' }} : {{ $detail->detail?->name ?? 'N/A' }}
                         </x-table.table-td>
                         <x-table.table-td
                             class="py-4">Rp{{ number_format($detail->debit, 2) }}</x-table.table-td>

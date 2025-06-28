@@ -4,7 +4,7 @@
     $settings = [
         'supplies' => get_variable('space.setting.supplies') ?? false,
 
-        'accounting' => get_variable('space.setting.accounting') ?? false,
+        'accounting' => get_variable('space.setting.accounting') ?? true,
     ];
 @endphp
 <x-dynamic-component :component="'layouts.' . $layout">

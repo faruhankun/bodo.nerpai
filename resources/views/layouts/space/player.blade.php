@@ -9,7 +9,7 @@
     ];
 
     $settings = [
-        'accounting' => get_variable('space.setting.accounting') ?? false,
+        'accounting' => get_variable('space.setting.accounting') ?? true,
     ];
 
     $sidebar = [

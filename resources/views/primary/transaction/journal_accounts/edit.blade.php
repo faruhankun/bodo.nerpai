@@ -3,7 +3,7 @@
 @endphp
 <x-dynamic-component :component="'layouts.' . $layout">
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class=" sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
                     <h3 class="text-2xl dark:text-white font-bold">Edit Journal Entry: {{ $journal_entry->number }}</h3>
@@ -137,6 +137,8 @@
         $(document).ready(function() {
             let detailIndex = {{ $journal_entry->details->count() }};
 
+            // $('.account-select').select2();
+
             // Add Journal Entry Detail row
             $("#add-detail").click(function() {
                 detailIndex++;
@@ -144,10 +146,10 @@
                     `<tr class="detail-row">
                         <x-table.table-td class="mb-2">${detailIndex}</x-table.table-td>
                         <x-table.table-td>
-                            <x-input-select name="details[${detailIndex}][detail_id]" class="account-select my-3" required>
+                            <x-input-select name="details[${detailIndex}][detail_id]" class="account-select my-3" required style="width: 100%">
                                 <option value="">Select Account</option>
                                 @foreach ($accountsp as $account)
-                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                    <option value="{{ $account->id }}">{{ $account->code }} - {{ $account->name }}</option>
                                 @endforeach
                             </x-input-select>
                         </x-table.table-td>
@@ -167,6 +169,8 @@
                         </x-table.table-td>
                     </tr>`;
                 $("#journal-detail-list").append(newRow);
+
+                $('.account-select').select2();
             });
 
             // Remove Journal Entry Detail row

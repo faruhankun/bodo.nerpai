@@ -7,7 +7,7 @@
 
 <x-company-layout>
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class=" sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
                     <h1 class="text-2xl font-bold mb-6">Journal Entry: {{ $journal_entry->number }}</h1>
