@@ -29,3 +29,20 @@ if(!function_exists('get_space_id')) {
         return $space_id;
     }
 }
+
+
+
+if(!function_exists('get_player_id')) {
+    function get_player_id(Request $request, $abort = true) {
+        $player_id = $request->player_id ?? 
+                        ($request->header('X-Player-Id') ?? 
+                            (session('player_id') ?? 
+                                (Auth::user()->player_id ?? null
+                        )));
+        if(is_null($player_id) && $abort) {
+            abort(403);
+        }
+
+        return $player_id;
+    }
+}

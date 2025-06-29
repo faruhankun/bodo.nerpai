@@ -16,12 +16,67 @@ use Yajra\DataTables\Facades\DataTables;
 
 class SpaceController extends Controller
 {
+    public function search(Request $request){
+        $include_self = $request->get("include_self") ?? false;
+        $player_id = get_player_id($request);
+        $space_id = get_space_id($request, false);
+
+
+        $query = Space::with('parent', 'children');
+
+        $keyword = $request->get('q');
+        if($keyword){
+            $query->where(function($q) use ($keyword){
+                $q->where('code', 'like', "%{$keyword}%")
+                ->orWhere('name', 'like', "%{$keyword}%")
+                ->orWhere('notes', 'like', "%{$keyword}%");
+            });
+        }
+
+
+        // include self
+        if(!$include_self){
+            if($space_id){
+                $query->whereNotIn('id', [$space_id]);
+            }
+        }
+
+
+        // player
+        if($player_id){
+            $query->whereIn('id', function ($sub) use ($player_id) {
+                $sub->select('model1_id')
+                    ->from('relations')
+                    ->where('model1_type', 'SPACE')
+                    ->where('model2_type', 'PLAY')
+                    ->where('model2_id', $player_id);
+            });
+        }
+
+
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            }
+        } else {
+            $query->limit(50);
+        }
+
+        $query->orderBy('code', 'asc');
+
+        return DataTables::of($query)
+            ->make(true);
+    }
+
+
+
     public function getSpacesDT(Request $request){
         $space_id = get_space_id($request, false);
         $include_self = $request->get("include_self") ?? false;
         $include_parent = $request->get("include_parent") ?? false;
 
-        $player_id = $request->get('player_id') ?? (session('player_id') ?? (Auth::user()->player_id ?? null));
+        $player_id = get_player_id($request, false);
         
         if(!$space_id && !$player_id){
             return response()->json(['error' => 'require space_id OR player_id'], 403);
@@ -118,8 +173,13 @@ class SpaceController extends Controller
 
     public function show($id)
     {
-        $space = Space::find($id);
-        return view('primary.spaces.show', compact('space'));
+        try {
+            $space = Space::findOrFail($id);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage(), 'success' => false], 500);
+        }
+
+        return response()->json(['data' => array($space), 'success' => true, 'recordsFiltered' => 1]);
     }
 
     public function edit($id)
@@ -132,17 +192,31 @@ class SpaceController extends Controller
 
     public function update(Request $request, $id)
     {   
-        $validatedData = $request->validate([
-            'code' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'type_type' => 'required|string|max:255',
-            'status' => 'required|string|max:50',
-            'notes' => 'nullable|string',
-        ]);
-        
-        $space = Space::find($id);
-        $space->update($validatedData);
-        $space->save();
+        $request_source = $request->input('request_source') ?? 'api';
+
+        try {
+            $validatedData = $request->validate([
+                'code' => 'required|string|max:255',
+                'name' => 'required|string|max:255',
+                // 'type_type' => 'required|string|max:255',
+                // 'status' => 'required|string|max:50',
+                'notes' => 'nullable|string',
+            ]);
+            
+            $space = Space::find($id);
+            $space->update($validatedData);
+            $space->save();
+        } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json(['error' => $th->getMessage(), 'success' => false], 500);
+            }
+
+            return redirect()->route('spaces.index')->with('error', $th->getMessage());
+        }
+
+        if($request_source == 'api'){
+            return response()->json(['success' => true, 'message' => 'Space updated successfully', 'data' => $space]);
+        }
 
         return redirect()->route('spaces.index')->with('success', 'Space updated successfully');
     }

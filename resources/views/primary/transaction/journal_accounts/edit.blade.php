@@ -63,7 +63,7 @@
                                                     @foreach ($accountsp as $account)
                                                         <option value="{{ $account->id }}"
                                                             {{ $detail->detail_id == $account->id ? 'selected' : '' }}>
-                                                            {{ $account->name }}
+                                                            {{ $account->code }} - {{ $account->name }}
                                                         </option>
                                                     @endforeach
                                                 </x-input-select>
