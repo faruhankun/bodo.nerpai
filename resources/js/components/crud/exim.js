@@ -7,8 +7,8 @@ function exportTableToPDF(tableId, filename = 'report.pdf', title='Laporan') {
     const table = document.getElementById(tableId);
     if (!table) return;
 
-    html2canvas(table, { scale: 2 }).then(canvas => {
-        const imgData = canvas.toDataURL("image/png");
+    html2canvas(table, { scale: 1 }).then(canvas => {
+        const imgData = canvas.toDataURL("image/jpeg", 1.0);
         const pdf = new jsPDF("p", "pt", "a4");
 
         const pageWidth = pdf.internal.pageSize.getWidth();
@@ -39,7 +39,7 @@ function exportTableToPDF(tableId, filename = 'report.pdf', title='Laporan') {
 
         while (heightLeft > 0) {
             // Gambar tabel
-            pdf.addImage(imgData, "PNG", marginLeft, position, imgWidth, imgHeight);
+            pdf.addImage(imgData, "JPEG", marginLeft, position, imgWidth, imgHeight);
 
             heightLeft -= contentHeight + 70;
             position -= contentHeight + 70;

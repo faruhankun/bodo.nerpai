@@ -15,6 +15,8 @@
 
     <x-slot name="modals">
         @include('primary.inventory.accountsp.edit')
+
+        <div id="react-account-modal" data-id="" data-start_date="" data-end_date="" data-account_data></div>
     </x-slot>
 </x-crud.index-basic>
 
@@ -119,11 +121,11 @@
                 { data: 'code' },
                 { data: 'name' },
                 { data: 'type.name' },
-                { data: 'getAccountBalance', className: 'text-right',
+                { data: 'getAccountBalance', className: 'text-right font-bold text-md text-blue-600',
                     render: function (data, type, row, meta) {
-                        return new Intl.NumberFormat('id-ID', { 
+                        return `<a href="javascript:void(0)" onclick='show_account_modal(${JSON.stringify(row.data)})'>${new Intl.NumberFormat('id-ID', { 
                             maximumFractionDigits: 2
-                        }).format(data);
+                        }).format(data)}</a>`;
                     }
                 },
                 { data: 'notes' },
@@ -143,4 +145,36 @@
             window.location.href = exportUrl;
         });
     });
+
+
+    function show_account_modal(acc){
+        acc = JSON.parse(acc);
+
+        if(acc.id == null){
+            return;
+        }
+
+        const container = document.getElementById('react-account-modal');
+        
+        const today = new Date();
+        const year = today.getFullYear();
+        const startDate = `${year}-01-01`;
+        const endDate = today.toISOString().split('T')[0]; // format: YYYY-MM-DD
+
+        container.setAttribute('data-id', acc.id);
+        container.setAttribute('data-start_date', startDate);
+        container.setAttribute('data-end_date', endDate);
+        container.setAttribute('data-account_data', JSON.stringify(acc));
+
+        console.log(acc);
+
+        let summary_type = $('#summary_type').val();
+        if(summary_type == 'balance_sheet'){
+            container.setAttribute('data-start_date', '');
+        }
+
+        window.dispatchEvent(new CustomEvent('showAccountModal'));
+    }
 </script>
+
+@vite('resources/js/app.jsx')

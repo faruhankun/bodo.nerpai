@@ -50,9 +50,13 @@ class AccountController extends Controller
             $query->where(function($q) use ($keyword){
                 $q->where('code', 'like', "%{$keyword}%")
                 ->orWhere('name', 'like', "%{$keyword}%")
-                ->orWhere('notes', 'like', "%{$keyword}%");
+                ->orWhere('notes', 'like', "%{$keyword}%")
+                ->orWhereHas('type', function ($q2) use ($keyword) {
+                    $q2->where('name', 'like', "%{$keyword}%");
+                });
             });
         }
+
 
         $limit = $request->get('limit');
         if($limit){
@@ -234,12 +238,20 @@ class AccountController extends Controller
 
 
     public function getAccountsData(Request $request){
+        // if q is not null, then search
+        if($request->filled('q')) {
+            return $this->search($request);
+        }
+
         $accountsp = $this->getQueryData($request);
 
         return DataTables::of($accountsp)
             ->addColumn('getAccountBalance', function ($data) {
                 // return $data->getAccountBalance();
                 return 0;
+            })
+            ->addColumn('data', function ($data) {
+                return $data;
             })
             ->addColumn('actions', function ($data) {
                 $route = 'accountsp';

@@ -72,6 +72,9 @@
                 </x-table.table-tr>
 
                 @foreach($accs as $acc)
+                    @if($acc['balance'] == 0)
+                        @continue
+                    @endif
                     <x-table.table-tr class="border-t border-gray-300 dark:border-gray-700 p-8" 
                         onclick="
                                 show_account_modal({{ json_encode($acc) }})

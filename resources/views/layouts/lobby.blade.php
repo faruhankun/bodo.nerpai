@@ -88,6 +88,7 @@
                     'text' => 'World Permissions',
                 ],
                 'settings' => [
+                    'auth' => false,
                     'icon' => 'icon-checklist-paper',
                     'route' => "lobby",
                     'text' => 'World Settings',
