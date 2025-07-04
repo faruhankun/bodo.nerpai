@@ -49,7 +49,8 @@ class SpaceController extends Controller
                     ->from('relations')
                     ->where('model1_type', 'SPACE')
                     ->where('model2_type', 'PLAY')
-                    ->where('model2_id', $player_id);
+                    ->where('model2_id', $player_id)
+                    ->where('type', '!=', 'guest');
             });
         }
 
@@ -108,7 +109,8 @@ class SpaceController extends Controller
                         ->from('relations')
                         ->where('model1_type', 'SPACE')
                         ->where('model2_type', 'PLAY')
-                        ->where('model2_id', $player_id);
+                        ->where('model2_id', $player_id)
+                        ->where('type', '!=', 'guest');
                 });
             }
         });
@@ -223,11 +225,16 @@ class SpaceController extends Controller
 
 
 
-    public function destroy($id)
+    public function destroy(Request $request, String $id)
     {
+        $request_source = $request->input('request_source') ?? 'api';
         $space = Space::find($id);
         
         if($space->children()->count() > 0){
+            if($request_source == 'api'){
+                return response()->json(['message' => 'Cannot delete space with children', 'success' => false], 500);
+            }
+
             return redirect()->route('spaces.index')->with('error', 'Cannot delete space with children');
         }
         
@@ -237,6 +244,10 @@ class SpaceController extends Controller
                 ->delete();
 
         $space->delete();
+
+        if($request_source == 'api'){
+            return response()->json(['success' => true, 'message' => 'Space deleted successfully', 'data' => $space]);
+        }
 
         return redirect()->route('spaces.index')->with('success', 'Space deleted successfully');
     }

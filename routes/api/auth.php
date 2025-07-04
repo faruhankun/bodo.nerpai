@@ -33,6 +33,10 @@ Route::middleware([
     });
 
     Route::get('/auth/user', function (Request $request) {
-        return $request->user();
+        return response()->json([
+            'user' => $request->user(),
+            'success' => true,
+            'profile' => $request->user()->player,
+        ], 200);
     });
 });

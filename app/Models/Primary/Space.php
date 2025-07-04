@@ -6,8 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Primary\Access\Variable;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Space extends Model
 {
+    use softDeletes;
+
     protected $table = 'spaces';
 
     protected $fillable = [
