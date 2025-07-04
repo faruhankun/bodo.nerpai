@@ -297,6 +297,10 @@ class JournalAccountController extends Controller
     
     public function readCsv(Request $request)
     {
+        $request_source = get_request_source($request);
+
+        DB::beginTransaction();
+
         try {
             $validated = $request->validate([
                 'file' => 'required|mimes:csv,txt'
@@ -378,12 +382,32 @@ class JournalAccountController extends Controller
                 // Delegate to the service
                 $this->journalEntryAccount->addJournalEntry($entryData, $details);
             }
-
-            return redirect()->route('journal_accounts.index')->with('success', 'CSV uploaded and processed Successfully!');
         } catch (\Throwable $th) {
-            dd($th);
+            DB::rollBack();
+
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'message' => $th->getMessage(),
+                ]);
+            }
+
             return back()->with('error', 'Failed to import csv. Please try again.');
         }
+
+        DB::commit();
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => [],
+                'success' => true,
+                'message' => 'CSV uploaded and processed Successfully!',
+            ]);
+        }
+
+    
+        return redirect()->route('journal_accounts.index')->with('success', 'CSV uploaded and processed Successfully!');
     }
 
 
