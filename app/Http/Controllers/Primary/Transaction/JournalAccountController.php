@@ -16,6 +16,10 @@ use App\Models\Primary\Inventory;
 use App\Models\Primary\TransactionDetail;
 use Illuminate\Support\Facades\Response;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
+
 class JournalAccountController extends Controller
 {
     protected $journalEntryAccount;
@@ -54,9 +58,31 @@ class JournalAccountController extends Controller
 
 
 
-    public function show($id)
+    public function show(Request $request, String $id)
     {
-        $data = Transaction::with(['details'])->findOrFail($id);
+        $request_source = get_request_source($request);
+
+        try {
+            $data = Transaction::with(['details', 'details.detail'])->findOrFail($id);
+        } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'error' => $th->getMessage(),
+                ]);
+            }
+
+            return back()->with('error', 'Journal Entry not found.');
+        }
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => array($data),
+                'recordFiltered' => 1,
+                'success' => true,
+            ]);
+        }
 
         return view('primary.transaction.journal_accounts.before.show', compact('data'));
     }
@@ -73,28 +99,46 @@ class JournalAccountController extends Controller
 
     public function store(Request $request)
     {
+        $request_source = get_request_source($request);
+        $space_id = get_space_id($request);
+
         try {
             $validated = $request->validate([
-                'space_id' => 'required',
                 'sender_id' => 'required',
                 'sent_time' => 'required',
                 'sender_notes' => 'nullable|string|max:255',
             ]);
 
             $data = [
-                'space_id' => $validated['space_id'],
+                'space_id' => $space_id,
                 'sender_id' => $validated['sender_id'],
                 'sent_time' => $validated['sent_time'],
                 'sender_notes' => $validated['sender_notes'],
             ];
 
             $journal_entry = $this->journalEntryAccount->addJournalEntry($data);
-
-            return redirect()->route('journal_accounts.edit', $journal_entry->id)
-                            ->with('success', 'Journal Entry Created Successfully!');
         } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'message' => $th->getMessage(),
+                ]);
+            }
+
             return back()->with('error', 'Something went wrong. Please try again.' . $th->getMessage());
         }
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => array($journal_entry),
+                'message' => 'Journal Entry Created Successfully!',
+                'success' => true,
+            ]);
+        }
+
+        return redirect()->route('journal_accounts.edit', $journal_entry->id)
+                        ->with('success', 'Journal Entry Created Successfully!');
     }
 
 
@@ -111,6 +155,8 @@ class JournalAccountController extends Controller
 
     public function update(String $id, Request $request)
     {
+        $request_source = get_request_source($request);
+
         try {
             $validated = $request->validate([
                 'sent_time' => 'required',
@@ -131,7 +177,8 @@ class JournalAccountController extends Controller
                 return back()->with('error', 'Total debits and credits must be equal.');
             }
 
-            $player = auth()->user()->player;
+
+            $player = Auth::user()->player;
             $data = [
                 'sent_time' => $validated['sent_time'],
                 'sender_notes' => $validated['sender_notes'],
@@ -141,40 +188,86 @@ class JournalAccountController extends Controller
             ];
 
             $this->journalEntryAccount->updateJournalEntry($journal_entry, $data, $validated['details']);
-
-            return redirect()->route('journal_accounts.index')
-                ->with('success', 'Journal Entry updated successfully!');
         } catch (\Throwable $th) {
-            // Log the error if needed
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'message' => $th->getMessage(),
+                ]);
+            }
+
             return back()->with('error', 'Something went wrong. Please try again.');
         }
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => array($journal_entry),
+                'message' => 'Journal Entry Updated Successfully!',
+                'success' => true,
+            ]);
+        }
+
+        return redirect()->route('journal_accounts.show', $journal_entry->id)
+                        ->with('success', 'Journal Entry Updated Successfully!');
     }
 
 
 
-    public function destroy(String $id)
+    public function destroy(Request $request, String $id)
     {
+        $request_source = get_request_source($request);
+
+        DB::beginTransaction();
+
         try {
             $journal_entry = Transaction::findOrFail($id);
             $journal_entry->delete();
 
             $journal_entry->details()->delete();
-
-            return redirect()->route('journal_accounts.index')
-                ->with('success', 'Journal Entry deleted successfully');
         } catch (\Throwable $th) {
+            DB::rollBack();
+
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'message' => $th->getMessage(),
+                ]);
+            }
+
             return back()->with('error', 'Failed to delete journal entry. Please try again.');
         }
+
+        
+        DB::commit();
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => $journal_entry,
+                'success' => true,
+                'message' => 'Journal Entry deleted successfully',
+            ]);
+        }
+
+        return redirect()->route('journal_accounts.index')
+            ->with('success', 'Journal Entry deleted successfully');
     }
 
+
+    public function getDataTable(Request $request)
+    {
+        return $this->journalEntryAccount->getJournalDT($request);
+    }
 
 
     public function getJournalAccountsData()
     {
         $space_id = session('space_id') ?? null;
 
-        $journal_accounts = Transaction::with('input', 'type')->where('model_type', 'JE')
-            ->orderBy('sent_time', 'desc');
+        $journal_accounts = Transaction::with('input', 'type')
+                    ->where('model_type', 'JE')
+                    ->orderBy('sent_time', 'desc');
 
         if ($space_id) {
             $journal_accounts = $journal_accounts->where('space_type', 'SPACE')
@@ -308,7 +401,17 @@ class JournalAccountController extends Controller
     }
 
 
-    public function exportData(){
+    public function exportData(Request $request) {
+        $request_source = get_request_source($request);
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => [],
+                'success' => false,
+                'message' => 'Under Construction',
+            ]);
+        }
+
         return back()->with('error', 'Under Construction');
     }
 }

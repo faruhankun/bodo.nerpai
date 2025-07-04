@@ -6,14 +6,20 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Company\Finance\Account;
 use App\Models\Company\Finance\JournalEntry;
 use App\Models\Company\Finance\JournalEntryDetail;
+use Illuminate\Http\Request;
 
 use App\Models\Primary\Transaction;
+
+use Yajra\DataTables\Facades\DataTables;
+
+use Illuminate\Support\Facades\Auth;
+
 
 class JournalAccountService
 {
     public function addJournalEntry($data, $details = [])
     {
-        $player = auth()->user()->player;
+        $player = Auth::user()->player;
         $space_id = session('space_id') ?? null;
 
         $tx_ja = Transaction::create([
@@ -76,5 +82,51 @@ class JournalAccountService
         $tx->details()->createMany($journalDetails);
 
         $tx->save();
+    }
+
+
+    public function getQueryData(Request $request){
+        $space_id = get_space_id($request);
+
+        $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
+                            ->where('model_type', 'JE')
+                            ->where('space_type', 'SPACE')
+                            ->where('space_id', $space_id);
+
+        return $query;
+    }
+
+
+    public function getJournalDT(Request $request){
+        $query = $this->getQueryData($request);
+
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            }
+        } else {
+            $query->limit(50);
+        }
+
+        
+        // Search
+        $keyword = $request->get('q');
+        if($keyword){
+            $query->where(function($q) use ($keyword){
+                $q->where('sent_time', 'like', "%{$keyword}%")
+                ->orWhere('number', 'like', "%{$keyword}%")
+                ->orWhere('sender_notes', 'like', "%{$keyword}%")
+                ->orWhereHas('details.detail', function ($q2) use ($keyword) {
+                    $q2->where('notes', 'like', "%{$keyword}%");
+                });
+            });
+        }
+
+
+        return DataTables::of($query)
+            ->make(true);
     }
 }

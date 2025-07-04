@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 
 use App\Models\Primary\Access\Variable;
 
+use Illuminate\Support\Str;
+
 
 if (!function_exists('get_variable')) {
     function get_variable($key, $sourceType = null, $sourceId = null) {
@@ -44,5 +46,15 @@ if(!function_exists('get_player_id')) {
         }
 
         return $player_id;
+    }
+}
+
+
+
+if(!function_exists('get_request_source')){
+    function get_request_source(Request $request) {
+        $source = $request->input('request_source') ?? (Str::startsWith($request->path(), 'api') ? 'api' : 'web');
+
+        return $source;
     }
 }
