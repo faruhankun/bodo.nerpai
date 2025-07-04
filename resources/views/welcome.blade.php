@@ -38,6 +38,9 @@
                                 class="bg-secondary text-secondary-foreground px-6 py-3 rounded-lg hover:bg-secondary/80">Register</a>
                         @endauth
                     @endif
+
+                    <a href="https://app.nerpai.space" target="_blank"
+                        class="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/80">Bodo Versi 2.0</a>
                 </div>
             </div>
         </div>
