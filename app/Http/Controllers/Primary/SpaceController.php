@@ -143,32 +143,51 @@ class SpaceController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'code' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'type_type' => 'required|string|max:255',
-            'status' => 'required|string|max:50',
-            'notes' => 'nullable|string',
-        ]);
+        $request_source = get_request_source($request);
+        DB::beginTransaction();
 
-        $space = Space::create($validatedData);
+        try {
+            $validatedData = $request->validate([
+                'code' => 'required|string|max:255',
+                'name' => 'required|string|max:255',
+                'type_type' => 'required|string|max:255',
+                'status' => 'required|string|max:50',
+                'notes' => 'nullable|string',
+            ]);
 
-        $space->parent_type = 'SPACE';
-        $parent_id = Session::get('space_id') ?? null;
-        $space->parent_id = $parent_id;
-        $space->save();
+            $space = Space::create($validatedData);
+
+            $space->parent_type = 'SPACE';
+            $parent_id = get_space_id($request, false);
+            $space->parent_id = $parent_id;
+            $space->save();
 
 
-        // Space owner
-        $player = Auth::user()->player;
-        DB::table('relations')->insert([
-            'model1_type' => 'SPACE',
-            'model1_id' => $space->id,
-            'model2_type' => 'PLAY',
-            'model2_id' => $player->id,
-            'type' => 'owner',
-        ]);
+            // Space owner
+            $player = Auth::user()->player;
+            DB::table('relations')->insert([
+                'model1_type' => 'SPACE',
+                'model1_id' => $space->id,
+                'model2_type' => 'PLAY',
+                'model2_id' => $player->id,
+                'type' => 'owner',
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
 
+            if($request_source == 'api'){
+                return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
+            }
+
+            return response()->json(['error' => $th->getMessage(), 'success' => false], 500);
+        }
+
+        
+        DB::commit();
+
+        if($request_source == 'api'){
+            return response()->json(['message' => 'Space created successfully', 'success' => true, 'data' => array($space)], 200);
+        }
 
         return redirect()->route('spaces.index')->with('success', 'Space created successfully');
     }
@@ -194,7 +213,7 @@ class SpaceController extends Controller
 
     public function update(Request $request, $id)
     {   
-        $request_source = $request->input('request_source') ?? 'api';
+        $request_source = get_request_source($request);
 
         try {
             $validatedData = $request->validate([
@@ -205,12 +224,12 @@ class SpaceController extends Controller
                 'notes' => 'nullable|string',
             ]);
             
-            $space = Space::find($id);
+            $space = Space::findOrFail($id);
             $space->update($validatedData);
             $space->save();
         } catch (\Throwable $th) {
             if($request_source == 'api'){
-                return response()->json(['error' => $th->getMessage(), 'success' => false], 500);
+                return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
             }
 
             return redirect()->route('spaces.index')->with('error', $th->getMessage());
@@ -227,7 +246,7 @@ class SpaceController extends Controller
 
     public function destroy(Request $request, String $id)
     {
-        $request_source = $request->input('request_source') ?? 'api';
+        $request_source = get_request_source($request);
         $space = Space::find($id);
         
         if($space->children()->count() > 0){

@@ -51,8 +51,7 @@
                                 @foreach ($data->details as $detail)
                                     <x-table.table-tr>
                                         <x-table.table-td>
-                                            {{ $detail->detail?->name ?? 'N/A' }}
-                                            {{ gettype($detail->detail) }}
+                                            {{ $detail->detail?->code ?? '?' }} : {{ $detail->detail?->name ?? 'N/A' }}
                                         </x-table.table-td>
                                         <x-table.table-td
                                             class="py-4">Rp{{ number_format($detail->debit, 2) }}</x-table.table-td>

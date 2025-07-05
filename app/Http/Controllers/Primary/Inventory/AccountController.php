@@ -562,18 +562,18 @@ class AccountController extends Controller
                 $account[$acc->id]['debit'] += $detail->debit;
                 $account[$acc->id]['credit'] += $detail->credit;
 
-                $detail->tx = [
-                    "id" => $tx->id,
-                    "sent_time" => $tx->sent_time,
-                    "number" => $tx->number,
-                    "sender_notes" => $tx->sender_notes,
-                ];
-                $account[$acc->id]['details'][] = [
-                    'tx' => $detail->tx,
-                    'debit' => $detail->debit,
-                    'credit' => $detail->credit,
-                    'notes' => $detail->notes,
-                ];
+                // $detail->tx = [
+                //     "id" => $tx->id,
+                //     "sent_time" => $tx->sent_time,
+                //     "number" => $tx->number,
+                //     "sender_notes" => $tx->sender_notes,
+                // ];
+                // $account[$acc->id]['details'][] = [
+                //     'tx' => $detail->tx,
+                //     'debit' => $detail->debit,
+                //     'credit' => $detail->credit,
+                //     'notes' => $detail->notes,
+                // ];
             }
         }
 
@@ -661,6 +661,7 @@ class AccountController extends Controller
         $offset = ($page - 1) * $perPage;
         $search = $request->get('search');
 
+
         $baseQuery = TransactionDetail::with(['transaction', 'detail'])
             ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->where('detail_id', $validated['account_id'])
@@ -670,13 +671,8 @@ class AccountController extends Controller
             // ])
             ->select('transaction_details.*')
             ->orderBy('transactions.sent_time', 'asc');
-        if(!is_null($validated['start_date']) && $validated['start_date'] != ''){
-            $baseQuery->where('transactions.sent_time', '>=', Carbon::parse($validated['start_date'])->startOfDay());
-        }
-        if(!is_null($validated['end_date']) && $validated['end_date'] != ''){
-            $baseQuery->where('transactions.sent_time', '<=', Carbon::parse($validated['end_date'])->endOfDay());
-        }
-            
+        
+
 
         if ($search) {
             $baseQuery->whereHas('transaction', function ($q) use ($search) {
@@ -684,6 +680,27 @@ class AccountController extends Controller
                 ->orWhere('sender_notes', 'like', "%{$search}%");
             });
         }
+
+
+
+        $initQuery = clone $baseQuery;
+        $initBalance = 0;
+
+        if(!is_null($validated['start_date']) && $validated['start_date'] != ''){
+            $baseQuery->where('transactions.sent_time', '>=', Carbon::parse($validated['start_date'])->startOfDay());
+
+            $initQuery->where('transactions.sent_time', '<', Carbon::parse($validated['start_date'])->startOfDay());
+            $initTR = $initQuery->get();
+            $initBalance += $initTR->sum(function ($item) {
+                return floatval($item->debit ?? 0) - floatval($item->credit ?? 0);
+            });
+        }
+
+        if(!is_null($validated['end_date']) && $validated['end_date'] != ''){
+            $baseQuery->where('transactions.sent_time', '<=', Carbon::parse($validated['end_date'])->endOfDay());
+        }
+
+
 
         // Total
         $total = (clone $baseQuery)->count();
@@ -700,7 +717,7 @@ class AccountController extends Controller
         $initialCredit = $initials->sum(function ($item) {
             return floatval($item->credit ?? 0);
         });
-        $initialBalance = $initialDebit - $initialCredit;
+        $initialBalance = $initialDebit - $initialCredit + $initBalance;
 
         // Current page data
         $results = (clone $baseQuery)
