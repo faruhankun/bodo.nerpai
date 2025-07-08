@@ -27,6 +27,53 @@ class PlayerController extends Controller
     }
 
 
+    // get data
+    public function getData(Request $request){
+        $request_source = get_request_source($request);
+
+        $query = Player::with('type', 'size');
+
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(50);
+        }
+
+        
+        // Search
+        $keyword = $request->get('q');
+        if($keyword){
+            $query->where(function($q) use ($keyword){
+                $q->where('name', 'like', "%{$keyword}%")
+                ->orWhere('id', 'like', "%{$keyword}%")
+                ->orWhere('code', 'like', "%{$keyword}%")
+                ->orWhere('notes', 'like', "%{$keyword}%")
+                ->orWhere('address', 'like', "%{$keyword}%");
+            });
+        }
+
+
+        // not in the space
+        if($request->filled('not_in_space') && $request->not_in_space == true){
+            $space_id = get_space_id($request);
+            $query->whereDoesntHave('spaces', function ($q) use ($space_id) {
+                $q->where('spaces.id', $space_id);
+            });
+        }
+
+
+
+        // return result
+        return DataTables::of($query)->make(true);
+    }    
+
+
+
     public function getRelatedSpaces(Request $request){
         $player_id = $request->get('player_id');
 

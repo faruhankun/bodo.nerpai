@@ -61,24 +61,50 @@ class ContactController extends Controller
     }
 
 
+    // crud
+    public function store(Request $request){ return $this->contactService->store($request); }
+    public function update(Request $request, $id){ return $this->contactService->update($request, $id); }
 
-    public function destroy($id)
+
+    public function destroy(Request $request, $id)
     {
-        $space_id = session('space_id') ?? null;
+        $request_source = get_request_source($request);
+        $relations = collect();
 
-        if($space_id){
-            $space_and_children = Space::find($space_id)->AllChildren()->pluck('id')->toArray();
-            $space_and_children = array_merge($space_and_children, [$space_id]);
+        try {
+            $space_id = get_space_id($request);
 
-            $relations = Relation::where('model1_type', 'SPACE')
-                                ->whereIn('model1_id', $space_and_children)
-                                ->where('model2_type', 'PLAY')
-                                ->where('model2_id', $id)
-                                ->get();
+            if($space_id){
+                $relation = Relation::findOrFail($id);
+                $model2_id = $relation->model2_id;
 
-            foreach ($relations as $relation) {
                 $relation->delete();
+
+
+                // delete in children too
+                $space_and_children = Space::find($space_id)->AllChildren()->pluck('id')->toArray();
+                // $space_and_children = array_merge($space_and_children, [$space_id]);
+
+                $relations = Relation::where('model1_type', 'SPACE')
+                                    ->whereIn('model1_id', $space_and_children)
+                                    ->where('model2_type', 'PLAY')
+                                    ->where('model2_id', $id)
+                                    ->get();
+
+                foreach ($relations as $relation) {
+                    $relation->delete();
+                }
             }
+        } catch (\Exception $e) {
+            if($request_source == 'api'){
+                return response()->json(['message' => $e->getMessage(), 'success' => false, 'data' => []], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+
+        if($request_source == 'api'){
+            return response()->json(['message' => 'Player Kicked successfully :)', 'success' => true, 'data' => $relations], 200);
         }
 
         return redirect()->route('space_players.index')->with('success', 'Player Kicked successfully :)');
@@ -87,7 +113,7 @@ class ContactController extends Controller
 
 
     public function getQueryData(Request $request){
-        $space_id = $this->contactService->getSpaceId($request);
+        $space_id = get_space_id($request);
 
         $query = Relation::with('model2', 'model2.type', 'model2.size')
                         ->where('model1_type', 'SPACE')
@@ -99,10 +125,41 @@ class ContactController extends Controller
 
 
     public function getContactsData(Request $request){
-        $contacts = $this->getQueryData($request);
+        $request_source = get_request_source($request);
 
-        return DataTables::of($contacts)
-            ->addColumn('size_display', function ($data) {
+        $query = $this->getQueryData($request);
+
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(50);
+        }
+
+        
+        // Search
+        $keyword = $request->get('q');
+        if($keyword){
+            $query->where(function($q) use ($keyword){
+                $q->where('type', 'like', "%{$keyword}%")
+                ->orWhere('notes', 'like', "%{$keyword}%");
+            });
+        }
+
+
+
+        // return result
+        $result = DataTables::of($query);
+
+        if($request_source == 'api'){
+            return $result->make(true);
+        }
+        
+        return $result->addColumn('size_display', function ($data) {
                 return ($data->size_type ?? '?') . ' : ' . ($data->size?->number ?? '?');
             })
             ->addColumn('actions', function ($data) {

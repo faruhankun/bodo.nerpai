@@ -46,7 +46,6 @@ class ContactService
     }
 
 
-
     // Summary
     public function getSummaryData(Request $request){
         $query = $request->get('summary_type');
@@ -404,4 +403,68 @@ class ContactService
 
         return $response;
     } 
+
+
+
+
+    // CRUD
+    public function store(Request $request)
+    {
+        $space_id = get_space_id($request);
+        $request_source = get_request_source($request);
+
+        try {
+            $validatedData = $request->validate([
+                'player_id' => 'nullable',
+                'type' => 'nullable|string|max:50',
+                'notes' => 'nullable|string',
+                'relation_id' => 'nullable',
+            ]);
+    
+            if($request->relation_id){
+                $relation = Relation::findOrFail($request->relation_id);
+                $relation->update($request->all());
+            } else {
+                $request->validate([
+                    'player_id' => 'required',
+                ]);
+                
+                $relation = Relation::updateOrCreate(
+                    [
+                        'model1_type' => 'SPACE',
+                        'model1_id' => $space_id,
+                        'model2_type' => 'PLAY',
+                        'model2_id' => $validatedData['player_id'],
+                    ],
+                    [
+                    'model1_type' => 'SPACE',
+                    'model1_id' => $space_id,
+                    'model2_type' => 'PLAY',
+                    'model2_id' => $validatedData['player_id'],
+                    'type' => $validatedData['type'] ?? 'guest',
+                    'status' => $request->status ?? 'active',
+                    'notes' => $request->notes ?? null,
+                    ]
+                );
+            }
+
+        } catch (\Exception $e) {
+            if($request_source == 'api'){
+                return response()->json(['message' => $e->getMessage(), 'success' => false], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+
+
+        if($request_source == 'api'){
+            return response()->json(['message' => 'Player updated successfully', 'success' => true, 'data' => array($relation)], 200);
+        }
+        return redirect()->route('space_players.index')->with('success', 'Player updated successfully');
+    }
+
+    public function update(Request $request, $id){ 
+        $request->merge(['relation_id' => $id]);
+        return $this->store($request); 
+    }
 }
