@@ -45,6 +45,13 @@ class Inventory extends Model
     {
         return $this->morphTo();
     }
+
+    public function children()
+    {
+        return $this->hasMany(Inventory::class, 'parent_id');
+    }
+
+
     public function type()
     {
         return $this->morphTo();

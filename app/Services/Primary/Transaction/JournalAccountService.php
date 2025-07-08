@@ -106,7 +106,7 @@ class JournalAccountService
         if($limit){
             if($limit != 'all'){
                 $query->limit($limit);
-            }
+            } 
         } else {
             $query->limit(50);
         }

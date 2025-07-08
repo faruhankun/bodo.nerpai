@@ -69,7 +69,24 @@ class AccountController extends Controller
 
         $query->orderBy('code', 'asc');
 
+        // filter parent or children only
+        $parent_only = $request->get('parent_only');
+        if($parent_only){
+            $query->whereNull('parent_id');
+        }
+
+        $has_no_children = $request->get('has_no_children');
+        if($has_no_children){
+            $query->whereDoesntHave('children');
+        }
+
         return DataTables::of($query)
+            ->addColumn('has_children', function ($data) {
+                return $data->children->count() > 0 ? true : false;
+            })
+            ->addColumn('children_count', function ($data) {
+                return $data->children->count();
+            })
             ->make(true);
     }
 
@@ -77,7 +94,7 @@ class AccountController extends Controller
 
     public function show($id){
         try {
-            $account = Inventory::findOrFail($id);
+            $account = Inventory::with('type', 'parent', 'children')->findOrFail($id);
         } catch (\Throwable $th) {
             return response()->json([
                 'data' => [],
@@ -239,7 +256,7 @@ class AccountController extends Controller
 
     public function getAccountsData(Request $request){
         // if q is not null, then search
-        if($request->filled('q')) {
+        if($request->has('q')) {
             return $this->search($request);
         }
 
@@ -279,7 +296,7 @@ class AccountController extends Controller
     public function getQueryData(Request $request){
         $space_id = get_space_id($request);
 
-        $query = Inventory::with('type', 'parent')
+        $query = Inventory::with('type', 'parent', 'children', 'children.type')
                             ->where('model_type', 'ACC')
                             ->where('space_type', 'SPACE')
                             ->where('space_id', $space_id);

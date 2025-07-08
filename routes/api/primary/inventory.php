@@ -11,7 +11,7 @@ Route::middleware([
 });
 
 Route::middleware([
-    'auth:sanctum',
+    // 'auth:sanctum',
 ])->group(function () {
     // Account
     Route::get('accounts/search', [AccountController::class, 'search'])->name('accounts.search');
