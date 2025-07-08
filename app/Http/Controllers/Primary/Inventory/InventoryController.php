@@ -41,12 +41,59 @@ class InventoryController extends Controller
 
 
 
-    public function index()
-    {
-        $space_id = session('space_id') ?? null;
-        if(is_null($space_id)){
-            abort(403);
+    public function getData(Request $request){
+        $space_id = get_space_id($request);
+
+        $query = Inventory::with('type', 'item', 'tx_details')
+                            ->where('model_type', 'SUP')
+                            ->where('space_type', 'SPACE')
+                            ->where('space_id', $space_id);
+
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(50);
         }
+
+        
+        // Search
+        $keyword = $request->get('q');
+        if($keyword){
+            $query->where(function($q) use ($keyword){
+                $q->where('name', 'like', "%{$keyword}%")
+                ->orWhere('code', 'like', "%{$keyword}%")
+                ->orWhere('id', 'like', "%{$keyword}%")
+                ->orWhere('sku', 'like', "%{$keyword}%")
+                ->orWhere('notes', 'like', "%{$keyword}%");
+            });
+        }
+
+
+
+        // order by id desc by default
+        $orderby = $request->get('orderby');
+        $orderdir = $request->get('orderdir');
+        if($orderby && $orderdir){
+            $query->orderBy($orderby, $orderdir);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+
+
+        // return result
+        return DataTables::of($query)->make(true);
+    } 
+
+
+    public function index(Request $request)
+    {
+        $space_id = get_space_id($request);
 
         return view('primary.inventory.supplies.index');
     }
@@ -55,19 +102,18 @@ class InventoryController extends Controller
 
     public function store(Request $request)
     {
-        $space_id = session('space_id') ?? null;
+        $request_source = get_request_source($request);
+        $space_id = get_space_id($request);
 
         try {
             $validated = $request->validate([
                 'item_id' => 'required',
-                'status' => 'required|string|max:50',
+                'status' => 'nullable|string|max:50',
                 'notes' => 'nullable',
             ]);
 
-            if($space_id){
-                $validated['space_type'] = 'SPACE';
-                $validated['space_id'] = $space_id;
-            }
+            $validated['space_type'] = 'SPACE';
+            $validated['space_id'] = $space_id;
 
             $item = Item::findOrFail($validated['item_id']);
             $validated['name'] = $item->name;
@@ -85,19 +131,32 @@ class InventoryController extends Controller
 
             $ivt = Inventory::create($validated);
 
+
+
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => array($ivt),
+                    'success' => true,
+                    'message' => 'Supply created successfully',
+                ]);
+            }
+
             return redirect()->route('supplies.index')->with('success', "Supply {$ivt->name} created successfully.");
         } catch (\Exception $e) {
-            dd($e);
+            if($request_source == 'api'){
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
             return redirect()->back()->withErrors($e->getMessage())->withInput();
         }
     }
 
 
-    public function getSuppliesData(){
-        $space_id = session('space_id') ?? null;
-        if(is_null($space_id)){
-            abort(403);
-        }
+    public function getSuppliesData(Request $request){
+        $space_id = get_space_id($request);
 
         $supplies = Inventory::with('type', 'item', 'tx_details')
                             ->where('model_type', 'SUP');
@@ -187,7 +246,7 @@ class InventoryController extends Controller
 
     public function importData(Request $request)
     {
-        $space_id = session('space_id') ?? null;
+        $space_id = get_space_id($request);
 
         // try {
         //     $validated = $request->validate([
@@ -260,7 +319,11 @@ class InventoryController extends Controller
 
 
     public function exportData(){
-        return back()->with('error', 'Under Construction');
+        return response()->json([
+            'data' => [],
+            'success' => true,
+            'message' => 'Under Construction',
+        ], 200);
     }
 
 
