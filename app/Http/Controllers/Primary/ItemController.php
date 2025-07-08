@@ -13,6 +13,57 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ItemController extends Controller
 {
+    // get data
+    public function getData(Request $request){
+        $space_id = get_space_id($request);
+
+        $query = Item::with('inventories')
+                    ->where('space_type', 'SPACE')
+                    ->where('space_id', $space_id);
+
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(50);
+        }
+
+        
+        // Search
+        $keyword = $request->get('q');
+        if($keyword){
+            $query->where(function($q) use ($keyword){
+                $q->where('name', 'like', "%{$keyword}%")
+                ->orWhere('id', 'like', "%{$keyword}%")
+                ->orWhere('code', 'like', "%{$keyword}%")
+                ->orWhere('notes', 'like', "%{$keyword}%")
+                ->orWhere('sku', 'like', "%{$keyword}%");
+            });
+        }
+
+
+
+        // order by id desc by default
+        $orderby = $request->get('orderby');
+        $orderdir = $request->get('orderdir');
+        if($orderby && $orderdir){
+            $query->orderBy($orderby, $orderdir);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+
+
+        // return result
+        return DataTables::of($query)->make(true);
+    }   
+
+
+
     public function index()
     {
         return view('primary.items.index');
@@ -23,72 +74,116 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
+        $request_source = get_request_source($request);
+
+
         try {
             $validatedData = $request->validate([
-                'code' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
+                'code' => 'nullable|string|max:255',
                 'sku' => 'nullable|string|max:255',
-                'status' => 'required|string|max:50',
                 'notes' => 'nullable|string',
             ]);
 
             $item = Item::create($validatedData);
-
-            return redirect()->route('items.index')->with('success', 'Item created successfully');
         } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
+            }
+
             return back()->with('error', 'Something went wrong. Please try again.');
         }
+
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => array($item),
+                'success' => true,
+                'message' => 'Item created successfully',
+            ]);
+        }
+
+        return redirect()->route('items.index')->with('success', 'Item created successfully');
     }
     
 
 
     public function update(Request $request, $id)
     {   
+        $request_source = get_request_source($request);
+
+
         try {
             $validatedData = $request->validate([
-                'code' => 'required|string|max:255',
+                'code' => 'nullable|string|max:255',
                 'name' => 'required|string|max:255',
                 'sku' => 'nullable|string|max:255',
                 'price' => 'nullable|numeric|min:0',
                 'cost' => 'nullable|numeric|min:0',
                 'weight' => 'nullable|numeric|min:0',
-                'status' => 'required|string|max:50',
                 'notes' => 'nullable|string',
             ]);
             
-            $item = Item::find($id);
+            $item = Item::findOrFail($id);
             $item->update($validatedData);
-
-            return redirect()->route('items.index')->with('success', 'Item updated successfully');
         } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
+            }
+
             return back()->with('error', 'Something went wrong. Please try again. ' . $th->getMessage());
         }
+
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => array($item),
+                'success' => true,
+                'message' => 'Item updated successfully',
+            ]);
+        }
+
+        return redirect()->route('items.index')->with('success', 'Item updated successfully');
     }
 
 
 
     public function destroy($id)
     {
+        $request_source = get_request_source($request);
+
         $item = Item::findOrFail($id);
         
         // check related inventory
         if ($item->inventories()->exists()) {
+            if($request_source == 'api'){
+                return response()->json(['message' => 'Item has related inventory. Cannot delete.', 'success' => false, 'data' => []], 500);
+            }
+
             return back()->with('error', 'Item has related inventory. Cannot delete.');
         }
 
         $item->delete();
 
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => array($item),
+                'success' => true,
+                'message' => 'Item deleted successfully',
+            ]);
+        }
         return redirect()->route('items.index')->with('success', 'Item deleted successfully');
     }
 
 
 
-    public function getItemsData(){
-        $space_id = session('space_id') ?? null;
+    public function getItemsData(Request $request){
+        $space_id = get_space_id($request);
 
-        $items = Item::with('inventories');
-        // $items = Item::where('space_type', 'SPACE')
-        //     ->where('space_id', $space_id);
+        $items = Item::with('inventories')
+                    ->where('space_type', 'SPACE')
+                    ->where('space_id', $space_id);
 
         return DataTables::of($items)
             ->addColumn('actions', function ($data) {
@@ -136,7 +231,8 @@ class ItemController extends Controller
 
     public function importData(Request $request)
     {
-        $space_id = session('space_id') ?? null;
+        $request_source = get_request_source($request);
+        $space_id = get_space_id($request);
 
         try {
             $validated = $request->validate([
@@ -227,7 +323,7 @@ class ItemController extends Controller
                     fclose($file);
                 };
 
-                return response()->stream($callback, 200, [
+                return response()->stream($callback, 500, [
                     "Content-Type"        => "text/csv",
                     "Content-Disposition" => "attachment; filename=\"$filename\"",
                     "Pragma"              => "no-cache",
@@ -236,8 +332,23 @@ class ItemController extends Controller
                 ]);
             }
 
+
+
+
+            if($request_source == 'api'){
+                return response()->json([
+                    'message' => 'CSV uploaded and processed Successfully!',
+                    'success' => true,
+                    'data' => []
+                ]);
+            }
+
             return redirect()->route('items.index')->with('success', 'CSV uploaded and processed Successfully!');
         } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
+            }
+
             return back()->with('error', 'Failed to import csv. Please try again.' . $th->getMessage());
         }
     }
@@ -273,9 +384,9 @@ class ItemController extends Controller
     {
         $params = json_decode($request->get('params'), true);
         
-        $space_id = session('space_id') ?? null;
+        $space_id = get_space_id($request);
 
-        $query = Item::query();
+        $query = Item::where('space_type', 'SPACE')->where('space_id', $space_id);
         
         // Apply search filter
         if (!empty($params['search']['value'])) {
