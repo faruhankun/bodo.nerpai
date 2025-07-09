@@ -527,7 +527,7 @@ class AccountController extends Controller
     // Summaries
     public $summary_types = [
         'balance_sheet' => 'Neraca',
-        // 'cashflow' => 'Cashflow',
+        'cashflow' => 'Cashflow',
         'profit_loss' => 'Laba Rugi',
     ];
 
@@ -566,8 +566,23 @@ class AccountController extends Controller
         if(!is_null($start_date) && $validated['summary_type'] != 'balance_sheet'){
             $start_time = Carbon::parse($start_date)->startOfDay();
             $txs = $txs->where('sent_time', '>=', $start_time);
+        }   
+
+        $initial_cash = 0;
+        if(!is_null($start_date) && $validated['summary_type'] == 'cashflow'){
+            $start_time = Carbon::parse($start_date)->startOfDay();
+            $tx_details = TransactionDetail::whereHas('transaction', function ($query) use ($start_time, $spaces){
+                                                $query->where('sent_time', '<', $start_time)
+                                                    ->Where('space_type', 'SPACE')
+                                                    ->whereIn('space_id', $spaces->pluck('id')->toArray());
+                                            })
+                                            ->whereHas('detail', function ($query){
+                                                $query->where('type_id', 1);
+                                            })
+                                            ->get();
+            $initial_cash = $tx_details->sum('debit') - $tx_details->sum('credit');
         }
-        
+
         $txs = $txs->get();
 
 
@@ -575,6 +590,7 @@ class AccountController extends Controller
         // generate data by account
         $data = collect();
         $data->summary_types = $this->summary_types;
+        $data->initial_cash = $initial_cash;
         $data->account = Inventory::with('type', 'parent', 'tx_details')
                                 ->where('model_type', 'ACC')
                                 ->where('space_type', 'SPACE')
@@ -656,7 +672,7 @@ class AccountController extends Controller
                 $data->balance_sheet = $this->calculate_balance_sheet($data->account);
                 break;
             case 'cashflow':
-                $data->cashflow = $this->calculate_cashflow($data->account);
+                $data->cashflow = $this->calculate_cashflow($data->account, $data->initial_cash);
                 break;
             case 'profit_loss':
                 $data->profit_loss = $this->calculate_profit_loss($data->account);
@@ -707,6 +723,50 @@ class AccountController extends Controller
                                     // + $data['pnl_before']['laba_bersih']
                                     + $data['pnl']['laba_bersih'];
     
+        return $data;
+    }
+
+
+    public function calculate_cashflow($accounts, $initial_cash = 0){
+        $data = [];
+
+        $pnl = $this->calculate_profit_loss($accounts);
+        $data['netIncome'] = $pnl['laba_bersih'];
+
+        $data['changeReceivables'] = $accounts->where('type_id', 2)->sum('balance');
+        $data['changeInventory'] = $accounts->where('type_id', 3)->sum('balance');
+        $data['changeOtherCurrentAssets'] = $accounts->where('type_id', 4)->sum('balance');
+        $data['changePayables'] = $accounts->where('type_id', 8)->sum('balance');
+        
+        $data['purchaseFixedAssets'] = $accounts->where('type_id', 5)->sum('balance');
+        $data['depreciation'] = $accounts->where('type_id', 6)->sum('balance');
+        $data['otherAssets'] = $accounts->where('type_id', 7)->sum('balance');
+        
+        $data['loansReceived'] = $accounts->where('type_id', 9)->sum('balance')
+                                + $accounts->where('type_id', 10)->sum('balance');
+        $data['equityChanges'] = $accounts->where('type_id', 11)->sum('balance');
+        
+        $data['cashFromOperations'] = $data['netIncome']
+                                        - $data['changeReceivables'] 
+                                        - $data['changeInventory']
+                                        - $data['changeOtherCurrentAssets'] 
+                                        + $data['depreciation']
+                                        + $data['changePayables'];
+        $data['cashFromInvesting'] = $data['purchaseFixedAssets']
+                                    + $data['otherAssets'];
+        $data['cashFromFinancing'] = $data['loansReceived'] 
+                                    + $data['equityChanges'];
+        $data['netCashFlow'] = $data['cashFromOperations'] 
+                                + $data['cashFromInvesting'] 
+                                + $data['cashFromFinancing'];
+
+        $data['initialCash'] = $initial_cash;
+        $data['endingCash'] = $data['initialCash'] + $data['netCashFlow'];
+
+
+        // additional
+        $data['pnl'] = $pnl;
+
         return $data;
     }
 
