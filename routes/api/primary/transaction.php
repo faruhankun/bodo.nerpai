@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Primary\Transaction\JournalAccountController;
 use App\Http\Controllers\Primary\Transaction\JournalSupplyController;
+use App\Http\Controllers\Primary\Transaction\TradeController;
 
 
 
@@ -26,6 +27,17 @@ Route::middleware([
         Route::post('/import', 'importData');
         Route::get('/export', 'exportData');
     });
+
+
+
+    // trades
+    Route::prefix('trades')->controller(TradeController::class)->group(function () {
+        Route::get('/data', 'getData');
+
+        Route::get('/exim', 'eximData');
+        Route::post('/exim', 'eximData');
+    });
+    Route::resource('trades', TradeController::class);
 });
 
 

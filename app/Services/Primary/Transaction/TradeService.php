@@ -16,6 +16,9 @@ use App\Models\Primary\Group;
 use App\Models\Primary\Relation;
 use App\Models\Primary\Transaction;
 
+use Carbon\Carbon;
+
+
 
 class TradeService
 {
@@ -54,12 +57,107 @@ class TradeService
     }
 
 
+
+    // crud
+    public function updateData($tx, $data, $details = [])
+    {
+        // Update main journal entry
+        $tx->update($data);
+
+        // Delete old details
+        $tx->details()->delete();
+
+        // Create new details
+        $journalDetails = [];
+        foreach ($details as $detail) {
+            $journalDetails[] = [
+                'transaction_id' => $tx->id,
+                'detail_type' => 'ITM',
+                'detail_id' => $detail['detail_id'],
+                'quantity' => $detail['quantity'] ?? 1,
+                'price' => $detail['price'] ?? 0,
+                'balance' => ($detail['price'] ?? 0) *(1 - ($detail['discount'] ?? 0 ) / 100),
+                'cost_per_unit' => $detail['cost_per_unit'] ?? 0,
+                'notes' => $detail['notes'] ?? null,
+            ];
+        }
+
+        $tx->details()->createMany($journalDetails);
+
+        
+        if($tx->number == null){
+            $tx->generateNumber();
+            $tx->save();
+        }
+
+        $tx->save();
+
+        return $tx;
+    }
+
+    public function getData(Request $request){
+        $space_id = get_space_id($request);
+
+        $query = $this->getQueryData($request);
+
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(50);
+        }
+
+        
+        // Search
+        $keyword = $request->get('q');
+        if($keyword){
+            $query->where(function($q) use ($keyword){
+                $q->where('id', 'like', "%{$keyword}%")
+                ->orWhere('number', 'like', "%{$keyword}%")
+
+                ->orWhere('sent_time', 'like', "%{$keyword}%")
+                ->orWhere('received_time', 'like', "%{$keyword}%")
+                
+                ->orWhere('status', 'like', "%{$keyword}%")
+
+                ->orWhere('sender_notes', 'like', "%{$keyword}%")
+                ->orWhere('receiver_notes', 'like', "%{$keyword}%")
+                ->orWhere('handler_notes', 'like', "%{$keyword}%");
+            });
+        }
+
+
+
+        // order by id desc by default
+        $orderby = $request->get('orderby');
+        $orderdir = $request->get('orderdir');
+        if($orderby && $orderdir){
+            $query->orderBy($orderby, $orderdir);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+
+
+        // return result
+        return DataTables::of($query)->make(true);
+    } 
+
+
+
     // index
     public function getQueryData(Request $request){
-        $space_id = $this->spaceService->getSpaceId($request);
+        $space_id = get_space_id($request);
 
-        $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
-                            ->where('model_type', 'TRD');
+        $query = Transaction::with('input', 'type', 'details', 'details.detail', 
+                                    'sender', 'receiver')
+                            ->where('model_type', 'TRD')
+                            ->where('space_type', 'SPACE')
+                            ->where('space_id', $space_id);
 
         return $query;
     }
@@ -222,8 +320,19 @@ class TradeService
         // search & order filter
         $query = $this->eximService->exportQuery($query, $params, ['number', 'sender_notes', 'sent_date', 'id']);
 
-        $query->take(10000);
+        
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(1000);
+        }
         $collects = $query->get();
+
 
 
         // Prepare the CSV data
@@ -235,25 +344,24 @@ class TradeService
         foreach($collects as $collect){
             $row = [];
 
-            $row['size_type'] = $collect->size_type;
-            $row['size_id'] = $collect->size_id;
-            $row['code'] = $collect->code;
-            
-            $row['name'] = $collect->name ?? '';
-            $row['full_name'] = $collect->full_name ?? '';
+            $row['id'] = $collect->id;
+            $row['number'] = $collect->number;
 
-            $row['email'] = $collect->email ?? '';
-            $row['phone_number'] = $collect->phone_number ?? '';
+            $row['sender_id'] = $collect->sender_id;
+            $row['sender_code'] = $collect->sender?->code;
+            $row['sender_name'] = $collect->sender?->name;
 
-            $row['address'] = $collect->address ?? '';
-            $row['birth_date'] = $collect->birth_date ?? '';
-            $row['death_date'] = $collect->death_date ?? '';
+            $row['sent_date'] = Carbon::parse($collect->sent_time)->format('Y-m-d'); 
+            $row['sender_notes'] = $collect->sender_notes;
+            $row['input_id'] = $collect->input_id;
 
-            $row['gender'] = $collect->gender ?? '';
-            $row['id_card_number'] = $collect->id_card_number ?? '';
-            
-            $row['status'] = $collect->status;
-            $row['notes'] = $collect->notes;
+            $row['receiver_id'] = $collect->receiver_id;
+            $row['receiver_code'] = $collect->receiver?->code;
+            $row['receiver_name'] = $collect->receiver?->name;
+
+            $row['received_date'] = Carbon::parse($collect->received_time)->format('Y-m-d');
+            $row['receiver_notes'] = $collect->receiver_notes;
+            $row['output_id'] = $collect->output_id;
 
             $data[] = $row;
         }

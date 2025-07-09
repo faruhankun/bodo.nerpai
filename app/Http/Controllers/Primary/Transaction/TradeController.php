@@ -16,6 +16,7 @@ use App\Models\Primary\Access\Variable;
 
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 use App\Services\Primary\Transaction\TradeService;
 use App\Services\Primary\Transaction\JournalAccountService;
@@ -31,6 +32,12 @@ class TradeController extends Controller
     {
         $this->journalEntryAccount = $journalEntryAccount;
         $this->tradeService = $tradeService;
+    }
+
+
+
+    public function getData(Request $request){
+        return $this->tradeService->getData($request);
     }
 
 
@@ -60,7 +67,7 @@ class TradeController extends Controller
                     $response = $this->tradeService->importData($request);
                     break;
                 default:
-                    $response = response()->json(['error' => 'Invalid query'], 400);
+                    $response = response()->json(['message' => 'Invalid query', 'success' => false], 400);
                     break;
 
             }
@@ -136,10 +143,11 @@ class TradeController extends Controller
 
     public function store(Request $request)
     {
+        $request_source = get_request_source($request);
+        $space_id = get_space_id($request);
+
         try {
             $validated = $request->validate([
-                'space_id' => 'required',
-
                 'sender_id' => 'required',
                 'sent_date' => 'nullable|date',
                 'sender_notes' => 'nullable|string|max:255',
@@ -156,29 +164,37 @@ class TradeController extends Controller
             $tx = Transaction::create([
                 'model_type' => 'TRD',
                 'space_type' => 'SPACE',
-                'space_id' => $validated['space_id'],
+                'space_id' => $space_id,
 
                 'sender_type' => 'PLAY',
                 'sender_id' => $validated['sender_id'],
-                'sent_date' => $validated['sent_date'],
-                'sender_notes' => $validated['sender_notes'],
+                'sent_time' => $validated['sent_date'] ?? now()->format('Y-m-d'),
+                'sender_notes' => $validated['sender_notes'] ?? null,
                 'input_type' => 'SPACE',
-                'input_id' => $validated['input_id'],
+                'input_id' => $validated['input_id'] ?? null,
 
                 'receiver_type' => 'PLAY',
                 'receiver_id' => $validated['receiver_id'],
-                'received_date' => $validated['received_date'],
-                'receiver_notes' => $validated['receiver_notes'],
+                'received_time' => $validated['received_date'] ?? null,
+                'receiver_notes' => $validated['receiver_notes'] ?? null,
                 'output_type' => 'SPACE',
-                'output_id' => $validated['output_id'],
+                'output_id' => $validated['output_id'] ?? null,
             ]);
 
             $tx->generateNumber();
             $tx->save();
 
+
+            if($request_source == 'api'){
+                return response()->json(['message' => 'Transaction is Created Successfully!', 'success' => true, 'data' => $tx], 200);
+            }
+
             return redirect()->route('trades.edit', $tx->id)
                             ->with('success', 'Transaction is Created Successfully!');
         } catch (\Throwable $th) {
+            if($request_source == 'api')
+                return response()->json(['message' => $th->getMessage(), 'success' => false], 500);
+
             return back()->with('error', 'Something went wrong. Please try again.');
         }
     }
@@ -217,61 +233,119 @@ class TradeController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request_source = get_request_source($request);
+
+        DB::beginTransaction();
+
         try {
-            // dd($request->all());
-            
             $validated = $request->validate([
-                'model_type' => 'required',
-                'space_id' => 'required',
                 'sender_id' => 'required',
                 'sent_date' => 'nullable|date',
                 'sender_notes' => 'nullable|string|max:255',
                 'input_id' => 'nullable',
+
                 'receiver_id' => 'nullable',
                 'received_date' => 'nullable|date',
                 'receiver_notes' => 'nullable|string|max:255',
                 'output_id' => 'nullable',
-            ]);
 
-            // dd($validated);
+                'details' => 'nullable|array',
+                'details.*.detail_id' => 'required',
+                'details.*.quantity' => 'nullable|numeric|min:0',
+                'details.*.price' => 'nullable|numeric|min:0',
+                'details.*.discount' => 'nullable|numeric|min:0',
+                'details.*.cost_per_unit' => 'nullable|numeric|min:0',
+                'details.*.notes' => 'nullable|string|max:255',
+            ]);
+            if(!isset($validated['details'])){
+                $validated['details'] = [];
+            }
+
 
             $tx = Transaction::with(['details'])->findOrFail($id);
 
-            $tx->update($validated);
+            $this->tradeService->updateData($tx, $validated, $validated['details']);
 
-            if($tx->number == null){
-                $tx->generateNumber();
-                $tx->save();
+
+
+            DB::commit();
+            if($request_source == 'api'){
+                return response()->json(['message' => 'Transaction is Updated Successfully!', 'success' => true, 'data' => array($tx)], 200);
             }
 
             return redirect()->route('trades.show', $tx->id)
                             ->with('success', "Transaction {$tx->number} Created Successfully!");
         } catch (\Throwable $th) {
+            DB::rollBack();
+
+            if($request_source == 'api')
+                return response()->json(['message' => $th->getMessage(), 'success' => false], 500);
+
             return back()->with('error', 'Something went wrong. Please try again.');
         }
     }
 
 
-    public function show($id)
+    public function show(Request $request, String $id)
     {
-        $tx = Transaction::with(['details'])->findOrFail($id);
+        $request_source = get_request_source($request);
+
+        try {
+            $tx = Transaction::with(['details', 'details.detail', 'details.detail.item',
+                                    'sender', 'receiver'])->findOrFail($id);
+        } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'message' => $th->getMessage(),
+                ], 400);
+            }
+        }
+
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => array($tx),
+                'recordFiltered' => 1,
+                'success' => true,
+            ]);
+        }
 
         return view('primary.transaction.trades.show', compact('tx'));
     }
 
 
-    public function destroy(String $id)
+    public function destroy(Request $request, String $id)
     {
+        $request_source = get_request_source($request);
+
+        DB::beginTransaction();
+
         try {
-            $journal_entry = Transaction::findOrFail($id);
-            $journal_entry->delete();
+            $tx = Transaction::findOrFail($id);
+            $tx->delete();
 
-            $journal_entry->details()->delete();
+            $tx->details()->delete();
 
+
+            DB::commit();
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => $tx,
+                    'success' => true,
+                    'message' => 'Trades deleted successfully',
+                ]);
+            }
             return redirect()->route('trades.index')
-                ->with('success', 'Journal Entry deleted successfully');
+                ->with('success', 'Trades deleted successfully');
         } catch (\Throwable $th) {
-            return back()->with('error', 'Failed to delete journal entry. Please try again.');
+            DB::rollBack();
+
+            if($request_source == 'api'){
+                return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
+            }
+            return back()->with('error', 'Failed to delete trades. Please try again.');
         }
     }
 
