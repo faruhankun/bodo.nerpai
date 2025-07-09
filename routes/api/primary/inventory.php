@@ -15,7 +15,18 @@ Route::middleware([
         Route::post('/import', 'importData');
         Route::get('/export', 'exportData');
     });
+
+    Route::prefix('accounts')->controller(AccountController::class)->group(function () {
+        Route::get('/import', 'importTemplate');
+        Route::post('/import', 'importData');
+        Route::get('/export', 'exportData');
+
+        Route::get('/summary', 'summary');
+        Route::get('/transactions', 'getAccountTransactions');
+    });
 });
+
+
 
 Route::middleware([
     // 'auth:sanctum',

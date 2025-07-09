@@ -11,6 +11,7 @@ use Illuminate\Validation\Rules\Enum;
 use Carbon\Carbon;
 
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
@@ -321,8 +322,21 @@ class AccountController extends Controller
         // search & order filter
         $query = $this->eximService->exportQuery($query, $params, ['code', 'name', 'type_id', 'notes']);
 
-        $query->take(10000);
+
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(1000);
+        }
+
+        // $query->take(10000);
         $collects = $query->get();
+
 
 
         // Prepare the CSV data
@@ -356,8 +370,11 @@ class AccountController extends Controller
 
     public function importData(Request $request)
     {
-        $space_id = $request->space_id ?? (session('space_id') ?? null);
+        $space_id = get_space_id($request);
+        $request_source = get_request_source($request);
         $player_id = $request->player_id ?? (session('player_id') ?? auth()->user()->player->id);
+
+        DB::beginTransaction();
 
         try {
             $validated = $request->validate([
@@ -472,14 +489,35 @@ class AccountController extends Controller
 
             // Jika ada row yang gagal, langsung return CSV dari memory
             if (count($failedRows) > 0) {
+                DB::rollBack();
+
                 $filename = 'failed_import_accountsp_' . now()->format('Ymd_His') . '.csv';
-                
+
                 return $this->eximService->exportCSV(['filename' => $filename], $failedRows);
             }
 
 
+            DB::commit();
+            if($request_source == 'api'){
+                return response()->json([
+                    'success' => true,
+                    'message' => 'CSV uploaded and processed Successfully!',
+                    'data' => $accountsp,
+                ]);
+            }
+
             return redirect()->route('accountsp.index')->with('success', 'CSV uploaded and processed Successfully!');
         } catch (\Throwable $th) {
+            DB::rollBack();
+
+            if($request_source == 'api'){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to import csv. Please try again.',
+                    'error' => $th->getMessage(),
+                ]);
+            }
+
             return back()->with('error', 'Failed to import csv. Please try again.' . $th->getMessage());
         }
     }
@@ -495,10 +533,10 @@ class AccountController extends Controller
 
     public function summary(Request $request)
     {
-        $space_id = session('space_id') ?? null;
-        if(is_null($space_id)){
-            abort(403);
-        }
+        $space_id = get_space_id($request);
+        $request_source = get_request_source($request);
+
+
 
         $space = Space::findOrFail($space_id);
         // $spaces = $space->spaceAndChildren();
@@ -544,6 +582,20 @@ class AccountController extends Controller
                                 ->toArray())
                                 ->get();
         $data = $this->getSummaryData($data, $txs, $spaces, $validated);
+
+
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => [
+                    'account' => $data->account,
+                    $validated['summary_type'] => $data->{$validated['summary_type']},
+                ],
+                'success' => true,
+                'summary_types' => $this->summary_types,
+                'input' => $request->all(),
+            ]);
+        }
 
         return view('primary.inventory.accountsp.summary', compact('data', 'txs', 'spaces'));
     }
@@ -666,17 +718,20 @@ class AccountController extends Controller
         $validated = $request->validate([
             'account_id' => 'required|integer',
             'start_date' => 'nullable|date',
-            'end_date' => 'required|date',
+            'end_date' => 'nullable|date',
             'search' => 'nullable|string',
             'page' => 'nullable|integer',
             'per_page' => 'nullable|integer',
         ]);
 
+        $validated['start_date'] = $validated['start_date'] ?? now()->startOfYear()->format('Y-m-d');
+        $validated['end_date'] = $validated['end_date'] ?? now()->format('Y-m-d');
 
-        $page = $request->get('page', 1);
-        $perPage = $request->get('per_page', 10);
+
+        $page = $validated['page'] ?? 1;
+        $perPage = $validated['per_page'] ?? 10;
         $offset = ($page - 1) * $perPage;
-        $search = $request->get('search');
+        $search = $validated['search'] ?? null;
 
 
         $baseQuery = TransactionDetail::with(['transaction', 'detail'])
@@ -736,6 +791,8 @@ class AccountController extends Controller
         });
         $initialBalance = $initialDebit - $initialCredit + $initBalance;
 
+
+
         // Current page data
         $results = (clone $baseQuery)
             ->skip($offset)
@@ -751,6 +808,8 @@ class AccountController extends Controller
 
         $finalBalance = $initialBalance + $pageDebit - $pageCredit;
 
+
+
         return response()->json([
             'total' => $total,
             'initial_balance' => $initialBalance,
@@ -762,6 +821,7 @@ class AccountController extends Controller
             'page' => $page,
             'per_page' => $perPage,
             'data' => $results,
+            'input' => $validated
         ]);
     }
 }
