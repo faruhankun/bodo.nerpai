@@ -61,10 +61,10 @@
                     @endphp
 
                     @switch($summary_type)
-                        @case('txs')
+                        @case('stockflow')
                             @include('primary.inventory.supplies.partials.summary-txs')
                         @break
-                        @case('items')
+                        @case('stockflow_items')
                             @include('primary.inventory.supplies.partials.summary-items')
                         @break
                     @endswitch

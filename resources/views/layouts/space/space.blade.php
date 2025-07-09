@@ -116,6 +116,30 @@
                     'route' => "summaries.index",
                     'text' => 'Summary Reports',
                 ],
+                'balance_sheet' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "accountsp.summary",
+                    'text' => 'Neraca',
+                    'route_params' => [
+                        'summary_type' => 'balance_sheet',
+                    ],
+                ],
+                'profit_loss' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "accountsp.summary",
+                    'text' => 'Laba Rugi',
+                    'route_params' => [
+                        'summary_type' => 'profit_loss',
+                    ],
+                ],
+                'cashflow' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "accountsp.summary",
+                    'text' => 'Arus Kas',
+                    'route_params' => [
+                        'summary_type' => 'cashflow',
+                    ],
+                ]
             ]
         ],
         'Access' => [

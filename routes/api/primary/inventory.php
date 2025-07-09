@@ -14,6 +14,9 @@ Route::middleware([
         Route::get('/import', 'importTemplate');
         Route::post('/import', 'importData');
         Route::get('/export', 'exportData');
+
+        Route::get('/summary', 'summary');
+        Route::get('/transactions', 'getTransactions');
     });
 
     Route::prefix('accounts')->controller(AccountController::class)->group(function () {

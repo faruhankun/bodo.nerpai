@@ -332,16 +332,14 @@ class InventoryController extends Controller
     
     // Summaries
     public $summary_types = [
-        'txs' => 'Transactions',
-        'items' => 'Items',
+        'stockflow' => 'Arus Stock',
+        'stockflow_items' => 'Arus Stok per Item',
     ];
 
     public function summary(Request $request)
     {
-        $space_id = session('space_id') ?? null;
-        if(is_null($space_id)){
-            abort(403);
-        }
+        $space_id = get_space_id($request);
+        $request_source = get_request_source($request);
 
         $space = Space::findOrFail($space_id);
         $spaces = $space->spaceAndChildren();
@@ -380,6 +378,23 @@ class InventoryController extends Controller
         $data->summary_types = $this->summary_types;
         $data->items_list = Item::all()->keyBy('id');
         $data = $this->getSummaryData($data, $txs, $spaces, $validated);
+
+
+
+        if($request_source == 'api'){
+            $data_summary = [];
+            if(isset($validated['summary_type']) && isset($data->{$validated['summary_type']})){
+                $data_summary = $data->{$validated['summary_type']};
+            }
+
+            return response()->json([
+                'data' => $data_summary,
+                'summary_types' => $this->summary_types,
+                'success' => true,
+                'spaces' => $spaces->toArray(),
+                'input' => $validated,
+            ]);
+        }
 
         return view('primary.inventory.supplies.summary', compact('data', 'txs', 'spaces'));
     }
@@ -465,7 +480,10 @@ class InventoryController extends Controller
         }
 
         $data->spaces_data = $spaces_data;
+        $data->stockflow = $spaces_data;
+    
         $data->items_data = $items_data;
+        $data->stockflow_items = $items_data;
 
         return $data;
     }
