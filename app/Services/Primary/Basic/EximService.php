@@ -42,6 +42,7 @@ class EximService
     public function exportCSV($data = [], $columns = [])
     {
         $filename = $data['filename'] ?? "export_template.csv";
+        $request_source = $data['request_source'] ?? 'web';
 
         // Open a memory "file" for writing CSV data
         $callback = function () use ($columns) {
@@ -65,11 +66,13 @@ class EximService
                 fclose($file);
 
             } catch (\Exception $e) {
+                if($request_source == 'api'){ return response()->json(['message' => $e->getMessage(), 'success' => false, 'data' => []], 500); }
+
                 return back()->with('error', 'Error exporting CSV file. Please contact the administrator.' . $e->getMessage());
             }
         };
 
-        return Response::stream($callback, 200, [
+        return response()->stream($callback, 200, [
             "Content-type"        => "text/csv",
             "Content-Disposition" => "attachment; filename=$filename",
             "Pragma"              => "no-cache",

@@ -83,28 +83,64 @@ class JournalSupplyController extends Controller
 
     public function store(Request $request)
     {
+        $request_source = get_request_source($request);
+        $space_id = get_space_id($request);
+
         try {
             $validated = $request->validate([
-                'space_id' => 'required',
                 'sender_id' => 'required',
-                'sent_time' => 'required',
+                'sent_time' => 'nullable',
                 'sender_notes' => 'nullable|string|max:255',
             ]);
 
             $data = [
-                'space_id' => $validated['space_id'],
+                'space_id' => $space_id,
                 'sender_id' => $validated['sender_id'],
-                'sent_time' => $validated['sent_time'],
+                'sent_time' => $validated['sent_time'] ?? now(),
                 'sender_notes' => $validated['sender_notes'],
             ];
 
             $journal = $this->journalSupply->addJournal($data);
 
+
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => array($journal),
+                    'success' => true,
+                    'message' => "Journal {$journal->id} Created Successfully!",
+                ]);
+            }
+
+
             return redirect()->route('journal_supplies.edit', $journal->id)
                             ->with('success', "Journal {$journal->id} Created Successfully!");
         } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'message' => $th->getMessage(),
+                ]);
+            }
+
             return back()->with('error', 'Something went wrong. Please try again.');
         }
+    }
+
+
+    public function show(String $id)
+    {
+        try {
+            $journal = Transaction::with(['details', 'details.detail', 'details.detail.item'])->findOrFail($id);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
+        }
+
+        return response()->json([
+            'data' => array($journal),
+            'recordFiltered' => 1,
+            'success' => true,
+        ]);
     }
 
 
@@ -124,9 +160,12 @@ class JournalSupplyController extends Controller
 
     public function update(String $id, Request $request)
     {
+        $request_source = get_request_source($request);
+
+
         try {
             $validated = $request->validate([
-                'sent_time' => 'required',
+                'sent_time' => 'nullable',
                 'handler_id' => 'required',
                 'handler_notes' => 'nullable|string|max:255',
                 'details' => 'nullable|array',
@@ -144,35 +183,61 @@ class JournalSupplyController extends Controller
             $journal = Transaction::with(['details'])->findOrFail($id);
 
             $data = [
-                'sent_time' => $validated['sent_time'],
-                'handler_notes' => $validated['handler_notes'],
+                'sent_time' => $validated['sent_time'] ?? now(),
+                'handler_notes' => $validated['handler_notes'] ?? null,
                 'handler_type' => 'PLAY',
                 'handler_id' => $validated['handler_id'],
             ];
 
             $this->journalSupply->updateJournal($journal, $data, $validated['details']);
 
+
+
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => array($journal),
+                    'success' => true,
+                    'message' => "Journal {$journal->id} updated successfully!",
+                ]);
+            }
+
             return redirect()->route('journal_supplies.index')
                 ->with('success', "Journal {$journal->id} updated successfully!");
         } catch (\Throwable $th) {
-            // Log the error if needed
+            if($request_source == 'api'){
+                return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
+            }
+
             return back()->with('error', 'Something went wrong. Please try again.');
         }
     }
 
 
 
-    public function destroy(String $id)
+    public function destroy(Request $request, String $id)
     {
+        $request_source = get_request_source($request);
+
         try {
             $journal = Transaction::findOrFail($id);
             $journal->delete();
 
             $journal->details()->delete();
 
+
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => array($journal),
+                    'success' => true,
+                    'message' => 'Journal Entry deleted successfully',
+                ]);
+            }
             return redirect()->route('journal_supplies.index')
                 ->with('success', 'Journal Entry deleted successfully');
         } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
+            }
             return back()->with('error', 'Failed to delete journal entry. Please try again.');
         }
     }
@@ -192,6 +257,8 @@ class JournalSupplyController extends Controller
                 ->orWhere('transactions.number', 'like', "%$search%");
             });
         }
+
+        $query->orderBy('transactions.id', 'desc');
 
         return DataTables::of($query)
             ->addColumn('actions', function ($data) {
@@ -215,10 +282,7 @@ class JournalSupplyController extends Controller
 
     
     public function getQueryData(Request $request){
-        $space_id = $request->space_id ?? (session('space_id') ?? null);
-        if(is_null($space_id)){
-            abort(403);
-        }
+        $space_id = get_space_id($request);
 
         // $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
         //     ->where('model_type', 'JS')
@@ -235,8 +299,7 @@ class JournalSupplyController extends Controller
                     ->where('inventories.item_type', '=', 'ITM');
             })
             ->where('transactions.model_type', 'JS') // atau sesuaikan kebutuhanmu
-            ->groupBy('transactions.id')
-            ->limit(10);
+            ->groupBy('transactions.id');
 
 
         $query = $query->where('transactions.space_type', 'SPACE')
@@ -257,13 +320,27 @@ class JournalSupplyController extends Controller
 
     public function exportData(Request $request)
     {
+        $request_source = get_request_source($request);
         $params = json_decode($request->get('params'), true);
         
+
         $query = $this->getQueryData($request);
         // search & order filter
         $query = $this->eximService->exportQuery($query, $params, ['id', 'sent_time', 'number', 'sender_notes', 'total']);
 
-        $query->take(10000);
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(50);
+        }
+
+
+        // $query->take(10000);
         $collects = $query->get();
 
 
@@ -296,7 +373,7 @@ class JournalSupplyController extends Controller
             }
         }
 
-        $response = $this->eximService->exportCSV(['filename' => $filename], $data);
+        $response = $this->eximService->exportCSV(['filename' => $filename, 'request_source' => $request_source], $data);
 
         return $response;
     }
@@ -304,8 +381,11 @@ class JournalSupplyController extends Controller
 
     public function importData(Request $request)
     {
-        $space_id = $request->space_id ?? (session('space_id') ?? null);
+        $space_id = get_space_id($request);
+        $request_source = get_request_source($request);
         $player_id = $request->player_id ?? (session('player_id') ?? auth()->user()->player->id);
+
+        DB::beginTransaction();
 
         try {
             $validated = $request->validate([
@@ -429,6 +509,8 @@ class JournalSupplyController extends Controller
                     // update
                     $this->journalSupply->updateJournal($tx, $header, $tx_details->toArray());
                 } catch (\Throwable $e) {
+                    if($request_source == 'api'){ return response()->json(['message' => $e->getMessage(), 'success' => false, 'data' => []], 500); }
+
                     return back()->with('error', 'Theres an error on tx number ' . $txnNumber . '. Please try again.' . $e->getMessage());
                 }
             }
@@ -436,13 +518,21 @@ class JournalSupplyController extends Controller
 
             // Jika ada row yang gagal, langsung return CSV dari memory
             if (count($failedRows) > 0) {
+                DB::rollBack();
+
                 $filename = 'failed_import_' . now()->format('Ymd_His') . '.csv';
                 
-                $this->eximService->exportCSV(['filename' => $filename], $failedRows);
+                $this->eximService->exportCSV(['filename' => $filename, 'request_source' => $request_source], $failedRows);
             }
 
+
+            DB::commit();
+            if($request_source == 'api'){ return response()->json(['message' => 'CSV uploaded and processed Successfully!', 'success' => true, 'data' => []], 200); }
             return redirect()->route('journal_supplies.index')->with('success', 'CSV uploaded and processed Successfully!');
         } catch (\Throwable $th) {
+
+            DB::rollBack();
+            if($request_source == 'api'){ return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500); }
             return back()->with('error', 'Failed to import csv. Please try again.' . $th->getMessage());
         }
     }
