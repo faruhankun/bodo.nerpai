@@ -8,10 +8,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Models\User;
 
+use Spatie\Permission\Traits\HasRoles;
+
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Player extends Model
 {
+    use HasRoles;
+
+    protected $guarded = [];
+
+    protected $guard_name = 'web';
+
     protected $connection = 'primary';
     
     protected $table = 'players';

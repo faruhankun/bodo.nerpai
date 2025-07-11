@@ -27,6 +27,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
+    protected $guarded = [];
+
     protected $guard_name = 'web';
 
     // Kolom dan relasi yang ada di User tidak berubah
