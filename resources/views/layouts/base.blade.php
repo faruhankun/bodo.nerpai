@@ -86,6 +86,13 @@
     <!-- <script src="//unpkg.com/alpinejs" defer></script> -->
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+
+    
+
+    <!-- load css dan js dari build react  -->
+    <link rel="stylesheet" href="{{ asset('react/assets/index.css') }}" />
+    <!-- <script type="module" src="{{ asset('react/assets/index.js') }}"></script> -->
 </head>
 
 <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900">

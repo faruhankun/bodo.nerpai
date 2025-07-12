@@ -35,4 +35,7 @@ storage/framework/views/.gitignore
 storage/logs/.gitignore
 config/migrate_client.php
 
+public/react
+fe/node_modules
+
 bun.lock

@@ -74,6 +74,9 @@ Route::middleware([
     SpaceMiddleware::class,
 ])->group(function () {
     Route::get('/dashboard-space', function () { return view('primary.reports.index'); })->name('dashboard_space');
+
+
+    Route::get('/page', function () { return view('primary.page'); })->name('spaces-test');
 });
 
 
