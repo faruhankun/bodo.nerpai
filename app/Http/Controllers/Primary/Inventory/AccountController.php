@@ -44,12 +44,27 @@ class AccountController extends Controller
 
 
     public function search(Request $request){
-        $query = $this->getQueryData($request);
+        $space_id = get_space_id($request);
+
+        $query = Inventory::with('type', 'parent')
+                            ->where('model_type', 'ACC')
+                            ->where('space_type', 'SPACE')
+                            ->where('space_id', $space_id);
+
+
+        // if children requested
+        $children = $request->get('with_children');
+        if($children){
+        }
+        $query->with('children');
+
+
 
         $keyword = $request->get('q');
         if($keyword){
             $query->where(function($q) use ($keyword){
                 $q->where('code', 'like', "%{$keyword}%")
+                ->orWhere('id', 'like', "%{$keyword}%")
                 ->orWhere('name', 'like', "%{$keyword}%")
                 ->orWhere('notes', 'like', "%{$keyword}%")
                 ->orWhereHas('type', function ($q2) use ($keyword) {
@@ -81,13 +96,25 @@ class AccountController extends Controller
             $query->whereDoesntHave('children');
         }
 
+
+        // parent id
+        $parent_id = $request->get('parent_id');
+        if($parent_id){
+            $query->where('parent_id', $parent_id);
+        }
+
+
+
         return DataTables::of($query)
             ->addColumn('has_children', function ($data) {
-                return $data->children->count() > 0 ? true : false;
+                return $data->children()->exists();
             })
             ->addColumn('children_count', function ($data) {
                 return $data->children->count();
             })
+            // ->addColumn('children', function ($data) {
+            //     return $data->children()->exists() ? collect($data->children) : null;
+            // })
             ->make(true);
     }
 

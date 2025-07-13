@@ -10,6 +10,9 @@
         data-space-id="{{ $space_id }}">
     </div>
 
+    <div id="react-page-accounts">
+    </div>
+
 
     <script type="module" src="{{ asset('react/assets/index.js') }}"></script>
 </x-dynamic-component>

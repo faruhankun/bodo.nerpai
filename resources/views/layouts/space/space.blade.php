@@ -105,6 +105,12 @@
                     'route' => "accountsp.index",
                     'text' => 'Accounts',
                 ],
+                'accounts' => [
+                    'auth' => $settings['accounting'],
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "accounts.index",
+                    'text' => 'Akun',
+                ]
             ]
         ],
         'Summary' => [
