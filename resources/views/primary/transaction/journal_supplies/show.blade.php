@@ -35,7 +35,7 @@
             <x-table.table-tbody>
                 @foreach ($data->details as $detail)
                     <x-table.table-tr>
-                        <x-table.table-td>{{ $detail->detail?->name ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ $detail->detail?->sku ?? '?' }} : {{ $detail->detail?->name ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ number_format($detail->quantity, 0) }}</x-table.table-td>
                         <x-table.table-td>{{ $detail->model_type ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td class="py-4">Rp{{ number_format($detail->cost_per_unit, 2) }}</x-table.table-td>

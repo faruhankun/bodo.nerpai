@@ -18,8 +18,9 @@ class ItemController extends Controller
         $space_id = get_space_id($request);
 
         $query = Item::with('inventories')
-                    ->where('space_type', 'SPACE')
-                    ->where('space_id', $space_id);
+                    ->whereHas('inventories', function ($q2) use ($space_id) {
+                        $q2->where('space_id', $space_id);
+                    });
 
 
         // Limit
@@ -182,8 +183,9 @@ class ItemController extends Controller
         $space_id = get_space_id($request);
 
         $items = Item::with('inventories')
-                    ->where('space_type', 'SPACE')
-                    ->where('space_id', $space_id);
+                    ->whereHas('inventories', function ($query) use ($space_id) {
+                        $query->where('space_id', $space_id);
+                    });
 
         return DataTables::of($items)
             ->addColumn('actions', function ($data) {

@@ -18,7 +18,7 @@
 
 
     $settings = [
-        'supplies' => get_variable('space.setting.supplies') ?? false,
+        'supplies' => get_variable('space.setting.supplies') ?? true,
 
         'accounting' => get_variable('space.setting.accounting') ?? true,
     ];

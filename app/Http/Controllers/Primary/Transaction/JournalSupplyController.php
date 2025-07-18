@@ -456,7 +456,9 @@ class JournalSupplyController extends Controller
     
                             // check for supply
                             $supply = Inventory::where('model_type', 'SUP')
-                                                ->where('item_type', 'ITM');
+                                                ->where('item_type', 'ITM')
+                                                ->where('space_type', 'SPACE')
+                                                ->where('space_id', $space_id);
     
                             
                             // check supply exists
