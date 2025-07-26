@@ -16,9 +16,7 @@ Route::middleware([
     SpaceMiddleware::class,
 ])->group(function () {
     // accounts
-    Route::get('accounts', function () {
-        return view('primary.inventory.accounts.index');
-    });
+    Route::get('/accounts', function () { return view('primary.inventory.accounts.page'); })->name('accounts');
 
-
+    Route::get('/spacesr', function () { return view('primary.spaces.page'); })->name('spacesr');
 });

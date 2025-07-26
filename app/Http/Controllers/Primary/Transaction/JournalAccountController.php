@@ -261,11 +261,11 @@ class JournalAccountController extends Controller
     }
 
 
-    public function getJournalAccountsData()
+    public function getJournalAccountsData(Request $request)
     {
         $space_id = session('space_id') ?? null;
 
-        $journal_accounts = Transaction::with('input', 'type')
+        $journal_accounts = Transaction::with('input', 'type', 'details')
                     ->where('model_type', 'JE')
                     ->orderBy('sent_time', 'desc');
 
@@ -275,6 +275,21 @@ class JournalAccountController extends Controller
         } else {
             $journal_accounts->whereRaw('1 = 0');
         }
+
+        
+        
+
+        // search
+        if($request->has('search') && $request->search['value']) {
+            $search = $request->search['value'];
+            $journal_accounts->where(function ($query) use ($search) {
+                $query->where('transactions.sender_notes', 'like', "%$search%")
+                    ->orWhereHas('details', function ($q2) use ($search) {
+                        $q2->where('notes', 'like', "%$search%");
+                    });
+            });
+        }
+
 
         return DataTables::of($journal_accounts)
             ->addColumn('actions', function ($data) {

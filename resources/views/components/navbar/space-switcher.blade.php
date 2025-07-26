@@ -13,9 +13,12 @@
         $children_spaces = $related_spaces->where('parent_id', '==', $space_id) ?? [];
         
         $related_spaces = $parent_space->merge($children_spaces);
-    } else {
-        $related_spaces = $player?->spacesWithDescendants() ?? [];
+    } else {    
+        // $related_spaces = $player?->spacesWithDescendants() ?? [];
     }
+
+    $related_spaces = $player?->spacesWithDescendants() ?? [];
+
 @endphp
 
 <div class="mr-3 relative" x-data="{ open: false }">

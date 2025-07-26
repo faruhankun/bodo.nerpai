@@ -58,3 +58,15 @@ if(!function_exists('get_request_source')){
         return $source;
     }
 }
+
+
+
+if(!function_exists('get_token_web')) {
+    function get_token_web(Request $request) {
+        if(!session('token')) {
+            session(['token' => auth()->user()->createToken('react-web')->plainTextToken]);
+        }
+
+        return session('token');
+    }
+}

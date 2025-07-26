@@ -91,7 +91,7 @@
     
 
     <!-- load css dan js dari build react  -->
-    <link rel="stylesheet" href="{{ asset('react/assets/index.css') }}" />
+    <!-- <link rel="stylesheet" href="{{ asset('react/assets/index.css') }}" /> -->
     <!-- <script type="module" src="{{ asset('react/assets/index.js') }}"></script> -->
 </head>
 

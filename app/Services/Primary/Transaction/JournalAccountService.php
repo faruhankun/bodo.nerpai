@@ -26,6 +26,7 @@ class JournalAccountService
             'space_type' => 'SPACE',
             'space_id' => $data['space_id'] ?? $space_id,
             'model_type' => 'JE',
+            'number' => $data['number'] ?? null,
             'sender_type' => $data['sender_type'] ?? 'PLAY',
             'sender_id' => $data['sender_id'] ?? $player->id,
             'input_type' => $data['input_type'] ?? null,

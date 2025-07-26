@@ -11,7 +11,7 @@
 
     // Navbar
     $navbar_right = [
-        'navbar.player-switcher',
+        // 'navbar.player-switcher',
         'navbar.space-switcher',
     ];
 
@@ -31,7 +31,7 @@
         ],
         'Space' => [
             'dropdown_id' => 'spaces',
-            'dropdown_text' => 'Spaces',
+            'dropdown_text' => 'Lahan',
             'dropdown_items' => [
                 'spaces' => [
                     'auth' => true,
@@ -39,88 +39,61 @@
                     'route' => "spaces.index",
                     'text' => 'Spaces',
                 ],
+                'spacesr' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "spacesr",
+                    'text' => 'Lahan (beta)',
+                ]
             ]
         ],
-        'Transaction' => [
-            'dropdown_id' => 'transactions',
-            'dropdown_text' => 'Transactions',
-            'dropdown_items' => [
-                'trade' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "trades.index",
-                    'text' => 'Trades',
-                ],
-                'journal_supplies' => [
-                    'auth' => $settings['supplies'],
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "journal_supplies.index",
-                    'text' => 'Journal Supplies',
-                ],
-                'journal_accounts' => [
-                    'auth' => $settings['accounting'],
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "journal_accounts.index",
-                    'text' => 'Journal Accounts',
-                ],
-            ]
-        ],
-        'Players' => [
-            'dropdown_id' => 'players',
-            'dropdown_text' => 'Players',
-            'dropdown_items' => [
-                'contacts' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "contacts.index",
-                    'text' => 'Contacts',
-                ],
-                'space_players' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "space_players.index",
-                    'text' => 'Space Players',
-                ],
-            ]
-        ],
-        'Inventories' => [
-            'dropdown_id' => 'inventories',
-            'dropdown_text' => 'Inventories',
+
+        'Supplies' => [
+            'dropdown_id' => 'supplies',
+            'dropdown_text' => 'Persediaan',
             'dropdown_items' => [
                 'items' => [
-                    'auth' => true,
                     'icon' => 'icon-checklist-paper',
                     'route' => "items.index",
-                    'text' => 'Items',
+                    'text' => 'Barang (items)',
                 ],
                 'supplies' => [
                     'auth' => $settings['supplies'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "supplies.index",
-                    'text' => 'Supplies',
+                    'text' => 'Persediaan',
                 ],
+                'journal_supplies' => [
+                    'auth' => $settings['supplies'],
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "journal_supplies.index",
+                    'text' => 'Journal Stok',
+                ],
+                'stockflow' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "supplies.summary",
+                    'text' => 'Arus Mutasi Stok',
+                    'route_params' => [
+                        'summary_type' => 'stockflow',
+                    ],
+                ],
+            ]
+        ],
+
+        'Accounting' => [
+            'dropdown_id' => 'accounting',
+            'dropdown_text' => 'Akunting',
+            'dropdown_items' => [
                 'accountsp' => [
                     'auth' => $settings['accounting'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "accountsp.index",
-                    'text' => 'Accounts',
+                    'text' => 'Akun',
                 ],
-                'accounts' => [
+                'journal_accounts' => [
                     'auth' => $settings['accounting'],
                     'icon' => 'icon-checklist-paper',
-                    'route' => "accounts.index",
-                    'text' => 'Akun',
-                ]
-            ]
-        ],
-        'Summary' => [
-            'dropdown_id' => 'summary',
-            'dropdown_text' => 'Summary',
-            'dropdown_items' => [
-                'summaries' => [
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "summaries.index",
-                    'text' => 'Summary Reports',
+                    'route' => "journal_accounts.index",
+                    'text' => 'Jurnal Umum',
                 ],
                 'balance_sheet' => [
                     'icon' => 'icon-checklist-paper',
@@ -145,7 +118,55 @@
                     'route_params' => [
                         'summary_type' => 'cashflow',
                     ],
-                ]
+                ],
+                'accounts' => [
+                    'auth' => $settings['accounting'],
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "accounts",
+                    'text' => 'Akun (beta)',
+                ],
+            ]
+        ],
+
+        'Transaction' => [
+            'dropdown_id' => 'transactions',
+            'dropdown_text' => 'Transaksi',
+            'dropdown_items' => [
+                'trade' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "trades.index",
+                    'text' => 'Trades',
+                ],
+            ]
+        ],
+        'Players' => [
+            'dropdown_id' => 'players',
+            'dropdown_text' => 'Pemain',
+            'dropdown_items' => [
+                'contacts' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "contacts.index",
+                    'text' => 'Contacts',
+                ],
+                'space_players' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "space_players.index",
+                    'text' => 'Space Players',
+                ],
+            ]
+        ],
+        'Summary' => [
+            'dropdown_id' => 'summary',
+            'dropdown_text' => 'Summary',
+            'dropdown_items' => [
+                'summaries' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "summaries.index",
+                    'text' => 'Summary Reports',
+                ],
             ]
         ],
         'Access' => [

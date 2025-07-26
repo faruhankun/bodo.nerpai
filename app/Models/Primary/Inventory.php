@@ -153,6 +153,9 @@ class Inventory extends Model
 
         $balance = $debit - $credit;
         $this->balance = $balance;
+        if($balance == 0){
+            $balance = 1;
+        }
 
         $balance_cost = $debit_cost - $credit_cost;
         $this->cost_per_unit = $balance_cost >= 0 ? $balance_cost / $balance : 0;

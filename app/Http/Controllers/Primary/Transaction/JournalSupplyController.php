@@ -401,7 +401,6 @@ class JournalSupplyController extends Controller
             $data = $this->eximService->convertCSVtoArray($file, ['requiredHeaders' => $requiredHeaders]);
 
 
-
             // Group by transaction number
             $data_by_number = collect($data)->groupBy('number');
 
@@ -511,6 +510,8 @@ class JournalSupplyController extends Controller
                     // update
                     $this->journalSupply->updateJournal($tx, $header, $tx_details->toArray());
                 } catch (\Throwable $e) {
+                    DB::rollBack();
+
                     if($request_source == 'api'){ return response()->json(['message' => $e->getMessage(), 'success' => false, 'data' => []], 500); }
 
                     return back()->with('error', 'Theres an error on tx number ' . $txnNumber . '. Please try again.' . $e->getMessage());

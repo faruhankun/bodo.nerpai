@@ -1,7 +1,7 @@
 @php
     $layout = $layout ?? session('layout') ?? 'lobby';
 
-    $token = session('token') ?? auth()->user()->createToken('react-web')->plainTextToken;
+    $token = get_token_web(request());
     $space_id = get_space_id(request());
 @endphp
 <x-dynamic-component :component="'layouts.' . $layout">
@@ -10,7 +10,7 @@
         data-space-id="{{ $space_id }}">
     </div>
 
-    <div id="react-page-accounts">
+    <div id="react-page-spaces">
     </div>
 
 

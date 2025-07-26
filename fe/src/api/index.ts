@@ -3,6 +3,16 @@ import ky from "ky";
 // const getToken = () => getCookie("token") as string | null;
 // const getSpaceId = () => getCookie("space_id") as string | null;
 
+let token: string | null = null;
+let spaceId: string | null = null;
+
+const setApiContext = (_token: string | null, _spaceId: string | null) => {
+  token = _token;
+  spaceId = _spaceId;
+}
+
+
+
 const createApi = (token: string | null, spaceId: string | null) =>
   ky.create({
     prefixUrl: "/api",
@@ -30,4 +40,9 @@ const createApi = (token: string | null, spaceId: string | null) =>
     },
   });
 
-export { createApi };
+
+
+const api = createApi(token, spaceId);
+const getApi = () => createApi(token, spaceId);
+
+export { createApi, api, setApiContext, getApi };

@@ -35,7 +35,7 @@
                 {
                     data: 'sent_time',
                     render: function(data) {
-                        return new Date(data).toLocaleDateString();
+                        return new Date(data).toLocaleDateString('id-ID');
                     }
                 },
                 {

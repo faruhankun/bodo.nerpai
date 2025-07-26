@@ -111,7 +111,7 @@
                 <tr class="detail-row">
                     <td class="mb-2">${rowIndex + 1}</td>
                     <td>
-                        <select name="details[${rowIndex}][detail_id]" class="inventory-select w-full" required>
+                        <select name="details[${rowIndex}][detail_id]" class="inventory-select w-20" required>
                             <option value="">Select Inventory</option>
                         </select>
                     </td>
@@ -142,7 +142,7 @@
                 placeholder: 'Search & Select Supply',
                 minimumInputLength: 2,
                 width: '100%',
-                padding: '0px 12px',
+                padding: '20px',
                 ajax: {
                     url: '/supplies/search',
                     dataType: 'json',

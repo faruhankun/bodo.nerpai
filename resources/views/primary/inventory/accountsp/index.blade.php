@@ -116,7 +116,7 @@
             processing: true,
             serverSide: true,
             ajax: "{{ route('accountsp.data') }}",
-            pageLength: 10,
+            pageLength: 100,
             columns: [
                 { data: 'code' },
                 { data: 'name' },
