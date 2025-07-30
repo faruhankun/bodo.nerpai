@@ -54,24 +54,24 @@
                 'items' => [
                     'icon' => 'icon-checklist-paper',
                     'route' => "items.index",
-                    'text' => 'Barang (items)',
+                    'text' => 'Daftar Barang',
                 ],
                 'supplies' => [
                     'auth' => $settings['supplies'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "supplies.index",
-                    'text' => 'Persediaan',
+                    'text' => 'Daftar Akun Persediaan',
                 ],
                 'journal_supplies' => [
                     'auth' => $settings['supplies'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "journal_supplies.index",
-                    'text' => 'Journal Stok',
+                    'text' => 'Mutasi Stok',
                 ],
                 'stockflow' => [
                     'icon' => 'icon-checklist-paper',
                     'route' => "supplies.summary",
-                    'text' => 'Arus Mutasi Stok',
+                    'text' => 'Rangkuman Mutasi Stok',
                     'route_params' => [
                         'summary_type' => 'stockflow',
                     ],

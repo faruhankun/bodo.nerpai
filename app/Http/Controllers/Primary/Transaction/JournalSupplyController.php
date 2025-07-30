@@ -251,11 +251,14 @@ class JournalSupplyController extends Controller
         if ($request->has('search') && $request->search['value']) {
             $search = $request->search['value'];
 
-            $query->where(function ($q) use ($search) {
-                $q->where('items.sku', 'like', "%$search%")
-                ->orWhere('items.name', 'like', "%$search%")
-                ->orWhere('transactions.number', 'like', "%$search%");
-            });
+            $query->where('items.name', 'like', "%$search%")
+                ->orWhere('items.code', 'like', "%$search%")
+                ->orWhere('items.sku', 'like', "%$search%")
+                ->orWhere('transactions.number', 'like', "%$search%")
+                ->orWhere('transactions.sender_notes', 'like', "%$search%")
+                ->orWhere('transactions.handler_notes', 'like', "%$search%")
+                ->orWhere('transaction_details.notes', 'like', "%$search%")
+                ;
         }
 
         $query->orderBy('transactions.id', 'desc');
@@ -288,7 +291,7 @@ class JournalSupplyController extends Controller
         //     ->where('model_type', 'JS')
         //     ->orderBy('sent_time', 'desc');
         $query = Transaction::query()
-            ->selectRaw('transactions.*, GROUP_CONCAT(items.name SEPARATOR ", ") as sku_list')
+            ->selectRaw('transactions.*, GROUP_CONCAT(items.sku SEPARATOR ", ") as sku_list')
             ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->join('inventories', function ($join) {
                 $join->on('inventories.id', '=', 'transaction_details.detail_id')

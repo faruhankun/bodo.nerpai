@@ -39,7 +39,7 @@
                         </div>
                     </div>
 
-                    <x-table.table-table id="{{ $table_id }}">
+                    <x-table.table-table id="{{ $table_id }}" class="cell-border">
                         <x-table.table-thead>
                             <tr>
                                 @foreach($thead as $th)

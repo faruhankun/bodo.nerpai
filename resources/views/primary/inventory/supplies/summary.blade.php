@@ -19,7 +19,7 @@
         <div class="max-w-7xl my-10 mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
-                    <h3 class="text-3xl font-bold dark:text-white">Rangkuman Supplies</h3>
+                    <h3 class="text-3xl font-bold dark:text-white">Rangkuman Mutasi Stok</h3>
                     <div class="flex justify-between items-center m-4 border-solid border-2 dark:border-gray-700">
                         <form action="{{ route('supplies.summary') }}" method="GET">
                             <div class="grid grid-cols-4 border-solid border-2">

@@ -222,7 +222,7 @@ class ItemController extends Controller
             ->map(function ($item) {
                 return [
                     'id' => $item->id,
-                    'text' => "{$item->id} - {$item->sku} - {$item->name} : {$item->notes}",
+                    'text' => "{$item->sku} - {$item->name} : {$item->notes}",
                 ];
             });
 

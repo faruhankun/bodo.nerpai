@@ -1,7 +1,7 @@
 <x-crud.index-basic header="Items" 
                 model="item" 
                 table_id="indexTable"
-                :thead="['ID', 'Code', 'SKU', 'Name', 'Price', 'Status', 'Notes', 'Actions']"
+                :thead="['SKU', 'Name', 'Price', 'Status', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
         @include('primary.items.create')
@@ -47,8 +47,8 @@ $(document).ready(function() {
         serverSide: true,
         ajax: "{{ route('items.data') }}",
         columns: [
-            { data: 'id' },
-            { data: 'code' },
+            // { data: 'id' },
+            // { data: 'code' },
             { data: 'sku' },
             { data: 'name' },
             { data: 'price', 

@@ -10,7 +10,8 @@
 <x-crud.index-basic header="Supplies" 
                 model="supply" 
                 table_id="indexTable"
-                :thead="['Code', 'SKU', 'Space', 'Item', 'Qty', 'Cost_per_unit', 'Notes', 'Actions']"
+                :thead="[
+                    'SKU', 'Space', 'Item', 'Qty', 'Cost_per_unit', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
         @include('primary.inventory.supplies.create')
@@ -101,12 +102,20 @@
             ajax: "{{ route('supplies.data') }}",
             pageLength: 25,
             columns: [
-                { data: 'code' },
+                // { data: 'code' },
                 { data: 'sku' },
                 { data: 'space_display' },
                 { data: 'item_display' },
-                { data: 'balance' },
-                { data: 'cost_per_unit' },
+                { data: 'balance', render: function(data, type, row, meta) {
+                    return new Intl.NumberFormat('id-ID', {
+                        maximumFractionDigits: 2
+                    }).format(data);
+                }},
+                { data: 'cost_per_unit', render: function(data, type, row, meta) {
+                    return new Intl.NumberFormat('id-ID', {
+                        maximumFractionDigits: 2
+                    }).format(data);
+                }},
                 { data: 'notes' },
                 { data: 'actions', orderable: false, searchable: false }
             ]

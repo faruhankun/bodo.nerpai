@@ -29,6 +29,7 @@
                     <x-table.table-th>Quantity</x-table.table-th>
                     <x-table.table-th>Type</x-table.table-th>
                     <x-table.table-th>Cost/Unit</x-table.table-th>
+                    <x-table.table-th>Subtotal</x-table.table-th>
                     <x-table.table-th>Notes</x-table.table-th>
                 </tr>
             </x-table.table-thead>
@@ -38,7 +39,8 @@
                         <x-table.table-td>{{ $detail->detail?->sku ?? '?' }} : {{ $detail->detail?->name ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ number_format($detail->quantity, 0) }}</x-table.table-td>
                         <x-table.table-td>{{ $detail->model_type ?? 'N/A' }}</x-table.table-td>
-                        <x-table.table-td class="py-4">Rp{{ number_format($detail->cost_per_unit, 2) }}</x-table.table-td>
+                        <x-table.table-td class="py-4">{{ number_format($detail->cost_per_unit) }}</x-table.table-td>
+                        <x-table.table-td>{{ number_format($detail->quantity * $detail->cost_per_unit) }}</x-table.table-td>
                         <x-table.table-td>{{ $detail->notes ?? 'N/A' }}</x-table.table-td>
                     </x-table.table-tr>
                 @endforeach
