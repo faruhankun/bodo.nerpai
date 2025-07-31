@@ -13,6 +13,8 @@
     $actions['show_modal'] = $actions['show_modal'] ?? '';
     $actions['edit'] = $actions['edit'] ?? '';
     $actions['delete'] = $actions['delete'] ?? '';
+
+    $space_role = session('space_role') ?? null;
 @endphp
 
 <div class="flex gap-3 justify-end">
@@ -26,13 +28,17 @@
         <x-buttons.button-showjs onclick="showjs({{ $data }})"></x-buttons.button-showjs>
     @endif
 
-    @if($actions['edit'] == 'modal')
-        <x-button2 onclick="edit({{ $data }})" class="btn btn-primary">Edit</x-button2>
-    @elseif($actions['edit'] == 'button')
-       <x-button-edit :route="route($route . '.edit', $data->id)" />
-    @endif
 
-    @if($actions['delete'] == 'button')
-        <x-button-delete :route="route($route . '.destroy', $data->id)" />
+    @if($space_role == 'owner' || $space_role == 'admin')
+        @if($actions['edit'] == 'modal')
+            <x-button2 onclick="edit({{ $data }})" class="btn btn-primary">Edit</x-button2>
+        @elseif($actions['edit'] == 'button')
+        <x-button-edit :route="route($route . '.edit', $data->id)" />
+        @endif
+
+
+        @if($actions['delete'] == 'button')
+            <x-button-delete :route="route($route . '.destroy', $data->id)" />
+        @endif
     @endif
 </div>

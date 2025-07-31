@@ -5,6 +5,10 @@ namespace App\Models\Primary;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\Primary\TransactionDetail;
+
+
+
 class Transaction extends Model
 {
     use SoftDeletes;

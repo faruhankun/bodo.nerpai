@@ -248,20 +248,35 @@ class JournalSupplyController extends Controller
     {
         $query = $this->getQueryData($request);       
                                   
-        if ($request->has('search') && $request->search['value']) {
-            $search = $request->search['value'];
+        if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
+            $search = $request->search['value'] ?? $request->q;
 
-            $query->where('items.name', 'like', "%$search%")
-                ->orWhere('items.code', 'like', "%$search%")
-                ->orWhere('items.sku', 'like', "%$search%")
-                ->orWhere('transactions.number', 'like', "%$search%")
-                ->orWhere('transactions.sender_notes', 'like', "%$search%")
-                ->orWhere('transactions.handler_notes', 'like', "%$search%")
-                ->orWhere('transaction_details.notes', 'like', "%$search%")
-                ;
+            $query = $query->where(function ($q) use ($search) {
+                $q->where('transactions.id', 'like', "%{$search}%")
+                    ->orWhere('transactions.sent_time', 'like', "%{$search}%")
+                    ->orWhere('transactions.number', 'like', "%{$search}%")
+                    ->orWhere('transactions.sent_time', 'like', "%{$search}%")
+                    ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
+
+                $q->orWhereHas('details', function ($q2) use ($search) {
+                    $q2->where('transaction_details.notes', 'like', "%{$search}%")
+                        ->orWhere('transaction_details.model_type', 'like', "%{$search}%")
+                    ;
+                });
+
+                $q->orWhereHas('details.detail', function ($q2) use ($search) {
+                    $q2->where('inventories.name', 'like', "%{$search}%")
+                        ->orWhere('inventories.sku', 'like', "%{$search}%")
+                    ;
+                });
+            });
         }
 
-        $query->orderBy('transactions.id', 'desc');
+        $query = $query->orderBy('transactions.id', 'desc');
+
+        // dd($query->toSql(), $query->getBindings());
+
+
 
         return DataTables::of($query)
             ->addColumn('actions', function ($data) {
@@ -277,7 +292,13 @@ class JournalSupplyController extends Controller
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
             ->addColumn('sku', function ($data){
-                return $data->sku_list;
+                return $data->sku_list ?? '';
+            })
+            ->addColumn('details_first_notes', function ($data){
+                return $data->details->first()->notes ?? '';
+            })
+            ->filter(function ($query) use ($request) {
+                
             })
             ->rawColumns(['actions'])
             ->make(true);
@@ -287,22 +308,22 @@ class JournalSupplyController extends Controller
     public function getQueryData(Request $request){
         $space_id = get_space_id($request);
 
-        // $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
-        //     ->where('model_type', 'JS')
-        //     ->orderBy('sent_time', 'desc');
-        $query = Transaction::query()
-            ->selectRaw('transactions.*, GROUP_CONCAT(items.sku SEPARATOR ", ") as sku_list')
-            ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transactions.id')
-            ->join('inventories', function ($join) {
-                $join->on('inventories.id', '=', 'transaction_details.detail_id')
-                    ->where('transaction_details.detail_type', '=', 'IVT');
-            })
-            ->join('items', function ($join) {
-                $join->on('items.id', '=', 'inventories.item_id')
-                    ->where('inventories.item_type', '=', 'ITM');
-            })
-            ->where('transactions.model_type', 'JS') // atau sesuaikan kebutuhanmu
-            ->groupBy('transactions.id');
+        $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
+            ->where('model_type', 'JS')
+            ->orderBy('sent_time', 'desc');
+        // $query = Transaction::query()
+        //     ->selectRaw('transactions.*, GROUP_CONCAT(items.sku SEPARATOR ", ") as sku_list')
+        //     ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transactions.id')
+        //     ->join('inventories', function ($join) {
+        //         $join->on('inventories.id', '=', 'transaction_details.detail_id')
+        //             ->where('transaction_details.detail_type', '=', 'IVT');
+        //     })
+        //     ->join('items', function ($join) {
+        //         $join->on('items.id', '=', 'inventories.item_id')
+        //             ->where('inventories.item_type', '=', 'ITM');
+        //     })
+        //     ->where('transactions.model_type', 'JS') // atau sesuaikan kebutuhanmu
+        //     ->groupBy('transactions.id');
 
 
         $query = $query->where('transactions.space_type', 'SPACE')

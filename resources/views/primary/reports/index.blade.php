@@ -17,15 +17,6 @@
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                     
                     <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 mb-6">
-                        @if($settings['accounting'])
-                            <x-div-box-show title="Accounting" class="text-xl font-bold">
-                                <ul>
-                                    <li class="mb-3"><a href="{{ route('accountsp.summary') }}">Rangkuman Akun</a></li>
-                                    <li class="mb-3"><a href="{{ route('summaries.show', 'cashflow') }}">Cashflow</a></li>
-                                </ul>
-                            </x-div-box-show>
-                        @endif
-
                         @if($settings['supplies'])
                             <x-div-box-show title="Items" class="text-xl font-bold">
                                 <ul>

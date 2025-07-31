@@ -62,7 +62,9 @@
             ajax: "{{ route('contacts.data') }}",
             columns: [
                 { data: 'id' },
-                { data: 'model2.size.name' },
+                { data: 'model2.size.name', render: function(data, type, row) {
+                    return data ? data : 'N/A';
+                }},
                 { data: 'type' },
                 { data: 'status' },
                 { data: 'notes' },

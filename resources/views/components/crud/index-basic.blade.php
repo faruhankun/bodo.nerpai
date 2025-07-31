@@ -8,6 +8,8 @@
 
 @php
     $layout = $layout ?? session('layout');
+
+    $space_role = session('space_role') ?? null;
 @endphp
 <x-dynamic-component :component="'layouts.' . $layout">
     <x-slot name="header">
@@ -26,6 +28,7 @@
 
                     {{ $panel ?? '' }}
 
+                    @if($space_role == 'owner' || $space_role == 'admin')
                     <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 w-full mb-4">
                         <div class="form-group flex justify-left">
                             <div class="form-group flex gap-4">
@@ -38,6 +41,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <x-table.table-table id="{{ $table_id }}" class="cell-border">
                         <x-table.table-thead>

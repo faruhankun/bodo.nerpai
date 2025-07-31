@@ -17,7 +17,7 @@
         // $related_spaces = $player?->spacesWithDescendants() ?? [];
     }
 
-    $related_spaces = $player?->spacesWithDescendants() ?? [];
+    $related_spaces = $player?->spaces ?? [];
 
 @endphp
 

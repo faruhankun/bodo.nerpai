@@ -44,7 +44,9 @@ $(document).ready(function() {
         ajax: "{{ route('space_players.data') }}",
         columns: [
             { data: 'code' },
-            { data: 'size.name' },
+            { data: 'size.name', render: function(data, type, row) {
+                return data ? data : 'N/A';
+            }},
             { data: 'pivot.type' },
             { data: 'pivot.status' },
             { data: 'pivot.notes' },

@@ -332,6 +332,17 @@ class SpaceController extends Controller
 		Session::put('space_name', $space->name);
 		Session::put('layout', 'space');
 
+        $player_id = get_player_id($request, false);
+        $relation = Relation::where('model1_type', 'SPACE')
+                            ->where('model1_id', $space_id)
+                            ->where('model2_type', 'PLAY')
+                            ->where('model2_id', $player_id)
+                            ->first();
+
+        if($relation){
+            Session::put('space_role', $relation->type);
+        }
+
         return redirect()->route('dashboard_space')->with('success', "Anda masuk ke {$space->name}");
     }
 

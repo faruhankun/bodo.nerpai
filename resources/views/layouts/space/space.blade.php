@@ -9,6 +9,9 @@
     ];
 
 
+    $space_role = session('space_role') ?? null;
+
+
     // Navbar
     $navbar_right = [
         // 'navbar.player-switcher',
@@ -18,9 +21,9 @@
 
 
     $settings = [
-        'supplies' => get_variable('space.setting.supplies') ?? true,
+        'supplies' => get_variable('space.setting.supplies') ?? ($space_role == 'admin' ? true : ($space_role == 'owner' ? true : false)),
 
-        'accounting' => get_variable('space.setting.accounting') ?? true,
+        'accounting' => get_variable('space.setting.accounting') ?? ($space_role == 'admin' ? true : ($space_role == 'owner' ? true : false)),
     ];
 
     $sidebar = [
@@ -96,6 +99,7 @@
                     'text' => 'Jurnal Umum',
                 ],
                 'balance_sheet' => [
+                    'auth' => $settings['accounting'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "accountsp.summary",
                     'text' => 'Neraca',
@@ -104,6 +108,7 @@
                     ],
                 ],
                 'profit_loss' => [
+                    'auth' => $settings['accounting'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "accountsp.summary",
                     'text' => 'Laba Rugi',
@@ -112,6 +117,7 @@
                     ],
                 ],
                 'cashflow' => [
+                    'auth' => $settings['accounting'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "accountsp.summary",
                     'text' => 'Arus Kas',
