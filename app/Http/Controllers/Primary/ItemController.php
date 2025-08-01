@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Response;
 
 use Yajra\DataTables\Facades\DataTables;
 
+use App\Models\Primary\Inventory;
+use App\Models\Primary\Space;
+
 
 
 class ItemController extends Controller
@@ -182,16 +185,21 @@ class ItemController extends Controller
     public function getItemsData(Request $request){
         $space_id = get_space_id($request);
 
+        $spaces_id = Space::findOrFail($space_id)->spaceAndChildren()->pluck('id')->toArray();
+
         $items = Item::with('inventories')
-                    ->whereHas('inventories', function ($query) use ($space_id) {
-                        $query->where('space_id', $space_id);
+                    ->whereHas('inventories', function ($query) use ($spaces_id) {
+                        $query->whereIn('space_id', $spaces_id);
                     });
 
+
         return DataTables::of($items)
-            ->addColumn('supplies', function ($data) {
+            ->addColumn('supplies', function ($data) use ($spaces_id) {
+                $ivts = $data->inventories->whereIn('space_id', $spaces_id);
+
                 return '<table class="table-auto w-full">' .
                     '<tbody>' .
-                    $data->inventories->map(function ($inv) {
+                    $ivts->map(function ($inv) {
                         if ($inv->balance == 0) {
                             return '';
                         }
@@ -217,6 +225,7 @@ class ItemController extends Controller
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
+
             ->filter(function ($query) use ($request) {
                 if ($request->has('search') && $request->search['value']) {
                     $search = $request->search['value'];
@@ -232,6 +241,7 @@ class ItemController extends Controller
                     });
                 }
             })
+            
             ->rawColumns(['actions', 'supplies'])
             ->make(true);
     }
