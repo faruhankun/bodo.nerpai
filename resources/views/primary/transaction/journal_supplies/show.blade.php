@@ -1,3 +1,7 @@
+@php 
+    $space_role = session('space_role') ?? null;
+@endphp
+
 <x-crud.modal-show title="Transaction Details: {{ $data->number }}" trigger="View">
     <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
         <!-- <x-div-box-show title="Number">{{ $data->number }}</x-div-box-show> -->
@@ -52,9 +56,12 @@
 
     <div class="flex gap-3 justify-end mt-8">
         <x-secondary-button type="button" @click="isOpen = false">Cancel</x-secondary-button>
-        <a target="_blank" href="{{ route('journal_supplies.edit', $data->id) }}">
-            <x-primary-button type="button">Edit Journal</x-primary-button>
-        </a>
+
+        @if($space_role == 'admin' || $space_role == 'owner')
+            <a target="_blank" href="{{ route('journal_supplies.edit', $data->id) }}">
+                <x-primary-button type="button">Edit Journal</x-primary-button>
+            </a>
+        @endif
     </div>
 </x-crud.modal-show>
 

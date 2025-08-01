@@ -73,6 +73,11 @@ class Transaction extends Model
 
 
     // Relationships
+    public function space()
+    {
+        return $this->morphTo();
+    }
+
     public function type()
     {
         return $this->morphTo();

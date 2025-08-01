@@ -188,6 +188,23 @@ class ItemController extends Controller
                     });
 
         return DataTables::of($items)
+            ->addColumn('supplies', function ($data) {
+                return '<table class="table-auto w-full">' .
+                    '<tbody>' .
+                    $data->inventories->map(function ($inv) {
+                        if ($inv->balance == 0) {
+                            return '';
+                        }
+
+                        return '<tr>' .
+                            '<td class="border px-4 py-2">' . ($inv->space?->name ?? 'N/A') . '</td>' .
+                            '<td class="border px-4 py-2">' . ($inv->balance) . ' pcs</td>' .
+                            '</tr>';
+                    })->implode('') .
+                    '</tbody>' .
+                '</table>';
+            })
+
             ->addColumn('actions', function ($data) {
                 $route = 'items';
                 
@@ -200,7 +217,22 @@ class ItemController extends Controller
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
-            ->rawColumns(['actions'])
+            ->filter(function ($query) use ($request) {
+                if ($request->has('search') && $request->search['value']) {
+                    $search = $request->search['value'];
+
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%")
+                            ->orWhere('sku', '=', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orWhere('notes', 'like', "%{$search}%")
+                            ->orWhere('status', 'like', "%{$search}%")
+                            ;
+                    });
+                }
+            })
+            ->rawColumns(['actions', 'supplies'])
             ->make(true);
     }
 

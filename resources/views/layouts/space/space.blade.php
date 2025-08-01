@@ -60,13 +60,11 @@
                     'text' => 'Daftar Barang',
                 ],
                 'supplies' => [
-                    'auth' => $settings['supplies'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "supplies.index",
                     'text' => 'Daftar Akun Persediaan',
                 ],
                 'journal_supplies' => [
-                    'auth' => $settings['supplies'],
                     'icon' => 'icon-checklist-paper',
                     'route' => "journal_supplies.index",
                     'text' => 'Mutasi Stok',

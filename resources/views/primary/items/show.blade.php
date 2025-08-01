@@ -41,6 +41,7 @@
             </x-table.table-thead>
             <x-table.table-tbody>
                 @foreach ($supplies as $supply)
+                    @if($supply->balance == 0) @continue @endif
                     <x-table.table-tr>
                         <x-table.table-td>{{ $supply->sku ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ $supply->space_type ?? 'N/A' }} : {{ $supply->space?->name ?? 'N/A' }}</x-table.table-td>

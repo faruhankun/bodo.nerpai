@@ -1,7 +1,7 @@
 <x-crud.index-basic header="Items" 
                 model="item" 
                 table_id="indexTable"
-                :thead="['SKU', 'Name', 'Price', 'Status', 'Notes', 'Actions']"
+                :thead="['SKU', 'Name', 'Price', 'Stok', 'Status', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
         @include('primary.items.create')
@@ -43,6 +43,7 @@
 <script>
 $(document).ready(function() {
     let table = $('#indexTable').DataTable({
+        scrollX: true,
         processing: true,
         serverSide: true,
         ajax: "{{ route('items.data') }}",
@@ -59,6 +60,13 @@ $(document).ready(function() {
                     }).format(data);
                 }
             },
+
+            { data: 'supplies', 
+                render: function(data, type, row, meta) {
+                    return data ?? '';
+                }
+            },
+
             { data: 'status' },
             { data: 'notes' },
             { data: 'actions', orderable: false, searchable: false }

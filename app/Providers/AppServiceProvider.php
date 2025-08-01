@@ -88,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
             'JE' => JournalEntry::class,
             // 'IV' => \App\Models\Primary\Inventory::class,
             'ITM' => Item::class,
+            'TX' => Transaction::class,
         ]);
 	}
 }
