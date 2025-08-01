@@ -129,8 +129,13 @@ class InventoryController extends Controller
                 'parent_type' => 'IVT',
             ];
 
-            $ivt = Inventory::create($validated);
-
+            $ivt = Inventory::updateOrCreate(
+                [
+                    'sku' => $item->sku,
+                    'name' => $item->name,
+                    'cost_per_unit' => $item->cost
+                ]
+                , $validated);
 
 
             if($request_source == 'api'){
@@ -153,6 +158,34 @@ class InventoryController extends Controller
             return redirect()->back()->withErrors($e->getMessage())->withInput();
         }
     }
+
+
+
+    public function update(Request $request, $id){
+        try {
+            $validated = $request->validate([
+                // 'item_id' => 'required',
+                'status' => 'nullable|string|max:50',
+                'notes' => 'nullable',
+            ]);
+
+            $ivt = Inventory::findOrFail($id);
+            $ivt->update($validated);
+
+            return response()->json([
+                'data' => array($ivt),
+                'success' => true,
+                'message' => 'Supply updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => array($ivt),
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
 
 
     public function getSuppliesData(Request $request){
@@ -188,11 +221,31 @@ class InventoryController extends Controller
                 $route = 'supplies';
                 
                 $actions = [
-                    'show' => 'modal',
-                    'show_modal' => 'primary.inventory.supplies.show',
+                    // 'show' => 'modal',
+                    // 'show_modal' => 'primary.inventory.supplies.show',
+                    'edit' => 'modal',
                 ];
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
+            })
+            ->filter(function ($query) use ($request) {
+                if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
+                    $search = $request->search['value'] ?? $request->q;
+
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%")
+                            ->orWhere('sku', "{$search}")
+                            ->orWhere('notes', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%");
+
+                        $q->orWhereHas('item', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%")
+                                ->orWhere('code', 'like', "%{$search}%")
+                                ->orWhere('sku', 'like', "%{$search}%");
+                        });
+                    });
+                }
             })
             ->rawColumns(['actions'])
             ->make(true);

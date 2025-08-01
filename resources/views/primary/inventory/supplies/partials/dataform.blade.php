@@ -5,12 +5,14 @@
                     </div> -->
 
                     
+                    @if($form['mode'] == 'create')
                     <!-- Select Item -->
                     <x-div.box-input for="item_id" title="Item">
                         <select name="item_id" id="{{ $form['mode'] ?? '' }}_item_id" class="w-full px-4 py-2 border rounded">
                             <option value="">-- Select Item --</option>
                         </select>
                     </x-div.box-input>
+                    @endif
 
                     <div class="form-group mb-4">
                         <x-input-label for="status">Status</x-input-label>

@@ -36,6 +36,9 @@ class Inventory extends Model
         'quantity',
         'balance',
         'cost_per_unit',
+
+        'status',
+        'notes',
     ];
 
 
