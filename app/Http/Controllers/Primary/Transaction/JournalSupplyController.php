@@ -168,6 +168,9 @@ class JournalSupplyController extends Controller
                 'sent_time' => 'nullable',
                 'handler_id' => 'required',
                 'handler_notes' => 'nullable|string|max:255',
+
+                'space_origin' => 'nullable',
+
                 'details' => 'nullable|array',
                 'details.*.detail_id' => 'required',
                 'details.*.quantity' => 'required|numeric',
@@ -180,7 +183,9 @@ class JournalSupplyController extends Controller
                 $validated['details'] = [];
             }
 
-            $journal = Transaction::with(['details'])->findOrFail($id);
+            $journal = Transaction::with(['details', 'children'])->findOrFail($id);
+
+
 
             $data = [
                 'sent_time' => $validated['sent_time'] ?? now(),
@@ -189,7 +194,21 @@ class JournalSupplyController extends Controller
                 'handler_id' => $validated['handler_id'],
             ];
 
-            $this->journalSupply->updateJournal($journal, $data, $validated['details']);
+            $journal = $this->journalSupply->updateJournal($journal, $data, $validated['details']);
+
+
+
+            // mirror journal from space origin
+            if($validated['space_origin']){
+                $journal = $this->journalSupply->mirrorJournal($journal, $validated['space_origin']);
+            }
+
+
+            
+            // mirror journal to children
+            if($journal->children->isNotEmpty() || $journal->input){
+                $this->journalSupply->mirrorJournalToChildren($journal->id);
+            }
 
 
 
@@ -208,7 +227,7 @@ class JournalSupplyController extends Controller
                 return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
             }
 
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return back()->with('error', 'Something went wrong. error:' . $th->getMessage());
         }
     }
 
@@ -247,35 +266,8 @@ class JournalSupplyController extends Controller
     public function getJournalSuppliesData(Request $request)
     {
         $query = $this->getQueryData($request);       
-                                  
-        if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
-            $search = $request->search['value'] ?? $request->q;
-
-            $query = $query->where(function ($q) use ($search) {
-                $q->where('transactions.id', 'like', "%{$search}%")
-                    ->orWhere('transactions.sent_time', 'like', "%{$search}%")
-                    ->orWhere('transactions.number', 'like', "%{$search}%")
-                    ->orWhere('transactions.sent_time', 'like', "%{$search}%")
-                    ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
-
-                $q->orWhereHas('details', function ($q2) use ($search) {
-                    $q2->where('transaction_details.notes', 'like', "%{$search}%")
-                        ->orWhere('transaction_details.model_type', 'like', "%{$search}%")
-                    ;
-                });
-
-                $q->orWhereHas('details.detail', function ($q2) use ($search) {
-                    $q2->where('inventories.name', 'like', "%{$search}%")
-                        ->orWhere('inventories.sku', 'like', "%{$search}%")
-                    ;
-                });
-            });
-        }
 
         $query = $query->orderBy('transactions.id', 'desc');
-
-        // dd($query->toSql(), $query->getBindings());
-
 
 
         return DataTables::of($query)
@@ -291,15 +283,43 @@ class JournalSupplyController extends Controller
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
+
             ->addColumn('sku', function ($data){
-                return $data->sku_list ?? '';
+                return $data->details->map(function ($detail){
+                    return $detail->detail->sku;
+                })->implode(', ');
             })
+
             ->addColumn('details_first_notes', function ($data){
                 return $data->details->first()->notes ?? '';
             })
-            ->filter(function ($query) use ($request) {
-                
+
+            ->filter(function ($query) use ($request) {                                  
+                if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
+                    $search = $request->search['value'] ?? $request->q;
+
+                    $query = $query->where(function ($q) use ($search) {
+                        $q->where('transactions.id', 'like', "%{$search}%")
+                            ->orWhere('transactions.sent_time', 'like', "%{$search}%")
+                            ->orWhere('transactions.number', 'like', "%{$search}%")
+                            ->orWhere('transactions.sent_time', 'like', "%{$search}%")
+                            ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
+
+                        $q->orWhereHas('details', function ($q2) use ($search) {
+                            $q2->where('transaction_details.notes', 'like', "%{$search}%")
+                                ->orWhere('transaction_details.model_type', 'like', "%{$search}%")
+                            ;
+                        });
+
+                        $q->orWhereHas('details.detail', function ($q2) use ($search) {
+                            $q2->where('inventories.name', 'like', "%{$search}%")
+                                ->orWhere('inventories.sku', "{$search}")
+                            ;
+                        });
+                    });
+                }    
             })
+
             ->rawColumns(['actions'])
             ->make(true);
     }
@@ -311,20 +331,6 @@ class JournalSupplyController extends Controller
         $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
             ->where('model_type', 'JS')
             ->orderBy('sent_time', 'desc');
-        // $query = Transaction::query()
-        //     ->selectRaw('transactions.*, GROUP_CONCAT(items.sku SEPARATOR ", ") as sku_list')
-        //     ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transactions.id')
-        //     ->join('inventories', function ($join) {
-        //         $join->on('inventories.id', '=', 'transaction_details.detail_id')
-        //             ->where('transaction_details.detail_type', '=', 'IVT');
-        //     })
-        //     ->join('items', function ($join) {
-        //         $join->on('items.id', '=', 'inventories.item_id')
-        //             ->where('inventories.item_type', '=', 'ITM');
-        //     })
-        //     ->where('transactions.model_type', 'JS') // atau sesuaikan kebutuhanmu
-        //     ->groupBy('transactions.id');
-
 
         $query = $query->where('transactions.space_type', 'SPACE')
                         ->where('transactions.space_id', $space_id);

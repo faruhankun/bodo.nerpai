@@ -93,6 +93,7 @@ class Transaction extends Model
         return $this->morphTo();
     }
 
+
     public function sender()
     {
         return $this->morphTo();
@@ -111,5 +112,13 @@ class Transaction extends Model
     public function details()
     {
         return $this->hasMany(TransactionDetail::class);
+    }
+
+
+
+    public function children()
+    {
+        return $this->hasMany(Transaction::class, 'input_id')
+            ->where('input_type', 'TX');
     }
 }

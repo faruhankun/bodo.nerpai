@@ -98,5 +98,93 @@ class JournalSupplyService
             $supply = Inventory::find($supply_id);
             $supply->updateSupplyBalance();
         }
+
+
+        return $tx;
+    }
+
+
+    public function mirrorJournal($tx, $space_id)
+    {
+        $player_id = $tx->handler_id ?? auth()->user()->player->id;
+
+        if(!$tx->input){
+            $data = [
+                'space_id' => $space_id,
+                'sender_id' => $player_id,
+                'sent_time' => $tx->sent_time ?? now(),
+                'sender_notes' => $tx->handler_notes . 
+                                " request: " . $tx->space?->name .
+                                " by: " . $tx->space?->name,
+            ];
+
+            $input_tx = $this->addJournal($data);
+            $tx->input_type = 'TX';
+            $tx->input_id = $input_tx->id;
+        }
+
+        $tx->save();
+        $this->mirrorJournalToChildren($tx->id);
+
+        return $tx;
+    }
+
+
+    public function mirrorJournalToChildren($tx_id)
+    {
+        try {
+            $tx = Transaction::with('children', 'input')->findOrFail($tx_id);
+
+            $tx_related = $tx->children ?? [];
+            if($tx->input){
+                $tx_related[] = $tx->input;
+            }
+
+            foreach($tx_related as $child){
+                $data = [
+                    'sent_time' => $tx->sent_time ?? now(),
+                    'sender_notes' => $tx->handler_notes . 
+                                    " request: " . $tx->space?->name .
+                                    " by: " . $tx->sender?->name,
+                    'total' => $tx->total,
+                ];
+
+
+                // details
+                $details = [];
+                foreach($tx->details as $detail){
+                    $child_detail = Inventory::where('space_id', $child->space_id)
+                                    ->where('model_type', 'SUP')
+                                    ->where('item_id', $detail->detail->item_id)
+                                    ->first();
+
+                    if(!$child_detail){
+                        $child_detail = Inventory::create([
+                            'space_type' => 'SPACE',
+                            'space_id' => $child->space_id,
+                            'model_type' => 'SUP',
+                            'item_type' => 'ITM',
+                            'item_id' => $detail->detail->item_id,
+                            'name' => $detail->detail->item->name,
+                            'sku' => $detail->detail->item->sku,
+                            'code' => $detail->detail->item->code,
+                        ]);
+                    }
+
+
+                    $details[] = [
+                        'detail_id' => $child_detail->id,
+                        'quantity' => ($detail->debit - $detail->credit) * -1,  // karena mirror
+                        'model_type' => $detail->model_type,
+                        'cost_per_unit' => $detail->cost_per_unit,
+                        'notes' => $detail->notes,
+                    ];
+                }
+
+                $this->updateJournal($child, $data, $details);
+            }
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
+        }
     }
 }

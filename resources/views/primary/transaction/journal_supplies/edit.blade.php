@@ -8,6 +8,11 @@
 
     $player = session('player_id') ? \App\Models\Primary\Player::findOrFail(session('player_id')) : Auth::user()->player;
 
+    $spaces_dest = $player?->spaces->where('id', '!=', $space_id) ?? [];
+    $output_journal = $journal?->output;
+
+    $spaces_origin = $player?->spaces->where('id', '!=', $space_id) ?? [];
+    $input_journal = $journal?->input;
 @endphp
 
 
@@ -23,7 +28,10 @@
                         @csrf
                         @method('PUT')
 
+
                         @include('primary.transaction.journal_supplies.partials.dataform', ['form' => ['id' => 'Edit Journal', 'mode' => 'edit'], 'data' => $journal])
+
+
 
                         <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
@@ -93,6 +101,13 @@
     <script>
         let detailIndex = 0;
 
+        function formatNumberNoTrailingZeros(num, precision = 2) {
+            return new Intl.NumberFormat('en-US', {
+                useGrouping: false,
+                maximumFractionDigits: precision
+            }).format(num);
+        }
+
         function renderDetailRow(detail = {}) {
             const rowIndex = detailIndex++;
             const selectedId = detail.detail_id || '';
@@ -116,7 +131,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="number" name="details[${rowIndex}][quantity]" class="quantity-input w-20" value="${quantity}">
+                        <input type="text" name="details[${rowIndex}][quantity]" class="quantity-input w-20" value="${formatNumberNoTrailingZeros(quantity)}">
                     </td>
                     <td>
                         <select name="details[${rowIndex}][model_type]" class="model_type-select type-select my-3" required>
@@ -125,7 +140,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="number" size="5" name="details[${rowIndex}][cost_per_unit]" class="cost_per_unit-input w-25" value="${cost_per_unit}" default="0" min="0">
+                        <input type="text" size="5" name="details[${rowIndex}][cost_per_unit]" class="cost_per_unit-input w-25" value="${formatNumberNoTrailingZeros(cost_per_unit)}" default="0" min="0">
                     </td>
                     <td>
                         <input type="text" name="details[${rowIndex}][notes]" class="notes-input" value="${notes}">
@@ -142,6 +157,7 @@
                 placeholder: 'Search & Select Supply',
                 minimumInputLength: 2,
                 width: '100%',
+                height: '100%',
                 padding: '20px',
                 ajax: {
                     url: '/supplies/search',
