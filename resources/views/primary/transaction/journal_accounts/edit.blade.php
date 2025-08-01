@@ -1,5 +1,9 @@
 @php
     $layout = session('layout');
+
+    $journal = $journal_entry;
+    $space_id = $journal?->space_id ?? (session('space_id') ?? null);
+
 @endphp
 <x-dynamic-component :component="'layouts.' . $layout">
     <div class="py-12">
@@ -38,6 +42,8 @@
 
                         <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
+
+
                         <div class="container">
                             <!-- Journal Entry Details Table -->
                             <x-table.table-table id="journalDetailTable">
@@ -52,7 +58,7 @@
                                     </tr>
                                 </x-table.table-thead>
                                 <x-table.table-tbody id="journal-detail-list">
-                                    @foreach ($journal_entry->details as $index => $detail)
+                                    <!-- @foreach ($journal_entry->details as $index => $detail)
                                         <tr class="detail-row">
                                             <x-table.table-td class="mb-2">{{ $index + 1 }}</x-table.table-td>
                                             <x-table.table-td>
@@ -96,7 +102,7 @@
                                                     class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
                                             </x-table.table-td>
                                         </tr>
-                                    @endforeach
+                                    @endforeach -->
                                 </x-table.table-tbody>
                             </x-table.table-table>
 
@@ -120,6 +126,8 @@
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                         </div>
 
+
+
                         <div class="m-4 flex justify-end space-x-4">
                             <a href="{{ route('journal_accounts.index') }}">
                                 <x-secondary-button type="button">Cancel</x-secondary-button>
@@ -134,44 +142,145 @@
 
     <!-- Journal Entry Detail Row Script -->
     <script>
+        let detailIndex = 0;
+
+
         $(document).ready(function() {
-            let detailIndex = {{ $journal_entry->details->count() }};
+            // Journal
+            let journal = {!! json_encode($journal) !!};
+            let journal_details = {!! json_encode($journal->details) !!};
 
-            // $('.account-select').select2();
+            let sentTime = '{{ $journal->sent_time->format('Y-m-d') }}';
+            $("#edit_sent_time").val(sentTime);
+            $("#edit_handler_notes").val(journal.handler_notes);
 
-            // Add Journal Entry Detail row
-            $("#add-detail").click(function() {
-                detailIndex++;
-                let newRow =
-                    `<tr class="detail-row">
-                        <x-table.table-td class="mb-2">${detailIndex}</x-table.table-td>
-                        <x-table.table-td>
-                            <x-input-select name="details[${detailIndex}][detail_id]" class="account-select my-3" required style="width: 100%">
-                                <option value="">Select Account</option>
-                                @foreach ($accountsp as $account)
-                                    <option value="{{ $account->id }}">{{ $account->code }} - {{ $account->name }}</option>
-                                @endforeach
-                            </x-input-select>
-                        </x-table.table-td>
-                        <x-table.table-td>
-                            <x-input-input type="number" name="details[${detailIndex}][debit]" class="debit-input" value="0" required min="0">
-                            </x-input-input>
-                        </x-table.table-td>
-                        <x-table.table-td>
-                            <x-input-input type="number" name="details[${detailIndex}][credit]" class="credit-input" value="0" required min="0">
-                            </x-input-input>
-                        </x-table.table-td>
-                        <x-table.table-td>
-                            <x-input-input type="text" name="details[${detailIndex}][notes]" class="notes-input"></x-input-input>
-                        </x-table.table-td>
-                        <x-table.table-td>
-                            <button type="button" class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
-                        </x-table.table-td>
-                    </tr>`;
-                $("#journal-detail-list").append(newRow);
+            
+            console.log("journal_details:", journal_details);
 
-                $('.account-select').select2();
+            // Details
+            // let detailIndex = {{ $journal->details->count() }};
+            journal_details.forEach(appendDetailRow);
+        });
+
+
+        function appendDetailRow(detail) {
+            const $row = $(renderDetailRow(detail));
+            $("#journal-detail-list").append($row);
+
+            const $select = $row.find('.inventory-select');
+            const selectedData = detail.detail_id && detail.detail ? {
+                id: detail.detail_id,
+                text: `${detail.detail.code} - ${detail.detail.name}`,
+            } : null;
+
+            console.log("selectedData:", selectedData);
+
+            setTimeout(() => {
+                initInventorySelect($select, selectedData);
+            }, 0);
+        }
+
+
+        function initInventorySelect($element, selectedData = null) {
+            $element.select2({
+                placeholder: 'Search & Select Account',
+                minimumInputLength: 2,
+                width: '100%',
+                height: '100%',
+                padding: '20px',
+                ajax: {
+                    url: '/accountsp/data',
+                    dataType: 'json',
+                    paginate: true,
+                    data: function(params) {
+                        return {
+                            q: params.term,
+                            space_id: '{{ $space_id }}',
+                            page: params.page || 1,
+                            return: 'JSON'
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.data.map(item => ({
+                                id: item.id,
+                                text: item.text, // Ubah sesuai nama field yang kamu punya
+                                cost_per_unit: item.cost_per_unit
+                            }))
+                        };
+                    },
+                    cache: true
+                }
             });
+
+            if (selectedData) {
+                // Delay agar select2 benar-benar ter-attach
+                const option = new Option(selectedData.text, selectedData.id, true, true);
+                $element.append(option).trigger('change');
+            }
+
+            // Event setelah pilih inventory
+            $element.on('select2:select', function(e) {
+                const selected = e.params.data;
+                const $row = $(this).closest('tr');
+                // $row.find('.cost_per_unit-input').val(selected.cost_per_unit || 0);
+            });
+        }
+
+
+        function renderDetailRow(detail = {}) {
+            const rowIndex = detailIndex++;
+            const selectedId = detail.detail_id || '';
+            // const quantity = detail.quantity || 0;
+            // const selectedModel = detail.model_type || '';
+            // const cost_per_unit = detail.cost_per_unit || 0;
+            const debit = detail.debit || 0;
+            const credit = detail.credit || 0;
+            const notes = detail.notes || '';
+
+            return `
+                <tr class="detail-row">
+                    <td class="mb-2">${rowIndex + 1}</td>
+                    <td>
+                        <select name="details[${rowIndex}][detail_id]" class="inventory-select w-20" required>
+                            <option value="">Select Account</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" size="5" name="details[${rowIndex}][debit]" class="debit-input w-25" value="${debit}" default="0" min="0">
+                    </td>
+                    <td>
+                        <input type="text" size="5" name="details[${rowIndex}][credit]" class="credit-input w-25" value="${credit}" default="0" min="0">
+                    </td>
+                    <td>
+                        <input type="text" name="details[${rowIndex}][notes]" class="notes-input" value="${notes}">
+                    </td>
+                    <td>
+                        <button type="button" class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
+                    </td>
+                </tr>
+            `;
+        }
+    </script>
+    
+    
+    <script>
+        $(document).ready(function() {
+            // let detailIndex = {{ $journal_entry->details->count() }};
+
+
+            // Add Journal Detail row
+            $("#add-detail").click(function() {
+                let newRow = renderDetailRow();
+                const $row = $(newRow);
+
+                $("#journal-detail-list").append($row);
+
+                initInventorySelect($row.find('.inventory-select'));
+            });
+
+
+            
 
             // Remove Journal Entry Detail row
             $(document).on("click", ".remove-detail", function() {

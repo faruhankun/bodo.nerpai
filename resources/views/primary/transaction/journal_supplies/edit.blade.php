@@ -84,7 +84,6 @@
             $("#edit_sent_time").val(sentTime);
             $("#edit_handler_notes").val(journal.handler_notes);
 
-            
             // Details
             let detailIndex = {{ $journal->details->count() }};
             journal_details.forEach(appendDetailRow);

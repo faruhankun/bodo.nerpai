@@ -32,12 +32,18 @@
             columns: [{
                     data: 'id'
                 },
+                
                 {
                     data: 'sent_time',
                     render: function(data) {
-                        return new Date(data).toLocaleDateString('id-ID');
+                        let date = new Date(data);
+                        let year = date.getFullYear();
+                        let month = String(date.getMonth() + 1).padStart(2, '0');
+                        let day = String(date.getDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`;
                     }
                 },
+
                 {
                     data: 'number'
                 },

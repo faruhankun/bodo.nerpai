@@ -146,7 +146,7 @@ class JournalAccountController extends Controller
     public function edit(String $id)
     {
         $accountsp = $this->get_account();
-        $journal_entry = Transaction::with(['details'])->findOrFail($id);
+        $journal_entry = Transaction::with(['details', 'details.detail'])->findOrFail($id);
 
         return view('primary.transaction.journal_accounts.edit', compact('journal_entry', 'accountsp'));
     }
@@ -265,7 +265,7 @@ class JournalAccountController extends Controller
     {
         $space_id = session('space_id') ?? null;
 
-        $journal_accounts = Transaction::with('input', 'type', 'details')
+        $journal_accounts = Transaction::with('input', 'type', 'details', 'details.detail')
                     ->where('model_type', 'JE')
                     ->orderBy('sent_time', 'desc');
 
@@ -280,13 +280,26 @@ class JournalAccountController extends Controller
         
 
         // search
-        if($request->has('search') && $request->search['value']) {
-            $search = $request->search['value'];
-            $journal_accounts->where(function ($query) use ($search) {
-                $query->where('transactions.sender_notes', 'like', "%$search%")
-                    ->orWhereHas('details', function ($q2) use ($search) {
-                        $q2->where('notes', 'like', "%$search%");
-                    });
+        if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
+            $search = $request->search['value'] ?? $request->q;
+
+            $journal_accounts = $journal_accounts->where(function ($q) use ($search) {
+                $q->where('transactions.id', 'like', "%{$search}%")
+                    ->orWhere('transactions.number', 'like', "%{$search}%")
+                    ->orWhere('transactions.sent_time', 'like', "%{$search}%")
+                    ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
+
+                $q->orWhereHas('details', function ($q2) use ($search) {
+                    $q2->where('transaction_details.notes', 'like', "%{$search}%")
+                        ->orWhere('transaction_details.model_type', 'like', "%{$search}%")
+                    ;
+                });
+
+                $q->orWhereHas('details.detail', function ($q2) use ($search) {
+                    $q2->where('inventories.name', 'like', "%{$search}%")
+                        ->orWhere('inventories.code', 'like', "%{$search}%")
+                    ;
+                });
             });
         }
 
@@ -303,6 +316,9 @@ class JournalAccountController extends Controller
                 ];
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
+            })
+            ->filter(function ($query) use ($request) {
+                
             })
             ->rawColumns(['actions'])
             ->make(true);
@@ -351,7 +367,7 @@ class JournalAccountController extends Controller
                     'number'       => $txnNumber,
                     'space_id'     => session('space_id'),
                     'sender_id'    => auth()->user()->player->id,
-                    'sent_time'    => \Carbon\Carbon::createFromFormat('d/m/Y', $first['date'])->toDateString(),
+                    'sent_time'    => empty($first['date']) ? Date('Y-m-d') : $first['date'],
                     'sender_notes' => $first['description'] ?? null,
                     'total'        => 0, // will be recalculated below
                 ];

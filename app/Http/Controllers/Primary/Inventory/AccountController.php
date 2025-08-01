@@ -45,6 +45,8 @@ class AccountController extends Controller
 
     public function search(Request $request){
         $space_id = get_space_id($request);
+        $return = $request->get('return') ?? 'DT';  // DT atau JSON
+
 
         $query = Inventory::with('type', 'parent')
                             ->where('model_type', 'ACC')
@@ -85,6 +87,8 @@ class AccountController extends Controller
 
         $query->orderBy('code', 'asc');
 
+
+        
         // filter parent or children only
         $parent_only = $request->get('parent_only');
         if($parent_only){
@@ -103,6 +107,23 @@ class AccountController extends Controller
             $query->where('parent_id', $parent_id);
         }
 
+
+
+        if($return == 'JSON'){
+            $ivts = $query->get()
+                        ->map(function ($ivt) {
+                            return [
+                                'id' => $ivt->id,
+                                'text' => "{$ivt->code}: {$ivt->name}",
+                                'cost_per_unit' => $ivt->cost_per_unit,
+                            ];
+                        });
+
+            return response()->json([
+                'data' => $ivts,
+                'recordsFiltered' => $ivts->count(),
+            ]);
+        }
 
 
         return DataTables::of($query)
