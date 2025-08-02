@@ -61,7 +61,10 @@
                     data: 'number'
                 },
                 {
-                    data: 'handler_notes'
+                    data: 'all_notes',
+                    render: function(data) {
+                        return data || '-';
+                    }
                 },
                 {
                     data: 'sku',

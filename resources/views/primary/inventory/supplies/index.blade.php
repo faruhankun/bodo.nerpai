@@ -26,6 +26,8 @@
 
     <x-slot name="modals">
         @include('primary.inventory.supplies.edit')
+
+        <div id="react-supplies-modal" data-id="" data-start_date="" data-end_date="" data-model_data></div>
     </x-slot>
 </x-crud.index-basic>
 
@@ -158,11 +160,23 @@
                 { data: 'sku' },
                 { data: 'space_display' },
                 { data: 'item_display' },
-                { data: 'balance', render: function(data, type, row, meta) {
-                    return new Intl.NumberFormat('id-ID', {
-                        maximumFractionDigits: 2
-                    }).format(data);
-                }},
+
+                // { data: 'balance', render: function(data, type, row, meta) {
+                //     return new Intl.NumberFormat('id-ID', {
+                //         maximumFractionDigits: 2
+                //     }).format(data);
+                // }},
+
+                { data: 'balance', className: 'text-right font-bold text-md text-blue-600',
+                    render: function (data, type, row, meta) {
+                        return `<a href="javascript:void(0)" onclick='show_tx_modal(${JSON.stringify(row.data)})'>${
+                                    new Intl.NumberFormat('id-ID', { 
+                                        maximumFractionDigits: 2
+                                    }).format(data)
+                                }</a>`;
+                    }
+                },
+
                 { data: 'cost_per_unit', render: function(data, type, row, meta) {
                     return new Intl.NumberFormat('id-ID', {
                         maximumFractionDigits: 2
@@ -173,6 +187,7 @@
             ]
         });
         
+
         // Export Import
         $('#exportVisibleBtn').on('click', function(e) {
             e.preventDefault();
@@ -184,4 +199,29 @@
             window.location.href = exportUrl;
         });
     });
+
+
+    function show_tx_modal(acc){
+        acc = JSON.parse(acc);
+
+        if(acc.id == null){
+            return;
+        }
+
+        const container = document.getElementById('react-supplies-modal');
+        
+        const today = new Date();
+        const year = today.getFullYear();
+        const startDate = `${year}-01-01`;
+        const endDate = today.toISOString().split('T')[0]; // format: YYYY-MM-DD
+
+        container.setAttribute('data-id', acc.id);
+        container.setAttribute('data-start_date', startDate);
+        container.setAttribute('data-end_date', endDate);
+        container.setAttribute('data-modal_data', JSON.stringify(acc));
+
+        console.log(acc);
+
+        window.dispatchEvent(new CustomEvent('showSuppliesModal'));
+    }
 </script>

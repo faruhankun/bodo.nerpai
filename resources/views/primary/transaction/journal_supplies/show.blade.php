@@ -79,6 +79,7 @@
             <x-table.table-thead>
                 <tr>
                     <x-table.table-th>Number</x-table.table-th>
+                    <x-table.table-th>Space</x-table.table-th>
                     <x-table.table-th>Date</x-table.table-th>
                     <x-table.table-th>Contributor</x-table.table-th>
                     <x-table.table-th>Total</x-table.table-th>
@@ -90,6 +91,7 @@
                 @foreach ($data->children as $child)
                     <x-table.table-tr>
                         <x-table.table-td>{{ $child->number }}</x-table.table-td>
+                        <x-table.table-td>{{ $child->space?->name ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ $child->sent_time }}</x-table.table-td>
                         <x-table.table-td>{{ $child->sender?->name ?? 'N/A' }} <br> {{ $child->handler?->name ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ number_format($child->total, 2) }}</x-table.table-td>

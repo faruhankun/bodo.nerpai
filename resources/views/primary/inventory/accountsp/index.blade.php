@@ -121,6 +121,7 @@
                 { data: 'code' },
                 { data: 'name' },
                 { data: 'type.name' },
+                
                 { data: 'getAccountBalance', className: 'text-right font-bold text-md text-blue-600',
                     render: function (data, type, row, meta) {
                         return `<a href="javascript:void(0)" onclick='show_account_modal(${JSON.stringify(row.data)})'>${new Intl.NumberFormat('id-ID', { 
@@ -128,6 +129,7 @@
                         }).format(data)}</a>`;
                     }
                 },
+
                 { data: 'notes' },
                 { data: 'actions', orderable: false, searchable: false }
             ]

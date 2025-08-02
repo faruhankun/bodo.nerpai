@@ -187,4 +187,14 @@ class JournalSupplyService
             return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
         }
     }
+
+
+    public function updateSupply($details = [])
+    {
+        $detail_ids = collect($details)->pluck('detail_id')->unique();
+        foreach($detail_ids as $detail_id) {
+            $supply = Inventory::find($detail_id);
+            $supply->updateSupplyBalance();
+        }
+    }
 }

@@ -203,7 +203,7 @@
             const $select = $row.find('.inventory-select');
             const selectedData = detail.detail_id && detail.detail ? {
                 id: detail.detail_id,
-                text: `${detail.detail_id} - ${detail.detail.sku} - ${detail.detail.name} qty: ${detail.detail.balance} : ${detail.detail.notes}`,
+                text: `${detail.detail.sku} - ${detail.detail.name} qty: ${detail.detail.balance} : ${detail.detail.notes}`,
             } : null;
 
             setTimeout(() => {

@@ -172,6 +172,12 @@ class InventoryController extends Controller
             $ivt = Inventory::findOrFail($id);
             $ivt->update($validated);
 
+
+            // update supply balance
+            $ivt->updateSupplyBalance();
+
+
+
             return response()->json([
                 'data' => array($ivt),
                 'success' => true,
@@ -204,6 +210,7 @@ class InventoryController extends Controller
                                     ->whereIn('space_id', $spaceIds);
         } 
 
+
         return DataTables::of($supplies)
             ->addColumn('getSupplyBalance', function ($data) {
                 // return $data->getSupplyBalance();
@@ -228,6 +235,11 @@ class InventoryController extends Controller
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
+
+            ->addColumn('data', function ($data) {
+                return $data;
+            })
+
             ->filter(function ($query) use ($request) {
                 if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
                     $search = $request->search['value'] ?? $request->q;

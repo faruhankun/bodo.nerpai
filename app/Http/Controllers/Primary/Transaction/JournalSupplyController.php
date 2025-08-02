@@ -239,9 +239,16 @@ class JournalSupplyController extends Controller
 
         try {
             $journal = Transaction::findOrFail($id);
-            $journal->delete();
+
+            $details = $journal->details;
 
             $journal->details()->delete();
+            $journal->delete();
+
+
+
+            // update supply
+            $this->journalSupply->updateSupply($details);
 
 
             if($request_source == 'api'){
@@ -281,6 +288,13 @@ class JournalSupplyController extends Controller
                     'delete' => 'button',
                 ];
 
+
+                // jika punya input atau children, maka tidak bisa dihapus
+                if($data->children->isNotEmpty() || $data->input){
+                    unset($actions['delete']);
+                }
+
+
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
 
@@ -290,8 +304,8 @@ class JournalSupplyController extends Controller
                 })->implode(', ');
             })
 
-            ->addColumn('details_first_notes', function ($data){
-                return $data->details->first()->notes ?? '';
+            ->addColumn('all_notes', function ($data){
+                return $data->sender_notes . '<br>' . $data->handler_notes;
             })
 
             ->filter(function ($query) use ($request) {                                  
@@ -302,7 +316,7 @@ class JournalSupplyController extends Controller
                         $q->where('transactions.id', 'like', "%{$search}%")
                             ->orWhere('transactions.sent_time', 'like', "%{$search}%")
                             ->orWhere('transactions.number', 'like', "%{$search}%")
-                            ->orWhere('transactions.sent_time', 'like', "%{$search}%")
+                            ->orWhere('transactions.sender_notes', 'like', "%{$search}%")
                             ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
 
                         $q->orWhereHas('details', function ($q2) use ($search) {
@@ -320,7 +334,7 @@ class JournalSupplyController extends Controller
                 }    
             })
 
-            ->rawColumns(['actions'])
+            ->rawColumns(['actions', 'all_notes'])
             ->make(true);
     }
 

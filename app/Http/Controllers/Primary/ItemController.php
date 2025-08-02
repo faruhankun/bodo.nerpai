@@ -207,6 +207,7 @@ class ItemController extends Controller
                         return '<tr>' .
                             '<td class="border px-4 py-2">' . ($inv->space?->name ?? 'N/A') . '</td>' .
                             '<td class="border px-4 py-2">' . ($inv->balance) . ' pcs</td>' .
+                            '<td class="border px-4 py-2">' . ($inv->notes) . '</td>' .
                             '</tr>';
                     })->implode('') .
                     '</tbody>' .
