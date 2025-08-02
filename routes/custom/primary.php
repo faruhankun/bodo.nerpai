@@ -74,6 +74,11 @@ Route::middleware([
     Route::get('items/data', [ItemController::class, 'getItemsData'])->name('items.data');
     Route::resource('items', ItemController::class);
 
+
+
+    // Supplies
+    Route::get('supplies/supply_transactions', [InventoryController::class, 'getSupplyTransactions'])->name('supplies.supply_transactions');
+    
     Route::get('supplies/summary', [InventoryController::class, 'summary'])->name('supplies.summary');
     Route::post('supplies/import', [InventoryController::class, 'importData'])->name('supplies.import');
     Route::get('supplies/import', [InventoryController::class, 'importTemplate'])->name('supplies.import_template');
@@ -81,6 +86,7 @@ Route::middleware([
     Route::get('supplies/search', [InventoryController::class, 'searchSupply'])->name('supplies.search');
     Route::get('supplies/data', [InventoryController::class, 'getSuppliesData'])->name('supplies.data');
     Route::resource('supplies', InventoryController::class);
+
 
     // Accounts
     Route::get('accountsp/account_transactions', [AccountController::class, 'getAccountTransactions'])->name('accountsp.account_transactions');

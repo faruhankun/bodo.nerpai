@@ -27,7 +27,7 @@
     <x-slot name="modals">
         @include('primary.inventory.supplies.edit')
 
-        <div id="react-supplies-modal" data-id="" data-start_date="" data-end_date="" data-model_data></div>
+        <div id="react-supplies-modal" data-id="" data-start_date="" data-end_date="" data-account_data></div>
     </x-slot>
 </x-crud.index-basic>
 
@@ -218,10 +218,12 @@
         container.setAttribute('data-id', acc.id);
         container.setAttribute('data-start_date', startDate);
         container.setAttribute('data-end_date', endDate);
-        container.setAttribute('data-modal_data', JSON.stringify(acc));
+        container.setAttribute('data-account_data', JSON.stringify(acc));
 
         console.log(acc);
 
         window.dispatchEvent(new CustomEvent('showSuppliesModal'));
     }
 </script>
+
+@vite('resources/js/app.jsx')

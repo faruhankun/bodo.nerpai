@@ -128,19 +128,25 @@ class JournalSupplyController extends Controller
     }
 
 
-    public function show(String $id)
+    public function show(Request $request, String $id)
     {
+        $request_source = get_request_source($request);
+        
         try {
             $journal = Transaction::with(['details', 'details.detail', 'details.detail.item'])->findOrFail($id);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
         }
 
-        return response()->json([
-            'data' => array($journal),
-            'recordFiltered' => 1,
-            'success' => true,
-        ]);
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => array($journal),
+                'recordFiltered' => 1,
+                'success' => true,
+            ]);
+        }
+
+        return view('primary.transaction.journal_supplies.show', compact('journal'));
     }
 
 
@@ -283,7 +289,7 @@ class JournalSupplyController extends Controller
 
                 $actions = [
                     'show' => 'modal',
-                    'show_modal' => 'primary.transaction.journal_supplies.show',
+                    'show_modal' => 'primary.transaction.journal_supplies.show_modal',
                     'edit' => 'button',
                     'delete' => 'button',
                 ];
@@ -306,6 +312,10 @@ class JournalSupplyController extends Controller
 
             ->addColumn('all_notes', function ($data){
                 return $data->sender_notes . '<br>' . $data->handler_notes;
+            })
+
+            ->addColumn('data', function ($data) {
+                return $data;
             })
 
             ->filter(function ($query) use ($request) {                                  

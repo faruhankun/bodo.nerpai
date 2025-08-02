@@ -40,6 +40,11 @@
                 </tr>
             </x-table.table-thead>
             <x-table.table-tbody>
+                @php 
+                    $cost_total = 0;
+                    $balance_total = 0;
+                @endphp
+
                 @foreach ($supplies as $supply)
                     @if($supply->balance == 0) @continue @endif
                     <x-table.table-tr>
@@ -49,7 +54,21 @@
                         <x-table.table-td class="py-4">Rp{{ number_format($supply->cost_per_unit, 2) }}</x-table.table-td>
                         <x-table.table-td>{{ $detail->notes ?? 'N/A' }}</x-table.table-td>
                     </x-table.table-tr>
+
+                    @php 
+                        $balance_total += $supply->balance;
+                        $cost_total += $supply->cost_per_unit * $supply->balance;
+                    @endphp
                 @endforeach
+
+
+                <x-table.table-tr>
+                    <x-table.table-th></x-table.table-th>
+                    <x-table.table-th class="text-lg font-bold">Total</x-table.table-th>
+                    <x-table.table-th class="text-lg">{{ $balance_total }}</x-table.table-th>
+                    <x-table.table-th class="text-lg">Rp{{ number_format($cost_total) }}</x-table.table-th>
+                    <x-table.table-th></x-table.table-th>
+                </x-table.table-tr>
             </x-table.table-tbody>
         </x-table.table-table>
     </div>

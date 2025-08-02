@@ -210,6 +210,13 @@ class ItemController extends Controller
                             '<td class="border px-4 py-2">' . ($inv->notes) . '</td>' .
                             '</tr>';
                     })->implode('') .
+                    
+                    '<tr>' .
+                        '<td class="border px-4 py-2">Total</td>' .
+                        '<td class="border px-4 py-2">' . $ivts->sum('balance') . ' pcs</td>' .
+                        '<td class="border px-4 py-2"></td>' .
+                        '</tr>' .
+                    
                     '</tbody>' .
                 '</table>';
             })

@@ -11,12 +11,15 @@ use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
 use App\Models\Primary\Item;
 use App\Models\Primary\Transaction;
+use App\Models\Primary\TransactionDetail;
 
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
+
+
 
 class InventoryController extends Controller
 {
@@ -37,6 +40,121 @@ class InventoryController extends Controller
     public function __construct(EximService $eximService)
     {
         $this->eximService = $eximService;
+    }
+
+
+
+    // testing react
+    public function getSupplyTransactions(Request $request)
+    {
+        $validated = $request->validate([
+            'account_id' => 'required|integer',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'search' => 'nullable|string',
+            'page' => 'nullable|integer',
+            'per_page' => 'nullable|integer',
+        ]);
+
+        $validated['start_date'] = $validated['start_date'] ?? now()->startOfYear()->format('Y-m-d');
+        $validated['end_date'] = $validated['end_date'] ?? now()->format('Y-m-d');
+
+
+        $page = $validated['page'] ?? 1;
+        $perPage = $validated['per_page'] ?? 10;
+        $offset = ($page - 1) * $perPage;
+        $search = $validated['search'] ?? null;
+
+
+        $baseQuery = TransactionDetail::with(['transaction', 'detail'])
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->where('detail_id', $validated['account_id'])
+            // ->whereBetween('sent_time', [
+            //     Carbon::parse($validated['start_date'])->startOfDay(),
+            //     Carbon::parse($validated['end_date'])->endOfDay()
+            // ])
+            ->select('transaction_details.*')
+            ->orderBy('transactions.sent_time', 'asc');
+        
+
+
+        if ($search) {
+            $baseQuery->whereHas('transaction', function ($q) use ($search) {
+                $q->where('number', 'like', "%{$search}%")
+                ->orWhere('sender_notes', 'like', "%{$search}%");
+            });
+        }
+
+
+
+        $initQuery = clone $baseQuery;
+        $initBalance = 0;
+
+        if(!is_null($validated['start_date']) && $validated['start_date'] != ''){
+            $baseQuery->where('transactions.sent_time', '>=', Carbon::parse($validated['start_date'])->startOfDay());
+
+            $initQuery->where('transactions.sent_time', '<', Carbon::parse($validated['start_date'])->startOfDay());
+            $initTR = $initQuery->get();
+            $initBalance += $initTR->sum(function ($item) {
+                return floatval($item->debit ?? 0) - floatval($item->credit ?? 0);
+            });
+        }
+
+        if(!is_null($validated['end_date']) && $validated['end_date'] != ''){
+            $baseQuery->where('transactions.sent_time', '<=', Carbon::parse($validated['end_date'])->endOfDay());
+        }
+
+
+
+        // Total
+        $total = (clone $baseQuery)->count();
+
+        // Get full data before current page for initial balance
+        $initials = (clone $baseQuery)
+            ->skip(0)
+            ->take($offset)
+            ->get();
+
+        $initialDebit = $initials->sum(function ($item) {
+            return floatval($item->debit ?? 0);
+        });
+        $initialCredit = $initials->sum(function ($item) {
+            return floatval($item->credit ?? 0);
+        });
+        $initialBalance = $initialDebit - $initialCredit + $initBalance;
+
+
+
+        // Current page data
+        $results = (clone $baseQuery)
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        $pageDebit = $results->sum(function ($item) {
+            return floatval($item->debit ?? 0);
+        });
+        $pageCredit = $results->sum(function ($item) {
+            return floatval($item->credit ?? 0);
+        });
+
+        $finalBalance = $initialBalance + $pageDebit - $pageCredit;
+
+
+
+        return response()->json([
+            'total' => $total,
+            'initial_balance' => $initialBalance,
+            'final_balance' => $finalBalance,
+            'initial_debit' => $initialDebit,
+            'initial_credit' => $initialCredit,
+            'page_debit' => $pageDebit,
+            'page_credit' => $pageCredit,
+            'page' => $page,
+            'per_page' => $perPage,
+            'data' => $results,
+            'input' => $validated
+        ]);
     }
 
 
@@ -254,7 +372,7 @@ class InventoryController extends Controller
                         $q->orWhereHas('item', function ($q2) use ($search) {
                             $q2->where('name', 'like', "%{$search}%")
                                 ->orWhere('code', 'like', "%{$search}%")
-                                ->orWhere('sku', 'like', "%{$search}%");
+                                ->orWhere('sku', "%{$search}%");
                         });
                     });
                 }
