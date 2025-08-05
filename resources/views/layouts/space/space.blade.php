@@ -77,6 +77,14 @@
                         'summary_type' => 'stockflow',
                     ],
                 ],
+                'balance_stock' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "supplies.report",
+                    'text' => 'Rangkuman Stok (beta)',
+                    'route_params' => [
+                        'summary_type' => 'balance_stock',
+                    ],
+                ],
             ]
         ],
 

@@ -77,6 +77,7 @@ Route::middleware([
 
 
     // Supplies
+    Route::get('supplies/report', function () { return view('primary.inventory.supplies.page'); })->name('supplies.report');
     Route::get('supplies/supply_transactions', [InventoryController::class, 'getSupplyTransactions'])->name('supplies.supply_transactions');
     
     Route::get('supplies/summary', [InventoryController::class, 'summary'])->name('supplies.summary');

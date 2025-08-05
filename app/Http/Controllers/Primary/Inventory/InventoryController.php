@@ -48,16 +48,19 @@ class InventoryController extends Controller
     public function getSupplyTransactions(Request $request)
     {
         $validated = $request->validate([
-            'account_id' => 'required|integer',
+            'account_id' => 'nullable|integer',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
             'search' => 'nullable|string',
             'page' => 'nullable|integer',
             'per_page' => 'nullable|integer',
+            'model_type' => 'nullable|string',
         ]);
 
         $validated['start_date'] = $validated['start_date'] ?? now()->startOfYear()->format('Y-m-d');
         $validated['end_date'] = $validated['end_date'] ?? now()->format('Y-m-d');
+        $validated['account_id'] = $validated['account_id'] ?? null;
+        $validated['model_type'] = $validated['model_type'] ?? null;
 
 
         $page = $validated['page'] ?? 1;
@@ -68,14 +71,19 @@ class InventoryController extends Controller
 
         $baseQuery = TransactionDetail::with(['transaction', 'detail'])
             ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
-            ->where('detail_id', $validated['account_id'])
+            ->select('transaction_details.*')
+            ->orderBy('transactions.sent_time', 'asc');
             // ->whereBetween('sent_time', [
             //     Carbon::parse($validated['start_date'])->startOfDay(),
             //     Carbon::parse($validated['end_date'])->endOfDay()
             // ])
-            ->select('transaction_details.*')
-            ->orderBy('transactions.sent_time', 'asc');
+
+        if(!is_null($validated['account_id']) && $validated['account_id'] != '') 
+            $baseQuery->where('detail_id', $validated['account_id']);
         
+
+        if(!is_null($validated['model_type']) && $validated['model_type'] != '')
+            $baseQuery->where('transaction_details.model_type', $validated['model_type']);
 
 
         if ($search) {
@@ -517,6 +525,7 @@ class InventoryController extends Controller
     public $summary_types = [
         'stockflow' => 'Arus Stock',
         'stockflow_items' => 'Arus Stok per Item',
+        'balance_stock' => 'Neraca Stock',
     ];
 
     public function summary(Request $request)
@@ -570,11 +579,28 @@ class InventoryController extends Controller
                 $data_summary = $data->{$validated['summary_type']};
             }
 
+            $spaces_data = $spaces->toArray();
+            if($validated['summary_type'] == 'balance_stock'){
+                foreach($spaces_data as $key => $space){
+                    $spaces_data[$key]['inventory_value'] = isset($data_summary[$space['id']]) && $data_summary[$space['id']] ? $data_summary[$space['id']]->sum('change') : 0;
+                }
+
+                $data_summary = $spaces_data;
+            }
+
+
+            // stockflow
+            if($validated['summary_type'] == 'stockflow'){
+                $stockflow = $this->getSummaryStockflow($txs);
+                $data_summary = $stockflow->toArray();
+            }
+
+
             return response()->json([
                 'data' => $data_summary,
                 'summary_types' => $this->summary_types,
                 'success' => true,
-                'spaces' => $spaces->toArray(),
+                'spaces' => $spaces_data,
                 'input' => $validated,
             ]);
         }
@@ -583,6 +609,50 @@ class InventoryController extends Controller
     }
 
     
+
+    public function getSummaryStockflow($txs){
+        $stockflow = collect();
+
+        $txs_per_date = $txs->groupBy('sent_time');
+
+        $space_supply = 0;
+
+        foreach($txs_per_date as $end_date => $txs){
+            $per_date_change = [
+                'PO' => 0,
+                'SO' => 0,
+                'FND' => 0,
+                'LOSS' => 0,
+                'RTR' => 0,
+                'DMG' => 0,
+                'MV' => 0,
+                'UNDF' => 0,
+            ];
+            
+            $per_date = [
+                'date' => $end_date,
+                'change' => 0,
+                'balance' => $space_supply,
+            ];
+
+            foreach($txs as $tx){
+                foreach($tx->details as $detail){
+                    // tx
+                    $per_date_change[$detail->model_type] += $detail->quantity * $detail->cost_per_unit;
+                }
+            }
+
+            $per_date['change'] += array_sum($per_date_change);
+            $per_date['balance'] += $per_date['change'];
+            $space_supply = $per_date['balance'];
+
+            $per_date = array_merge($per_date, $per_date_change);
+            $stockflow->push($per_date);
+        }
+
+        return $stockflow;
+    }
+
 
     public function getSummaryData($data, $txs, $spaces, $validated){
         $summary_type = $validated['summary_type'] ?? null;
@@ -667,6 +737,8 @@ class InventoryController extends Controller
     
         $data->items_data = $items_data;
         $data->stockflow_items = $items_data;
+
+        $data->balance_stock = $spaces_data;
 
         return $data;
     }

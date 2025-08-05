@@ -16,7 +16,7 @@ Route::middleware([
         Route::get('/export', 'exportData');
 
         Route::get('/summary', 'summary');
-        Route::get('/transactions', 'getTransactions');
+        Route::get('/transactions', 'getSupplyTransactions');
     });
 
     Route::prefix('accounts')->controller(AccountController::class)->group(function () {
