@@ -22,6 +22,8 @@ use App\Http\Controllers\Primary\Transaction\JournalSupplyController;
 use App\Http\Controllers\Primary\Transaction\JournalAccountController;
 
 use App\Http\Controllers\Primary\Access\VariableController;
+use App\Http\Controllers\Primary\Access\PermissionController;
+use App\Http\Controllers\Primary\Access\RoleController;
 
 use App\Http\Controllers\Primary\Summary\ReportController;
 
@@ -133,6 +135,12 @@ Route::middleware([
     // Access
     Route::get('variables/data', [VariableController::class, 'getVariablesData'])->name('variables.data');
     Route::resource('variables', VariableController::class);
+
+    Route::get('roles/data', [RoleController::class, 'getData'])->name('roles.data');
+    Route::resource('roles', RoleController::class);
+
+    Route::get('skills/data', [PermissionController::class, 'getData'])->name('skills.data');
+    Route::resource('skills', PermissionController::class);
 
 
     // Reports

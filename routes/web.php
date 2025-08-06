@@ -57,9 +57,9 @@ Route::middleware([
     Route::post('/companies/acceptInvite/{id}', [CompanyController::class, 'acceptInvite'])->name('companies.acceptInvite');
     Route::post('/companies/rejectInvite/{id}', [CompanyController::class, 'rejectInvite'])->name('companies.rejectInvite');
 
-    Route::resource('roles', RoleController::class);
-    Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-    Route::get('/roles/data', [RoleController::class, 'getRolesData'])->name('roles.data');
+    Route::resource('ranks', RoleController::class);
+    Route::get('/ranks', [RoleController::class, 'index'])->name('ranks.index');
+    Route::get('/ranks/data', [RoleController::class, 'getRolesData'])->name('ranks.data');
 
     Route::resource('permissions', PermissionController::class);
 });

@@ -13,9 +13,18 @@ use Illuminate\Http\Request;
 class PermissionController extends Controller
 {
     public function getData(Request $request){
-        $space_id = get_space_id($request);
+        $space_id = get_space_id($request, false);
 
         $query = Permission::query();
+
+
+        // guard
+        $guard_name = $request->get('guard_name') ?? 'space';
+        if($guard_name){
+            if($guard_name != 'all'){
+                $query->where('guard_name', $guard_name);
+            }
+        }
 
 
         // Limit
@@ -51,8 +60,35 @@ class PermissionController extends Controller
 
 
 
+        // return datatable
+        $return_type = $request->get('return_type');
+        if($return_type && $return_type == 'DT'){
+            return DataTables::of($query)
+                ->addColumn('actions', function ($data) {
+                    $route = 'skills';
+                    
+                    $actions = [
+                        'edit' => 'modal',
+                        // 'delete' => 'button',
+                    ];
+
+                    return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
+                })
+                ->rawColumns(['actions'])
+                ->make(true);
+        }
+
+
+
         // return result
         return DataTables::of($query)->make(true);
+    }
+
+
+
+    public function index(Request $request)
+    {
+        return view('primary.access.skills.index');
     }
 
 
@@ -72,11 +108,17 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
+            $validated = $request->validate([
                 'name' => 'required|unique:permissions,name',
+                'guard_name' => 'nullable',
             ]);
 
-            $data = Permission::create(['name' => $request->name]);
+            if(!isset($validated['guard_name'])){
+                $validated['guard_name'] = 'web';
+            }
+
+
+            $data = Permission::create($validated);
 
             return response()->json(['message' => 'Permission created successfully', 'success' => true, 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -106,10 +148,12 @@ class PermissionController extends Controller
 
 
     // Menghapus permission
-    public function destroy(Request $request, String $id)
+    public function destroy(Request $request, $id)
     {
         try {
             $permission = Permission::findOrFail($id);
+            dd($permission);
+
             $permission->delete();
 
             return response()->json(['message' => 'Permission deleted successfully', 'success' => true, 'data' => $permission], 200);

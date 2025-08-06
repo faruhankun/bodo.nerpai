@@ -152,6 +152,7 @@
                 ],
             ]
         ],
+
         'Players' => [
             'dropdown_id' => 'players',
             'dropdown_text' => 'Pemain',
@@ -170,6 +171,7 @@
                 ],
             ]
         ],
+
         'Summary' => [
             'dropdown_id' => 'summary',
             'dropdown_text' => 'Summary',
@@ -181,10 +183,23 @@
                 ],
             ]
         ],
+
         'Access' => [
             'dropdown_id' => 'access',
             'dropdown_text' => 'Access',
             'dropdown_items' => [
+                'roles' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "roles.index",
+                    'text' => 'Roles',
+                ]
+
+                'skills' => [
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "skills.index",
+                    'text' => 'Skills',
+                ],
+
                 'variables' => [
                     'icon' => 'icon-checklist-paper',
                     'route' => "variables.index",
@@ -192,6 +207,7 @@
                 ],
             ]
         ],
+        
         'Exit' => [
             'icon' => 'icon-arrow-right',
             'route' => "spaces.exit",
