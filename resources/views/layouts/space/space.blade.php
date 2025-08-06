@@ -192,7 +192,7 @@
                     'icon' => 'icon-checklist-paper',
                     'route' => "roles.index",
                     'text' => 'Roles',
-                ]
+                ],
 
                 'skills' => [
                     'icon' => 'icon-checklist-paper',

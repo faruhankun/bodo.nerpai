@@ -22,11 +22,24 @@ use App\Models\Primary\Space;
 class RoleController extends Controller
 {
     public function getData(Request $request){
-        $space_id = get_space_id($request);
+        $space_id = get_space_id($request, false);
 
         $query = Role::query()
                     ->with('permissions')
                     ->where('team_id', $space_id);
+
+
+        // space
+        $guard_name = $request->get('guard_name') ?? 'space';
+        if($guard_name){
+            if($guard_name == 'space' && !$space_id){
+                return response()->json(['message' => 'Space not found', 'success' => false], 500);
+            }
+            if($guard_name != 'all'){
+                $query->where('team_id', $space_id);
+            }
+        }
+
 
 
         // Limit
@@ -64,7 +77,37 @@ class RoleController extends Controller
 
 
 
-        // return result
+        // return datatable
+        $return_type = $request->get('return_type');
+        if($return_type && $return_type == 'DT'){
+            return DataTables::of($query)
+                ->addColumn('actions', function ($data) {
+                    $route = 'roles';
+                    
+                    $actions = [
+                        'edit' => 'modal',
+                        // 'delete' => 'button',
+                    ];
+
+                    return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
+                })
+                
+                ->addColumn('show_skills', function ($data) {
+                    $permissions = $data->permissions;
+                    
+                    return $permissions->map(function ($permission) {
+                        return '<span
+                                    class="inline-block px-2 py-1 bg-blue-100 text-blue-600 text-xs font-medium rounded-lg mr-1 mb-1">
+                                    '. $permission->name .'
+                                </span>';
+                    })->implode(' '); 
+                })
+
+                ->rawColumns(['actions', 'show_skills'])
+                ->make(true);
+        }
+
+
         return DataTables::of($query)->make(true);
     } 
 
@@ -140,19 +183,22 @@ class RoleController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|unique:roles,name',
-            'permissions' => 'array', // Pastikan permissions berupa array
+            'permissions' => 'nullable|array', // Pastikan permissions berupa array
         ]);
     
         
         app(PermissionRegistrar::class)->setPermissionsTeamId($space_id);
-        $role = Role::create(['name' => $request->name]);
+        $role = Role::create([
+            'name' => $request->name,
+            'guard_name' => 'space',
+        ]);
         // dd($request->all());
 
         
         // Tambahkan permissions ke role
         if ($request->has('permissions')) {
             $permissions = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
-            $role->syncPermissions($permissions);
+            $role->syncPermissions($permissions, 'space');
         }
     
         return response()->json(['message' => 'Role created successfully', 'success' => true, 'data' => $role], 200);
@@ -177,7 +223,9 @@ class RoleController extends Controller
 
         // Convert permission IDs to names before syncing
         if ($request->has('permissions')) {
-            $permissions = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
+            $permissions = Permission::whereIn('id', $request->permissions)
+                                        ->where('guard_name', 'space')
+                                        ->get();
             $role->syncPermissions($permissions);
         }
 
@@ -193,5 +241,21 @@ class RoleController extends Controller
         $role->delete();
 
         return response()->json(['message' => 'Role deleted successfully', 'success' => true, 'data' => $role], 200);
+    }
+
+
+    public function index(Request $request){
+        $space_id = get_space_id($request, false);
+
+        $query = Permission::query();
+
+        if($space_id){
+            $query->where('guard_name', 'space');
+        }
+
+        $permissions = $query->get();
+
+
+        return view('primary.access.roles.index', compact('permissions'));
     }
 }
