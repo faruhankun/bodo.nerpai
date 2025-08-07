@@ -14,9 +14,11 @@
             Handler: {{ $data->handler_notes ?? '-' }}
         </x-div-box-show>
         
-    
+        <x-div-box-show title="Space Transaksi ini">
+            Space: {{ $data?->space?->name ?? 'N/A' }}
+        </x-div-box-show>
         <x-div-box-show title="Total Amount">Rp{{ number_format($data->total, 2) }}</x-div-box-show>
-        <x-div-box-show title="TX Asal">
+        <x-div-box-show title="TX Terkait">
             TX: {{ $data->input?->number ?? '-' }} <br>
             Space: {{ $data?->input?->space?->name ?? 'N/A' }}
         </x-div-box-show>

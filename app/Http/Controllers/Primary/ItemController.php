@@ -206,8 +206,14 @@ class ItemController extends Controller
 
                         return '<tr>' .
                             '<td class="border px-4 py-2">' . ($inv->space?->name ?? 'N/A') . '</td>' .
-                            '<td class="border px-4 py-2">' . ($inv->balance) . ' pcs</td>' .
-                            '<td class="border px-4 py-2">' . ($inv->notes) . '</td>' .
+                            '<td class="border px-4 py-2 font-bold text-md text-blue-600">
+                                <a href="javascript:void(0)" onclick="show_tx_modal(\'' . $inv->id . '\', \'' . $inv->sku . '\', \'' . $inv->name . '\')">
+                                    ' . number_format($inv->balance) . ' pcs
+                                </a></td>' .
+                            '<td class="border px-4 py-2 font-bold text-md text-blue-600">
+                                <a href="javascript:void(0)" onclick="edit_supply(\'' . $inv->id . '\', \'' . $inv->status . '\', \'' . $inv->notes . '\')">
+                                    note:' . ($inv->notes) . '
+                                </a></td>' .
                             '</tr>';
                     })->implode('') .
                     
