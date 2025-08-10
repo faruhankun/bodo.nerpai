@@ -20,10 +20,12 @@ class ItemController extends Controller
     public function getData(Request $request){
         $space_id = get_space_id($request);
 
+        $space = Space::findOrFail($space_id);
+        $spaces = array($space_id, $space->parent_id);
+
         $query = Item::with('inventories')
-                    ->whereHas('inventories', function ($q2) use ($space_id) {
-                        $q2->where('space_id', $space_id);
-                    });
+                    ->whereIn('space_id', $spaces);
+
 
 
         // Limit
@@ -68,6 +70,56 @@ class ItemController extends Controller
 
 
 
+    public function updateInventoryToChildren(Request $request){
+        try {
+            $validated = $request->validate([
+                'id' => 'required|exists:items,id',
+            ]);
+
+            $item = Item::with('inventories', 'space')->findOrFail($validated['id']);
+
+            $space_and_children = $item->space->spaceAndChildren()->pluck('id')->toArray();
+            $space_with_inventories = $item->inventories()->pluck('space_id')->toArray();
+
+
+            // create inventory to children who don't have it
+            foreach ($space_and_children as $space_id) {
+                if(!in_array($space_id, $space_with_inventories)){
+                    $ivt = [
+                        'item_type' => 'ITM',
+                        'item_id' => $item->id,
+                        
+                        'space_type' => $item->space_type,
+                        'space_id' => $space_id,
+
+                        'name' => $item->name,
+                        'code' => $item->code,
+                        'sku' => $item->sku,
+                        'cost_per_unit' => $item->cost,
+
+                        'status' => $item->status,
+                        'notes' => $item->notes,
+
+                        'model_type' => 'SUP',
+                        'parent_type' => 'IVT',
+                    ];
+
+                    $supply = Inventory::create($ivt);
+                }
+            }
+
+
+            return response()->json([
+                'data' => array($item),
+                'success' => true,
+                'message' => 'Supplies for item have been updated successfully',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
+        }
+    }
+
+
     public function index()
     {
         return view('primary.items.index');
@@ -78,8 +130,7 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
-        $request_source = get_request_source($request);
-
+        $space_id = get_space_id($request);
 
         try {
             $validatedData = $request->validate([
@@ -89,25 +140,20 @@ class ItemController extends Controller
                 'notes' => 'nullable|string',
             ]);
 
+            $validatedData['space_type'] = 'SPACE';
+            $validatedData['space_id'] = $space_id;
+
+
             $item = Item::create($validatedData);
         } catch (\Throwable $th) {
-            if($request_source == 'api'){
-                return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
-            }
-
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
         }
 
-
-        if($request_source == 'api'){
-            return response()->json([
-                'data' => array($item),
-                'success' => true,
-                'message' => 'Item created successfully',
-            ]);
-        }
-
-        return redirect()->route('items.index')->with('success', 'Item created successfully');
+        return response()->json([
+            'data' => array($item),
+            'success' => true,
+            'message' => 'Item created successfully',
+        ]);
     }
     
 
@@ -185,12 +231,14 @@ class ItemController extends Controller
     public function getItemsData(Request $request){
         $space_id = get_space_id($request);
 
-        $spaces_id = Space::findOrFail($space_id)->spaceAndChildren()->pluck('id')->toArray();
+        $space = Space::findOrFail($space_id);
+        $spaces_id = $space->spaceAndChildren()->pluck('id')->toArray();
+
+        $space_and_parents = array($space_id, $space->parent_id);
 
         $items = Item::with('inventories')
-                    ->whereHas('inventories', function ($query) use ($spaces_id) {
-                        $query->whereIn('space_id', $spaces_id);
-                    });
+                    ->whereIn('space_id', $space_and_parents);
+
 
 
         return DataTables::of($items)
@@ -212,8 +260,10 @@ class ItemController extends Controller
                                 </a></td>' .
                             '<td class="border px-4 py-2 font-bold text-md text-blue-600">
                                 <a href="javascript:void(0)" onclick="edit_supply(\'' . $inv->id . '\', \'' . $inv->status . '\', \'' . $inv->notes . '\')">
-                                    note:' . ($inv->notes) . '
-                                </a></td>' .
+                                    ' . 
+                                    ($inv->notes == '' ? 'note?' : $inv->notes) 
+                                    . 
+                                '</a></td>' .
                             '</tr>';
                     })->implode('') .
                     
@@ -264,6 +314,9 @@ class ItemController extends Controller
 
     public function searchItem(Request $request)
     {
+        $space_id = get_space_id($request);
+        $space_and_parents = array($space_id, Space::findOrFail($space_id)->parent_id);
+
         $search = $request->q;
 
         $items = Item::where(function ($query) use ($search) {
@@ -272,6 +325,9 @@ class ItemController extends Controller
                 ->orWhere('sku', 'like', "%$search%")
                 ->orWhere('id', 'like', "%$search%");
         })
+
+            ->whereIn('space_id', $space_and_parents)
+
             ->orderBy('id', 'desc')
             ->limit(50) // limit hasil
             ->get()

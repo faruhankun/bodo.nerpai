@@ -10,9 +10,9 @@
                 <x-table.table-th>In</x-table.table-th>
                 <x-table.table-th>In Value</x-table.table-th>
                 <x-table.table-th>Out</x-table.table-th>
-                <x-table.table-th>Omzet</x-table.table-th>
-                <x-table.table-th>Cost</x-table.table-th>
-                <x-table.table-th>Margin</x-table.table-th>
+                <x-table.table-th>Nilai Stock</x-table.table-th>
+                <!-- <x-table.table-th>Cost</x-table.table-th>
+                <x-table.table-th>Margin</x-table.table-th> -->
                 <x-table.table-th>Actions</x-table.table-th>
             </tr>
         </x-table.table-thead>
@@ -25,9 +25,9 @@
                         <x-table.table-td>{{ $value['in'] ?? 0 }}</x-table.table-td>
                         <x-table.table-td>{{ $value['in_subtotal'] ?? 0 }}</x-table.table-td>
                         <x-table.table-td>{{ $value['out'] ?? 0 }}</x-table.table-td>
-                        <x-table.table-td>{{ $value['omzet'] ?? 0 }}</x-table.table-td>
-                        <x-table.table-td>{{ $value['out_subtotal'] ?? 0 }}</x-table.table-td>
-                        <x-table.table-td>{{ $value['margin'] ?? 0 }}</x-table.table-td>
+                        <x-table.table-td>{{ ($value['in_subtotal'] ?? 0) - ($value['out_subtotal'] ?? 0) }}</x-table.table-td>
+                        <!-- <x-table.table-td>{{ $value['out_subtotal'] ?? 0 }}</x-table.table-td>
+                        <x-table.table-td>{{ $value['margin'] ?? 0 }}</x-table.table-td> -->
                         <x-table.table-td>
                         </x-table.table-td>
                     </x-table.table-tr>

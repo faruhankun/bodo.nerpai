@@ -436,6 +436,16 @@ class JournalSupplyController extends Controller
     public function importData(Request $request)
     {
         $space_id = get_space_id($request);
+
+        $space = Space::findOrFail($space_id);
+        $spaces = array($space_id);
+        $space_parent_id = $space->parent_id ?? null;
+
+        if($space->parent_id){
+            $spaces[] = $space->parent_id;
+        }
+
+
         $request_source = get_request_source($request);
         $player_id = $request->player_id ?? (session('player_id') ?? auth()->user()->player->id);
 
@@ -490,10 +500,16 @@ class JournalSupplyController extends Controller
     
     
                             // look up item
-                            $item = Item::Where('sku', $row['item_sku'])
-                                        ->orWhere('name', $row['item_name'])
+                            $item = Item::whereIn('space_id', $spaces)
+                                        ->where('space_type', 'SPACE')
+                                        ->where(function ($q) use ($row) {
+                                            $q->where('sku', $row['item_sku'])
+                                            ->orWhere('name', $row['item_name']);
+                                        })
                                         ->first();
     
+
+                            
                             // create or use item
                             if(!$item){
                                 $item = Item::create([
@@ -503,6 +519,8 @@ class JournalSupplyController extends Controller
                                     'cost' => $row['item_cost'] ?? 0,
                                     'weight' => $row['item_weight (gram)'] ?? 0,
                                     'notes' => $row['notes'] ?? null,
+                                    'space_type' => 'SPACE',
+                                    'space_id' => $space_parent_id ?? $space_id,
                                 ]);
                             }
     

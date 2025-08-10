@@ -75,6 +75,12 @@
     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 
 
+    <!-- Action Section -->
+    <h3 class="text-lg font-bold my-3">Actions</h3>
+    <div class="flex gap-3 mt-8">
+        <x-secondary-button type="button" onclick="updateInventoryToChildren({{ $data->id }})">Update Inventory to Children</x-secondary-button>
+    </div>
+
 
     <div class="flex gap-3 justify-end mt-8">
         <x-secondary-button type="button" @click="isOpen = false">Cancel</x-secondary-button>

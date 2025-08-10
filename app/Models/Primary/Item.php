@@ -30,6 +30,9 @@ class Item extends Model
         'dimension',
         'status',
         'notes',
+
+        'space_type',
+        'space_id',
     ];
 
 
@@ -50,5 +53,11 @@ class Item extends Model
     public function inventories()
     {
         return $this->hasMany(Inventory::class);
+    }
+
+
+    public function space()
+    {
+        return $this->morphTo();
     }
 }

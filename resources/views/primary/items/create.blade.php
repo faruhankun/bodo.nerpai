@@ -1,5 +1,5 @@
 <x-crud.modal-create title="Create Item" trigger="Create Item">
-    <form action="{{ route('items.store') }}" method="POST" class="mt-4">
+    <form action="{{ route('items.store') }}" method="POST" class="mt-4" id="createDataForm">
         @csrf
         @include('primary.items.partials.dataform', ['form' => ['id' => 'Create Item', 'mode' => 'create']])
     </form>

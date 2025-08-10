@@ -13,6 +13,8 @@ Route::middleware([
         Route::get('/import', 'importTemplate');
         Route::post('/import', 'importData');
         Route::get('/export', 'exportData');
+
+        Route::post('/update-inventories-children', 'updateInventoryToChildren');
     });
 });
 

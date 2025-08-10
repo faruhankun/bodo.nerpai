@@ -350,6 +350,11 @@ class InventoryController extends Controller
                 $item_display = ($data->item_type ?? '?') . ' : ' . ($data->item->name ?? '?');
                 return $item_display;
             })
+
+            ->addColumn('cost_total', function ($data) {
+                return $data->balance * $data->cost_per_unit;
+            })
+
             ->addColumn('actions', function ($data) {
                 $route = 'supplies';
                 
