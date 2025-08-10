@@ -42,15 +42,6 @@ class TradeController extends Controller
 
 
 
-    // index
-    public function getTradesData(Request $request){
-        $response = $this->tradeService->getIndexData($request);
-
-        return $response;
-    }
-
-
-
     // Export Import
     public function eximData(Request $request){
         $query = $request->get('query');
@@ -95,49 +86,7 @@ class TradeController extends Controller
     }
 
 
-    public function index()
-    {
-        return view('primary.transaction.trades.index');
-    }
-
-
-    // Buy
-    public function indexPO()
-    {
-        return view('primary.transaction.trades.po');
-    }
-
-    public function indexSO()
-    {
-        return view('primary.transaction.trades.so');
-    }
-
-
-    public function create(Request $request)
-    {
-        $param = request()->all();
-        $players = Player::all();
-        
-        $spaces = [];
-        $space_id = session('space_id') ?? null;
-        if($space_id){
-            $space = Space::with('variables')->findOrFail($space_id);
-            $spaces = $space->AllChildren();
-            $spaces->prepend($space);
-        } else {
-            abort(403);
-        }
-
-        $spaces_with_variable_inventory = Variable::with('space')
-                                                    ->where('key', 'space.setting.inventory')
-                                                    ->whereNotNull('value')
-                                                    ->get()
-                                                    ->pluck('space');
-
-        $spaces = $spaces->whereIn('id', $spaces_with_variable_inventory->pluck('id'));
-
-        return view('primary.transaction.trades.create', compact('param', 'players', 'spaces'));
-    }
+    public function index(){ return view('primary.transaction.trades.index'); }
 
 
 
@@ -286,6 +235,7 @@ class TradeController extends Controller
     }
 
 
+
     public function show(Request $request, String $id)
     {
         $request_source = get_request_source($request);
@@ -314,6 +264,7 @@ class TradeController extends Controller
 
         return view('primary.transaction.trades.show', compact('tx'));
     }
+
 
 
     public function destroy(Request $request, String $id)
@@ -347,53 +298,5 @@ class TradeController extends Controller
             }
             return back()->with('error', 'Failed to delete trades. Please try again.');
         }
-    }
-
-
-
-    public function getTradesPOData(){
-        return $this->getTradesDataModel('PO');
-    }
-
-    public function getTradesSOData(){
-        return $this->getTradesDataModel('SO');
-    }
-
-
-    public function getTradesDataModel($model_type){
-        $trades = [];
-
-        $space_id = session('space_id') ?? null;
-
-        if($model_type){
-            $trades = Transaction::with('input', 'type')
-                                ->orderBy('sent_time', 'desc');
-        }
-
-        
-        if($space_id){
-            // $trades = $trades->where('input_type', 'SPACE')
-            //                 ->where('output_type', 'SPACE');
-            if($model_type == 'SO'){
-                $trades = $trades->where('input_id', $space_id);
-            } else if($model_type == 'PO'){
-                $trades = $trades->where('output_id', $space_id);
-            }
-        } 
-
-        return DataTables::of($trades)
-            ->addColumn('actions', function ($data) {
-                $route = 'trades';
-                
-                $actions = [
-                    'show' => 'button',
-                    'edit' => 'button',
-                    // 'delete' => 'button',
-                ];
-
-                return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
-            })
-            ->rawColumns(['actions'])
-            ->make(true);
     }
 }

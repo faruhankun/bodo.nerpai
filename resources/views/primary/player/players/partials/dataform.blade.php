@@ -7,6 +7,12 @@
 
 
 <div class="form-group mb-4">
+    <x-input-label for="code">Code</x-input-label>
+    <x-text-input name="code" id="{{ $form['mode'] ?? '' }}_code" class="w-full" placeholder="Code (kosong gpp)"></x-text-input>
+</div>
+
+
+<div class="form-group mb-4">
     <x-input-label for="email">Email</x-input-label>
     <x-text-input name="email" id="{{ $form['mode'] ?? '' }}_email" class="w-full" placeholder="Email"></x-text-input>
 </div>

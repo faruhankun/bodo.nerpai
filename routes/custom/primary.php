@@ -45,15 +45,11 @@ Route::middleware([
 
 
     // Transactions
-    Route::get('trades/po/data', [TradeController::class, 'getTradesPOData'])->name('trades.po.data');
-    Route::get('trades/po', [TradeController::class, 'indexPO'])->name('trades.po');
-    Route::get('trades/so/data', [TradeController::class, 'getTradesSOData'])->name('trades.so.data');
-    Route::get('trades/so', [TradeController::class, 'indexSO'])->name('trades.so');
-
     Route::post('trades/exim', [TradeController::class, 'eximData'])->name('trades.exim');
     Route::get('trades/exim', [TradeController::class, 'eximData'])->name('trades.exim');
-    Route::get('trades/data', [TradeController::class, 'getTradesData'])->name('trades.data');
+    Route::get('trades/data', [TradeController::class, 'getData'])->name('trades.data');
     Route::resource('trades', TradeController::class);
+
 
     Route::get('journal_supplies/import', [JournalSupplyController::class, 'importTemplate'])->name('journal_supplies.import_template');
     Route::post('journal_supplies/import', [JournalSupplyController::class, 'importData'])->name('journal_supplies.import');

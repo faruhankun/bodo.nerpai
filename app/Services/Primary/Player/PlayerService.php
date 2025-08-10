@@ -47,6 +47,7 @@ class PlayerService
         try {
             $validated = $request->validate([
                 'name' => 'nullable|string|max:255',
+                'code' => 'nullable|string|max:255',
                 'email' => 'nullable|string|email',
                 'phone_number' => 'nullable|string|max:20',
                 'status' => 'nullable|string|max:50',
@@ -75,6 +76,7 @@ class PlayerService
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
+                'code' => 'nullable|string|max:255',
                 'email' => 'nullable|string|email',
                 'phone_number' => 'nullable|string|max:20',
                 'status' => 'required|string|max:50',

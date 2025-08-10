@@ -1,92 +1,262 @@
 @php
-    $space_id = session('space_id') ?? null;
-    $player = auth()->user()->player ?? null;
     $layout = session('layout');
 
-    $tx_type = $tx->input_id == $space_id ? 'SO' : 'PO';
-
-    if(is_null($tx_type)){
-        abort(404);
+    $space_id = session('space_id') ?? null;
+    if(is_null($space_id)){
+        abort(403);
     }
 
-    if($tx_type == 'PO'){
-        $header = 'Purchase Order';
-        $route_back = route('trades.po');
-    } else if($tx_type == 'SO'){
-        $header = 'Sales Order';
-        $route_back = route('trades.so');
-    }
+    $player = session('player_id') ? \App\Models\Primary\Player::findOrFail(session('player_id')) : Auth::user()->player;
+
+    $spaces_dest = $player?->spaces->where('id', '!=', $space_id) ?? [];
+    $output_journal = $journal?->output;
+
+    $spaces_origin = $player?->spaces->where('id', '!=', $space_id) ?? [];
+    $input_journal = $journal?->input;
 @endphp
+
 
 <x-dynamic-component :component="'layouts.' . $layout">
     <div class="py-12">
         <div class=" sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
-                    <h3 class="text-2xl dark:text-white font-bold">Update {{ $header }} : {{ $tx->number }}</h3>
+                    <h3 class="text-2xl dark:text-white font-bold">Edit Journal: {{ $journal->number }}</h3>
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
-                    <form action="{{ route('trades.update', $tx->id) }}" method="POST" onsubmit="return validateForm()">
+                    <form action="{{ route('journal_supplies.update', $journal->id) }}" method="POST" onsubmit="return validateForm()">
                         @csrf
                         @method('PUT')
 
-                        <input type="hidden" name="space_id" value="{{ $space_id }}">
 
-                        <input type="hidden" name="model_type" value="{{ $tx_type }}">
+                        @include('primary.transaction.journal_supplies.partials.dataform', ['form' => ['id' => 'Edit Journal', 'mode' => 'edit'], 'data' => $journal])
 
-                        @include('primary.transaction.trades.partials.dataform', [
-                            'players' => $players,
-                            'spaces' => $spaces,
-                            'form' => ['id' => 'Edit Trades', 'mode' => 'edit', 'type' => $tx_type]
-                            ])
+
 
                         <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
+                        <div class="container">
+                            <!-- Journal Details Table -->
+                            <x-table.table-table id="journalDetailTable">
+                                <x-table.table-thead>
+                                    <tr>
+                                        <x-table.table-th>No</x-table.table-th>
+                                        <x-table.table-th>Supply</x-table.table-th>
+                                        <x-table.table-th>Qty</x-table.table-th>
+                                        <x-table.table-th>Type</x-table.table-th>
+                                        <x-table.table-th>Cost/Unit</x-table.table-th>
+                                        <x-table.table-th>Notes</x-table.table-th>
+                                        <x-table.table-th>Action</x-table.table-th>
+                                    </tr>
+                                </x-table.table-thead>
+                                <x-table.table-tbody id="journal-detail-list">
+                                </x-table.table-tbody>
+                            </x-table.table-table>
+
+                            <div class="mb-4">
+                                <x-button2 type="button" id="add-detail" class="mr-3 m-4">Add Journal
+                                    Detail</x-button2>
+                            </div>
+
+                                        
+                            <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+                        </div>
+
                         <div class="m-4 flex justify-end space-x-4">
-                            <a href="{{ $route_back }}">
+                            <a href="{{ route('journal_supplies.index') }}">
                                 <x-secondary-button type="button">Cancel</x-secondary-button>
                             </a>
-                            <x-primary-button>Update Trades</x-primary-button>
+                            <x-primary-button>Update Journal</x-primary-button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</x-dynamic-component>
 
+    <script>
+        $(document).ready(function() {
+            // Journal
+            let journal = {!! json_encode($journal) !!};
+            let journal_details = {!! json_encode($journal->details) !!};
 
-<script>
-    $(document).ready(function() {
-        let tx = @json($tx);
+            let sentTime = '{{ $journal->sent_time->format('Y-m-d') }}';
+            $("#edit_sent_time").val(sentTime);
+            $("#edit_handler_notes").val(journal.handler_notes);
 
-        let tx_type = "{{ $tx_type }}";
-        let player = @json($player);
-
-        
-        $('#edit_sender_id').val(tx.sender_id);
-        $('#edit_sent_date').val(tx.sent_date);
-        $('#edit_sender_notes').val(tx.sender_notes);
-        $('#edit_input_id').val(tx.input_id);
-        
-        $('#edit_receiver_id').val(tx.receiver_id);
-        $('#edit_received_date').val(tx.received_date);
-        $('#edit_receiver_notes').val(tx.receiver_notes);
-        $('#edit_output_id').val(tx.output_id);
-        
-
-        if(tx_type == 'PO'){
-            $('#edit_receiver_id').prop('disabled', true);
-            $('#edit_receiver_id_hidden').val(tx.receiver_id);
+            // Details
+            let detailIndex = {{ $journal->details->count() }};
+            journal_details.forEach(appendDetailRow);
             
-            $('#edit_input_id').prop('disabled', true);
-        } else if(tx_type == 'SO'){
-            $('#edit_sender_id').prop('disabled', true);
-            $('#edit_sender_id_hidden').val(tx.sender_id);
+            // setTimeout(() => {
+            //     $('.inventory-select').each(function() {
+            //         initInventorySelect($(this));
+            //     });
+            // }, 0);
+        });
+    </script>
+    
+    <!-- Rows -->
+    <script>
+        let detailIndex = 0;
 
-            $('#edit_output_id').prop('disabled', true);
+        function formatNumberNoTrailingZeros(num, precision = 2) {
+            return new Intl.NumberFormat('en-US', {
+                useGrouping: false,
+                maximumFractionDigits: precision
+            }).format(num);
         }
 
+        function renderDetailRow(detail = {}) {
+            const rowIndex = detailIndex++;
+            const selectedId = detail.detail_id || '';
+            const quantity = detail.quantity || 0;
+            const selectedModel = detail.model_type || '';
+            const cost_per_unit = detail.cost_per_unit || 0;
+            const notes = detail.notes || '';
 
-    });
-</script>
+            const model_types = @json($model_types);
+            const modelTypeOptions = model_types.map(model_type => {
+                const selected = model_type.id === selectedModel ? 'selected' : '';
+                return `<option value="${model_type.id}" ${selected}>${model_type.name}</option>`;
+            }).join('');
+
+            return `
+                <tr class="detail-row">
+                    <td class="mb-2">${rowIndex + 1}</td>
+                    <td>
+                        <select name="details[${rowIndex}][detail_id]" class="inventory-select w-20" required>
+                            <option value="">Select Inventory</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="details[${rowIndex}][quantity]" class="quantity-input w-20" value="${formatNumberNoTrailingZeros(quantity)}">
+                    </td>
+                    <td>
+                        <select name="details[${rowIndex}][model_type]" class="model_type-select type-select my-3" required>
+                            <option value="">Select Type</option>
+                            ${modelTypeOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" size="5" name="details[${rowIndex}][cost_per_unit]" class="cost_per_unit-input w-25" value="${formatNumberNoTrailingZeros(cost_per_unit)}" default="0" min="0">
+                    </td>
+                    <td>
+                        <input type="text" name="details[${rowIndex}][notes]" class="notes-input" value="${notes}">
+                    </td>
+                    <td>
+                        <button type="button" class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function initInventorySelect($element, selectedData = null) {
+            $element.select2({
+                placeholder: 'Search & Select Supply',
+                minimumInputLength: 2,
+                width: '100%',
+                height: '100%',
+                padding: '20px',
+                ajax: {
+                    url: '/supplies/search',
+                    dataType: 'json',
+                    paginate: true,
+                    data: function(params) {
+                        return {
+                            q: params.term,
+                            space: '{{ $space_id }}',
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.map(item => ({
+                                id: item.id,
+                                text: item.text, // Ubah sesuai nama field yang kamu punya
+                                cost_per_unit: item.cost_per_unit
+                            }))
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            if (selectedData) {
+                // Delay agar select2 benar-benar ter-attach
+                const option = new Option(selectedData.text, selectedData.id, true, true);
+                $element.append(option).trigger('change');
+            }
+
+            // Event setelah pilih inventory
+            $element.on('select2:select', function(e) {
+                const selected = e.params.data;
+                const $row = $(this).closest('tr');
+                $row.find('.cost_per_unit-input').val(selected.cost_per_unit || 0);
+            });
+        }
+
+        function appendDetailRow(detail) {
+            const $row = $(renderDetailRow(detail));
+            $("#journal-detail-list").append($row);
+
+            const $select = $row.find('.inventory-select');
+            const selectedData = detail.detail_id && detail.detail ? {
+                id: detail.detail_id,
+                text: `${detail.detail.sku} - ${detail.detail.name} qty: ${detail.detail.balance} : ${detail.detail.notes}`,
+            } : null;
+
+            setTimeout(() => {
+                initInventorySelect($select, selectedData);
+            }, 0);
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() { 
+            // Add Journal Detail row
+            $("#add-detail").click(function() {
+                let newRow = renderDetailRow();
+                const $row = $(newRow);
+
+                $("#journal-detail-list").append($row);
+
+                initInventorySelect($row.find('.inventory-select'));
+            });
+
+            // Remove Journal Detail row
+            $(document).on("click", ".remove-detail", function() {
+                $(this).closest("tr").remove();
+            });
+        });
+
+        function validateForm() {
+            // Your validation logic here
+            let isValid = true;
+
+            // cek apakah setiap baris, debit/creditnya tidak sama 0
+            let totalDebit = 0;
+            $(".debit-input").each(function() {
+                if ($(this).val() == 0) {
+                    if($(this).closest("tr").find(".credit-input").val() == 0){
+                        alert("Debit and Credit must not be zero!");
+
+                        isValid = false;
+                        return false;
+                    }
+                }
+
+                totalDebit += parseFloat($(this).val()) || 0;
+            });
+
+            // if(totalDebit == 0){
+            //     alert("Debit and Credit must not be zero!");
+
+            //     isValid = false;
+            // }
+
+            return isValid; // Return true if the form is valid, false otherwise
+        }
+    </script>
+
+</x-dynamic-component>

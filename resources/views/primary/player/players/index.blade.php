@@ -108,6 +108,8 @@
 
         document.getElementById('edit_name').value = data.name;
 
+        document.getElementById('edit_code').value = data.code;
+
         document.getElementById('edit_email').value = data.email;
 
         document.getElementById('edit_phone_number').value = data.phone_number;

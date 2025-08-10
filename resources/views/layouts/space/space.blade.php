@@ -145,15 +145,22 @@
             ]
         ],
 
-        'Transaction' => [
-            'dropdown_id' => 'transactions',
-            'dropdown_text' => 'Transaksi',
+        'Sosial' => [
+            'dropdown_id' => 'social',
+            'dropdown_text' => 'Sosial',
             'dropdown_items' => [
                 'trade' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
                     'route' => "trades.index",
                     'text' => 'Trades',
+                ],
+
+                'interactions' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "players.index",
+                    'text' => 'Interactions',
                 ],
             ]
         ],
