@@ -21,8 +21,8 @@ class PermissionController extends Controller
         // guard
         $guard_name = $request->get('guard_name') ?? 'space';
         if($guard_name){
-            if($guard_name != 'all'){
-                $query->where('guard_name', $guard_name);
+            if($guard_name == 'space'){
+                $query->where('name', 'like', 'space%');
             }
         }
 
@@ -113,11 +113,9 @@ class PermissionController extends Controller
                 'guard_name' => 'nullable',
             ]);
 
-            if(!isset($validated['guard_name'])){
-                $validated['guard_name'] = 'web';
-            }
+            $validated['guard_name'] = 'web';
 
-
+            
             $data = Permission::create($validated);
 
             return response()->json(['message' => 'Permission created successfully', 'success' => true, 'data' => $data], 200);
@@ -137,7 +135,7 @@ class PermissionController extends Controller
             ]);
 
             $permission = Permission::findOrFail($id);
-            $permission->update(['name' => $request->name]);
+            $permission->update(['name' => $request->name, 'guard_name' => 'web']);
 
             return response()->json(['message' => 'Permission updated successfully', 'success' => true, 'data' => $permission], 200);
         } catch (\Exception $e) {

@@ -1,4 +1,9 @@
 @php
+    $user = auth()->user();
+
+    $space_id = get_space_id(request());
+    setPermissionsTeamId($space_id);
+
     $sidebar_access = [
         'players' => auth()->user()->can('players sidebar', 'web'),
         'users' => auth()->user()->can('users sidebar', 'web'),
@@ -169,17 +174,19 @@
                     'route' => "space_players.index",
                     'text' => 'Space Players',
                 ],
-            ]
-        ],
 
-        'Summary' => [
-            'dropdown_id' => 'summary',
-            'dropdown_text' => 'Summary',
-            'dropdown_items' => [
-                'summaries' => [
+                'players' => [
+                    'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "summaries.index",
-                    'text' => 'Summary Reports',
+                    'route' => "players.index",
+                    'text' => 'Players',
+                ],
+
+                'teams' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "teams.index",
+                    'text' => 'Teams',
                 ],
             ]
         ],
@@ -189,18 +196,21 @@
             'dropdown_text' => 'Access',
             'dropdown_items' => [
                 'roles' => [
+                    'auth' => $user->can('space.roles'),
                     'icon' => 'icon-checklist-paper',
                     'route' => "roles.index",
                     'text' => 'Roles',
                 ],
 
                 'skills' => [
+                    'auth' => $user->can('space.skills'),
                     'icon' => 'icon-checklist-paper',
                     'route' => "skills.index",
                     'text' => 'Skills',
                 ],
 
                 'variables' => [
+                    'auth' => $user->can('space.variables'),
                     'icon' => 'icon-checklist-paper',
                     'route' => "variables.index",
                     'text' => 'Variables',

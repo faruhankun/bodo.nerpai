@@ -2,14 +2,15 @@
     $space_id = session('space_id') ?? null;
 @endphp
 
-<x-crud.index-basic header="Skills" 
-                model="skill" 
+<x-crud.index-basic header="Teams" 
+                model="role" 
                 table_id="indexTable"
                 :thead="[
-                    'Id', 'Name', 'Guard', 'Actions']"
+                    'Id', 'Name', 'email', 'Roles', 'Permissions', 'Actions']"
                 >
     <x-slot name="buttons">
-        @include('primary.access.skills.create')
+        @include('primary.player.teams.create')
+
     </x-slot>
 
 
@@ -19,7 +20,7 @@
 
 
     <x-slot name="modals">
-        @include('primary.access.skills.edit')
+        @include('primary.player.teams.edit')
     </x-slot>
 </x-crud.index-basic>
 
@@ -28,7 +29,7 @@
 <script>
     function create(){
         let form = document.getElementById('createDataForm');
-        form.action = '/skills';
+        form.action = '/teams';
 
         // Dispatch event ke Alpine.js untuk membuka modal
         window.dispatchEvent(new CustomEvent('create-modal'));
@@ -98,8 +99,21 @@
 
         // document.getElementById('edit_notes').value = data.notes;
 
+
+        // permissions
+        document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+            checkbox.checked = false;
+        });
+
+        (data.permissions ?? []).forEach((permission) => {
+            const cb = document.getElementById('perm_' + permission.id);
+            if(cb) cb.checked = true;
+        });
+
+
+
         let form = document.getElementById('editDataForm');
-        form.action = `/skills/${data.id}`;
+        form.action = `/teams/${data.id}`;
 
         // Dispatch event ke Alpine.js untuk membuka modal
         window.dispatchEvent(new CustomEvent('edit-modal-js'));
@@ -161,24 +175,96 @@
     });
 </script>
 
+
 <script>
     $(document).ready(function() {
+        $('#create_user_id').select2({
+            placeholder: 'Search & Select User',
+            minimumInputLength: 2,
+            width: '100%',
+            padding: '0px 12px',
+            ajax: {
+                url: '/api/teams/add-user',
+                dataType: 'json',
+                paginate: true,
+                data: function(params) {
+                    return {
+                        q: params.term,
+                        space_id: '{{ $space_id }}',
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+</script>
+
+
+
+<!-- Roles  -->
+<script>
+    $(document).ready(function() {
+        $('#edit_role_id').select2({
+            placeholder: 'Search & Select Roles',
+            width: '100%',
+            padding: '0px 12px',
+            ajax: {
+                url: '/api/roles/data',
+                dataType: 'json',
+                paginate: true,
+                data: function(params) {
+                    return {
+                        q: params.term,
+                        space_id: '{{ $space_id }}',
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(res) {
+                    return {
+                        results: res.data.map((role) => {
+                            return {
+                                id: role.id,
+                                text: role.name
+                            }
+                        })
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+</script>
+
+
+<!-- Index  -->
+<script>
+    $(document).ready(function() {
+        let space_id = "{{ $space_id }}";
+
         let indexTable = $('#indexTable').DataTable({
             scrollX: true,
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('skills.data') }}",
+                url: "{{ route('teams.data') }}",
                 data: {
                     return_type: 'DT',
-                    guard_name: 'space',
+                    roles: space_id ? 'space' : 'all',
                 }
             },
             pageLength: 10,
             columns: [
                 { data: 'id', name: 'id' },
-                { data: 'name', name: 'name' },
-                { data: 'guard_name', name: 'guard_name' },
+                { data: 'name' },
+                { data: 'email' },
+                { data: 'show_roles' },
+                { data: 'show_permissions' },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false },
             ]
         });

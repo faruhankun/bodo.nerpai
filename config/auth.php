@@ -43,6 +43,10 @@ return [
         'company' => [
             'driver' => 'session',
             'provider' => 'employees',
+        ],
+        'space' => [
+            'driver' => 'session',
+            'provider' => 'players',
         ]
     ],
 
@@ -72,6 +76,11 @@ return [
         'employees' => [
             'driver' => 'eloquent',
             'model' => '\App\Models\Employee::class',
+        ],
+        
+        'players' => [
+            'driver' => 'eloquent',
+            'model' => '\App\Models\Primary\Player::class',
         ],
     ],
 

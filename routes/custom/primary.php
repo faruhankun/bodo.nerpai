@@ -9,6 +9,7 @@ use App\Http\Controllers\Primary\SpaceController;
 
 use App\Http\Controllers\Primary\PlayerController;
 use App\Http\Controllers\Primary\Player\ContactController;
+use App\Http\Controllers\Primary\Player\TeamController;
 
 use App\Http\Controllers\Primary\PersonController;
 use App\Http\Controllers\Primary\GroupController;
@@ -110,6 +111,12 @@ Route::middleware([
     Route::get('contacts/summary', [ContactController::class, 'summary'])->name('contacts.summary');
     Route::get('contacts/data', [ContactController::class, 'getContactsData'])->name('contacts.data');
     Route::resource('contacts', ContactController::class);
+
+
+
+    // Teams
+    Route::get('teams/data', [TeamController::class, 'getData'])->name('teams.data');
+    Route::resource('teams', TeamController::class);
 
 
     
