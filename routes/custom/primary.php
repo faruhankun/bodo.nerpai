@@ -128,9 +128,11 @@ Route::middleware([
     Route::post('players/related', [PlayerController::class, 'storeRelatedPlayer'])->name('players.related.store');
     Route::put('players/related/{id}', [PlayerController::class, 'updateRelatedPlayer'])->name('players.related.update');
     Route::get('players/search', [PlayerController::class, 'searchPlayer'])->name('players.search');
-    Route::get('players/data', [PlayerController::class, 'getPlayersData'])->name('players.data');
+
+    Route::get('players/data', [PlayerController::class, 'getData'])->name('players.data');
     Route::resource('players', PlayerController::class);
 
+    
     Route::get('persons/data', [PersonController::class, 'getPersonsData'])->name('persons.data');
     Route::resource('persons', PersonController::class);
 

@@ -160,26 +160,20 @@
 
         'Players' => [
             'dropdown_id' => 'players',
-            'dropdown_text' => 'Pemain',
+            'dropdown_text' => 'Relasi',
             'dropdown_items' => [
-                'contacts' => [
+                'players' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "contacts.index",
-                    'text' => 'Contacts',
+                    'route' => "players.index",
+                    'text' => 'Kontak',
                 ],
+                
                 'space_players' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
                     'route' => "space_players.index",
                     'text' => 'Space Players',
-                ],
-
-                'players' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "players.index",
-                    'text' => 'Players',
                 ],
 
                 'teams' => [

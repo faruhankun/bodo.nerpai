@@ -1,22 +1,21 @@
 <input type="hidden" name="player_id" class="player_id" value="{{ $player_id ?? '' }}">
 
-@if($form['mode'] == 'create')
-    <x-div.box-input for="new_player_id" label="New Player ID">
-        <select name="new_player_id" id="create_new_player_id" class="form-control w-full select2" required>    
-            <option value="">-- Select Player --</option>
-        </select>
-    </x-div.box-input>
-@endif
-                    
-                    <div class="form-group mb-4">
-                        <x-input-label for="name">Role</x-input-label>
-                        <x-input-select name="type" id="{{ $form['mode'] ?? '' }}_type" class="form-control w-full" required>    
-                            <option value="owner">Owner</option>
-                            <option value="admin">Admin</option>
-                            <option value="member" selected>Member</option>
-                            <option value="guest">Guest</option>
-                        </x-input-select>
-                    </div>
+<div class="form-group mb-4">
+    <x-input-label for="name">Name</x-input-label>
+    <x-text-input name="name" id="{{ $form['mode'] ?? '' }}_name" class="w-full" placeholder="Name" required></x-text-input>
+</div>
+
+
+<div class="form-group mb-4">
+    <x-input-label for="email">Email</x-input-label>
+    <x-text-input name="email" id="{{ $form['mode'] ?? '' }}_email" class="w-full" placeholder="Email"></x-text-input>
+</div>
+
+
+<div class="form-group mb-4">
+    <x-input-label for="phone_number">Phone Number</x-input-label>
+    <x-text-input name="phone_number" id="{{ $form['mode'] ?? '' }}_phone_number" class="w-full" placeholder="Phone Number"></x-text-input>
+</div>
 
 
                     <div class="form-group mb-4">

@@ -42,6 +42,68 @@ class PlayerService
     }
 
 
+
+    public function update(Request $request, $id){
+        try {
+            $validated = $request->validate([
+                'name' => 'nullable|string|max:255',
+                'email' => 'nullable|string|email',
+                'phone_number' => 'nullable|string|max:20',
+                'status' => 'nullable|string|max:50',
+                'notes' => 'nullable|string',
+            ]);
+
+            $player = Player::findOrFail($id);
+            $player->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Player updated successfully',
+                'data' => $player,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    public function store(Request $request){
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'nullable|string|email',
+                'phone_number' => 'nullable|string|max:20',
+                'status' => 'required|string|max:50',
+                'notes' => 'nullable|string',
+            ]);
+
+            $space_id = get_space_id($request);
+            $validated['space_type'] = 'SPACE';
+            $validated['space_id'] = $space_id;
+
+
+            $player = Player::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Player created successfully',
+                'data' => $player,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+
     public function getImportTemplate(){
         $response = $this->eximService->exportCSV(['filename' => "{$this->routerName}_import_template.csv"], $this->import_columns);
 

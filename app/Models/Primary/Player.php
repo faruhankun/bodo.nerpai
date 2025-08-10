@@ -13,13 +13,15 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
+
+
 class Player extends Model
 {
-    use HasRoles;
+    use HasRoles, SoftDeletes;
 
     protected $guarded = [];
 
-    protected $guard_name = 'web';
+    protected $guard_name = 'space';
 
     protected $connection = 'primary';
     
@@ -33,7 +35,11 @@ class Player extends Model
         'type_id',
         'size_type',
         'size_id',
+        'space_type',
+        'space_id',
         'name',
+        'email',
+        'phone_number',
         'address',
         'status',
         'notes',

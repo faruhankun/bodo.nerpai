@@ -34,6 +34,17 @@ class PlayerController extends Controller
         $query = Player::with('type', 'size');
 
 
+
+        // space
+        $space_id = get_space_id($request, false);
+        $space = $request->get('space') ?? null;
+        if($space && $space_id){
+            $spaces = array($space_id);
+            
+            $query = $query->whereIn('space_id', $spaces);
+        }
+
+
         // Limit
         $limit = $request->get('limit');
         if($limit){
@@ -66,6 +77,28 @@ class PlayerController extends Controller
             });
         }
 
+
+
+        $return_type = $request->get('return_type') ?? 'json';
+        if($return_type == 'DT'){
+            return DataTables::of($query)
+                ->addColumn('size_display', function ($data) {
+                    return ($data->size_type ?? '?') . ' : ' . ($data->size?->number ?? $data->size?->code ?? '?');
+                })
+                ->addColumn('actions', function ($data) {
+                    $route = 'players';
+                    
+                    $actions = [
+                        'show' => 'modaljs',
+                        'edit' => 'modal',
+                        'delete' => 'button',
+                    ];
+
+                    return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
+                })
+                ->rawColumns(['actions'])
+                ->make(true);
+        }
 
 
         // return result
@@ -125,26 +158,12 @@ class PlayerController extends Controller
 
     public function index()
     {
-        $players = Player::paginate(10);
-        return view('primary.players.index', compact('players'));
+        return view('primary.player.players.index');
     }
 
     
 
-    public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:players',
-            'phone_number' => 'required|string|max:20',
-            'address' => 'nullable|string|max:255',
-            'status' => 'required|string|max:50',
-            'notes' => 'nullable|string',
-        ]);
-
-        $player = Player::create($validatedData);
-        return redirect()->route('players.index')->with('success', 'Player created successfully');
-    }
+    public function store(Request $request){ return $this->playerService->store($request); }
 
 
 
@@ -164,21 +183,7 @@ class PlayerController extends Controller
 
 
 
-    public function update(Request $request, $id)
-    {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255',
-            'status' => 'required|string|max:50',
-            'notes' => 'nullable|string',
-        ]);
-
-        $player = Player::find($id);
-        $player->update($validatedData);
-
-        return redirect()->route('players.index')->with('success', 'Player updated successfully');
-    }
-
+    public function update(Request $request, $id){ return $this->playerService->update($request, $id); }
 
 
 
@@ -234,8 +239,10 @@ class PlayerController extends Controller
 
     public function destroy($id)
     {
-        $player = Player::find($id);
+        $player = Player::findOrFail($id);
+        
         $player->delete();
+
         return redirect()->route('players.index')->with('success', 'Player deleted successfully');
     }
 

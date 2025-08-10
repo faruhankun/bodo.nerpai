@@ -22,13 +22,19 @@ return new class extends Migration
             $table->string('size_type')->nullable();     // Group, Person
             $table->unsignedBigInteger('size_id')->nullable();
 
+            $table->string('space_type')->nullable();
+            $table->unsignedBigInteger('space_id')->nullable();
+
             // Attributes
             $table->string('name');
+            $table->string('email')->nullable();
+            $table->string('phone_number')->nullable();
             $table->json('address')->nullable();
             $table->string('status')->default('active');
             $table->text('notes')->nullable();
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
