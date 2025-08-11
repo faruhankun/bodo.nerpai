@@ -36,6 +36,8 @@ Route::middleware([
 
         Route::get('/exim', 'eximData');
         Route::post('/exim', 'eximData');
+
+        Route::get('/{id}/invoice', 'invoice')->name('api.trades.invoice');
     });
     Route::resource('trades', TradeController::class);
 });

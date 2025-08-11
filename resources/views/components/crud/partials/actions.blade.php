@@ -23,7 +23,7 @@
             @include($actions['show_modal'], ['data' => $data])
         @endif
     @elseif($actions['show'] == 'button')
-        <x-button-show :route="route($route . '.show', $data->id)" />
+        <x-button-show :route="route($route . '.show', $data->id)" target="_blank"/>
     @elseif($actions['show'] == 'modaljs')
         <x-buttons.button-showjs onclick="showjs({{ $data }})"></x-buttons.button-showjs>
     @endif
@@ -33,7 +33,7 @@
         @if($actions['edit'] == 'modal')
             <x-button2 onclick="edit({{ $data }})" class="btn btn-primary">Edit</x-button2>
         @elseif($actions['edit'] == 'button')
-        <x-button-edit :route="route($route . '.edit', $data->id)" />
+        <x-button-edit :route="route($route . '.edit', $data->id)" target="_blank"/>
         @endif
 
 

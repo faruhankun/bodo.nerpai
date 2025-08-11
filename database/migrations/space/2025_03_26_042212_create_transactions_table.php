@@ -29,6 +29,9 @@ return new class extends Migration
             $table->string('output_type')->nullable();
             $table->unsignedBigInteger('output_id')->nullable();
 
+            $table->string('relation_type')->nullable();
+            $table->unsignedBigInteger('relation_id')->nullable();
+
             $table->string('sender_type')->nullable();
             $table->unsignedBigInteger('sender_id')->nullable();
             $table->string('receiver_type')->nullable();
@@ -78,8 +81,15 @@ return new class extends Migration
             // Attributes
             $table->json('data')->nullable();
 
+            $table->string('sku')->nullable();
+            $table->string('name')->nullable();
+
+            $table->decimal('weight', 20, 2)->default(0);
+            $table->decimal('volume', 20, 2)->default(0);
+
             $table->decimal('quantity', 20, 2)->default(1);
             $table->decimal('price', 20, 2)->default(0);
+            $table->decimal('discount', 20, 2)->default(0);
             $table->decimal('cost_per_unit', 20, 2)->default(0);
 
             $table->decimal('debit', 25, 2)->default(0);

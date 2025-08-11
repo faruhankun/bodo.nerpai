@@ -44,7 +44,7 @@
 
     <h3 class="text-lg font-bold my-3">TX Related</h3>
     <div class="overflow-x-auto">
-        <x-table.table-table id="journal-children">
+        <x-table.table-table id="journal-outputs">
             <x-table.table-thead>
                 <tr>
                     <x-table.table-th>Number</x-table.table-th>

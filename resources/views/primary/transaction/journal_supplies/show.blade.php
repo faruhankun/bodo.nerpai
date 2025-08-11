@@ -5,7 +5,7 @@
 
     $data = $journal;
 
-    $tx_related = $data->children ?? [];
+    $tx_related = $data->outputs ?? [];
     if($data->input){
         $tx_related[] = $data->input;
     }

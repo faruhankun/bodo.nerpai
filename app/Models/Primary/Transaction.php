@@ -33,6 +33,9 @@ class Transaction extends Model
         'output_type',
         'output_id',
 
+        'relation_type',
+        'relation_id',
+
         'sender_type',
         'sender_id',
         'receiver_type',
@@ -116,9 +119,24 @@ class Transaction extends Model
 
 
 
-    public function children()
+    public function outputs()
     {
         return $this->hasMany(Transaction::class, 'input_id')
+            ->where('input_type', 'TX');
+    }
+
+
+
+    public function relation()
+    {
+        return $this->belongsTo(Transaction::class, 'relation_id')
+            ->where('input_type', 'TX');
+    }
+
+
+    public function relations()
+    {
+        return $this->hasMany(Transaction::class, 'relation_id')
             ->where('input_type', 'TX');
     }
 }

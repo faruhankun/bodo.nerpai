@@ -24,12 +24,12 @@
                     <h3 class="text-2xl dark:text-white font-bold">Edit Journal: {{ $journal->number }}</h3>
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
-                    <form action="{{ route('journal_supplies.update', $journal->id) }}" method="POST" onsubmit="return validateForm()">
+                    <form action="{{ route('trades.update', $journal->id) }}" method="POST" onsubmit="return validateForm()">
                         @csrf
                         @method('PUT')
 
 
-                        @include('primary.transaction.journal_supplies.partials.dataform', ['form' => ['id' => 'Edit Journal', 'mode' => 'edit'], 'data' => $journal])
+                        @include('primary.transaction.trades.partials.dataform', ['form' => ['id' => 'Edit Journal', 'mode' => 'edit'], 'data' => $journal])
 
 
 
@@ -41,10 +41,11 @@
                                 <x-table.table-thead>
                                     <tr>
                                         <x-table.table-th>No</x-table.table-th>
-                                        <x-table.table-th>Supply</x-table.table-th>
-                                        <x-table.table-th>Qty</x-table.table-th>
+                                        <x-table.table-th>Item</x-table.table-th>
                                         <x-table.table-th>Type</x-table.table-th>
-                                        <x-table.table-th>Cost/Unit</x-table.table-th>
+                                        <x-table.table-th>Qty</x-table.table-th>
+                                        <x-table.table-th>Price</x-table.table-th>
+                                        <x-table.table-th>Discount</x-table.table-th>
                                         <x-table.table-th>Notes</x-table.table-th>
                                         <x-table.table-th>Action</x-table.table-th>
                                     </tr>
@@ -63,7 +64,7 @@
                         </div>
 
                         <div class="m-4 flex justify-end space-x-4">
-                            <a href="{{ route('journal_supplies.index') }}">
+                            <a href="{{ route('trades.index') }}">
                                 <x-secondary-button type="button">Cancel</x-secondary-button>
                             </a>
                             <x-primary-button>Update Journal</x-primary-button>
@@ -110,10 +111,15 @@
         function renderDetailRow(detail = {}) {
             const rowIndex = detailIndex++;
             const selectedId = detail.detail_id || '';
-            const quantity = detail.quantity || 0;
-            const selectedModel = detail.model_type || '';
-            const cost_per_unit = detail.cost_per_unit || 0;
+            const selectedModel = detail.model_type || 'SO';
+            const quantity = detail.quantity || 1;
+            const price = detail.price || 0;
+            const discount = detail.discount || 0;
             const notes = detail.notes || '';
+
+            const sku = detail.sku || '';
+            const name = detail.name || '';
+            const weight = detail.weight || 0;
 
             const model_types = @json($model_types);
             const modelTypeOptions = model_types.map(model_type => {
@@ -130,19 +136,25 @@
                         </select>
                     </td>
                     <td>
-                        <input type="text" name="details[${rowIndex}][quantity]" class="quantity-input w-20" value="${formatNumberNoTrailingZeros(quantity)}">
-                    </td>
-                    <td>
                         <select name="details[${rowIndex}][model_type]" class="model_type-select type-select my-3" required>
                             <option value="">Select Type</option>
                             ${modelTypeOptions}
                         </select>
                     </td>
                     <td>
-                        <input type="text" size="5" name="details[${rowIndex}][cost_per_unit]" class="cost_per_unit-input w-25" value="${formatNumberNoTrailingZeros(cost_per_unit)}" default="0" min="0">
+                        <input type="text" name="details[${rowIndex}][quantity]" class="quantity-input w-20" value="${formatNumberNoTrailingZeros(quantity)}">
+                    </td>
+                    <td>
+                        <input type="text" size="5" name="details[${rowIndex}][price]" class="price-input w-25" value="${formatNumberNoTrailingZeros(price)}" default="0" min="0">
+                    </td>
+                    <td>
+                        <input type="text" size="3" name="details[${rowIndex}][discount]" class="discount-input w-25" value="${formatNumberNoTrailingZeros(discount)}" default="0" min="0">
                     </td>
                     <td>
                         <input type="text" name="details[${rowIndex}][notes]" class="notes-input" value="${notes}">
+                        <input type="hidden" name="details[${rowIndex}][sku]" class="sku-input" value="${sku}">
+                        <input type="hidden" name="details[${rowIndex}][name]" class="name-input" value="${name}">
+                        <input type="hidden" name="details[${rowIndex}][weight]" class="weight-input" value="${weight}">
                     </td>
                     <td>
                         <button type="button" class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
@@ -153,19 +165,19 @@
 
         function initInventorySelect($element, selectedData = null) {
             $element.select2({
-                placeholder: 'Search & Select Supply',
-                minimumInputLength: 2,
+                placeholder: 'Search & Select Item',
+                minimumInputLength: 1,
                 width: '100%',
                 height: '100%',
                 padding: '20px',
                 ajax: {
-                    url: '/supplies/search',
+                    url: '/items/search',
                     dataType: 'json',
                     paginate: true,
                     data: function(params) {
                         return {
                             q: params.term,
-                            space: '{{ $space_id }}',
+                            space_id: '{{ $space_id }}',
                             page: params.page || 1
                         };
                     },
@@ -174,7 +186,10 @@
                             results: data.map(item => ({
                                 id: item.id,
                                 text: item.text, // Ubah sesuai nama field yang kamu punya
-                                cost_per_unit: item.cost_per_unit
+                                price: item.price,
+                                sku: item.sku,
+                                name: item.name,
+                                weight: item.weight,
                             }))
                         };
                     },
@@ -192,7 +207,13 @@
             $element.on('select2:select', function(e) {
                 const selected = e.params.data;
                 const $row = $(this).closest('tr');
-                $row.find('.cost_per_unit-input').val(selected.cost_per_unit || 0);
+                
+                $row.find('.price-input').val(selected.price || 0);
+                $row.find('.sku-input').val(selected.sku || '');
+                $row.find('.name-input').val(selected.name || '');
+                $row.find('.weight-input').val(selected.weight || 0);
+
+                console.log(selected);
             });
         }
 
@@ -203,7 +224,7 @@
             const $select = $row.find('.inventory-select');
             const selectedData = detail.detail_id && detail.detail ? {
                 id: detail.detail_id,
-                text: `${detail.detail.sku} - ${detail.detail.name} qty: ${detail.detail.balance} : ${detail.detail.notes}`,
+                text: `${detail.detail.sku} - ${detail.detail.name} : ${detail.detail.notes}`,
             } : null;
 
             setTimeout(() => {

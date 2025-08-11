@@ -45,6 +45,8 @@ Route::middleware([
 
 
     // Transactions
+    Route::get('trades/{id}/invoice', [TradeController::class, 'invoice'])->name('trades.invoice');
+
     Route::post('trades/exim', [TradeController::class, 'eximData'])->name('trades.exim');
     Route::get('trades/exim', [TradeController::class, 'eximData'])->name('trades.exim');
     Route::get('trades/data', [TradeController::class, 'getData'])->name('trades.data');

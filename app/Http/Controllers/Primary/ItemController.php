@@ -334,7 +334,11 @@ class ItemController extends Controller
             ->map(function ($item) {
                 return [
                     'id' => $item->id,
+                    'price' => $item->price,
                     'text' => "{$item->sku} - {$item->name} : {$item->notes}",
+                    'sku' => $item->sku,
+                    'name' => $item->name,
+                    'weight' => $item->weight,
                 ];
             });
 

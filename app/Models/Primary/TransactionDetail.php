@@ -23,8 +23,15 @@ class TransactionDetail extends Model
         'model_id',
         'quantity',
         'price',
+        'discount',
+        'weight',
         'cost_per_unit',
         'data',
+        
+        'sku',
+        'name',
+        'code',
+
         'debit',
         'credit',
         'notes',

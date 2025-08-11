@@ -167,7 +167,7 @@
 
         // Inject TX Related
         let html_related = '';
-        for (const tx of (parsed.children ?? [])) {
+        for (const tx of (parsed.outputs ?? [])) {
             html_related += `
                 <tr>
                     <td class="pl-4">${tx.number}</td>

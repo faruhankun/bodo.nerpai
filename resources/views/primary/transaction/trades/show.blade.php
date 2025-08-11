@@ -1,26 +1,40 @@
 @php
-    $router = 'contacts';
+    $layout = session('layout') ?? 'lobby';
+    $space_role = session('space_role') ?? null;
 
-    $trigger = $trigger ?? 'show_modal_js';
+
+    $data = $tx;
+
+    $tx_related = $data->outputs ?? [];
+    if($data->input){
+        $tx_related[] = $data->input;
+    }
 @endphp
 
+<x-dynamic-component :component="'layouts.' . $layout">
+    <div class="py-12">
+        <div class=" sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-white">
+                    <h1 class="text-2xl font-bold mb-6">Journal: {{ $data->number }}</h1>
+                    <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
-<x-crud.modal.modal-js title="Contact Details" trigger="{{ $trigger }}">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        
+                    @include('primary.transaction.trades.partials.datashow')
+
+                    <!-- Action Section -->
+                    <div class="flex justify-end space-x-4">
+                        <x-secondary-button>
+                            <a href="{{ route('trades.index') }}">Back to List</a>
+                        </x-secondary-button>
+
+                        @if($space_role == 'admin' || $space_role == 'owner')
+                            <a target="_blank" href="{{ route('trades.edit', $data->id) }}">
+                                <x-primary-button type="button">Edit Journal</x-primary-button>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
-    <h3 class="text-lg font-bold my-3">Contact Details</h3>
-    <div id='dataform_{{ $trigger }}' class="break-words">
-    </div>
-
-    <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
-
-
-
-    <div class="flex gap-3 justify-end mt-8">
-        <x-secondary-button type="button" @click="isOpen_{{ $trigger }} = false">Cancel</x-secondary-button>
-    </div>
-</x-crud.modal.modal-js>
-
+</x-dynamic-component>

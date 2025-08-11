@@ -38,10 +38,12 @@
         <x-table.table-table id="journal-entry-details">
             <x-table.table-thead>
                 <tr>
-                    <x-table.table-th>Inventory</x-table.table-th>
-                    <x-table.table-th>Quantity</x-table.table-th>
+                    <x-table.table-th>Item</x-table.table-th>
                     <x-table.table-th>Type</x-table.table-th>
-                    <x-table.table-th>Cost/Unit</x-table.table-th>
+                    <x-table.table-th>Quantity</x-table.table-th>
+                    <x-table.table-th>Price</x-table.table-th>
+                    <x-table.table-th>Discount</x-table.table-th>
+                    <x-table.table-th>Disc Value</x-table.table-th>
                     <x-table.table-th>Subtotal</x-table.table-th>
                     <x-table.table-th>Notes</x-table.table-th>
                 </tr>
@@ -49,14 +51,20 @@
             <x-table.table-tbody>
                 @foreach ($data->details as $detail)
                     <x-table.table-tr>
-                        <x-table.table-td>{{ $detail->detail?->sku ?? '?' }} : {{ $detail->detail?->name ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ $detail->detail?->sku ?? 'sku' }} : {{ $detail->detail?->name ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ $detail->model_type ?? 'type' }}</x-table.table-td>
                         <x-table.table-td>{{ number_format($detail->quantity, 0) }}</x-table.table-td>
-                        <x-table.table-td>{{ $detail->model_type ?? 'N/A' }}</x-table.table-td>
-                        <x-table.table-td class="py-4">{{ number_format($detail->cost_per_unit) }}</x-table.table-td>
-                        <x-table.table-td>{{ number_format($detail->quantity * $detail->cost_per_unit) }}</x-table.table-td>
+                        <x-table.table-td class="py-4">{{ number_format($detail->price) }}</x-table.table-td>
+                        <x-table.table-td class="py-4">{{ number_format($detail->discount * 100) }}</x-table.table-td>
+                        <x-table.table-td>{{ number_format($detail->price * $detail->discount) }}</x-table.table-td>
+                        <x-table.table-td>{{ number_format($detail->quantity * $detail->price * (1 - $detail->discount)) }}</x-table.table-td>
                         <x-table.table-td>{{ $detail->notes ?? 'N/A' }}</x-table.table-td>
                     </x-table.table-tr>
                 @endforeach
+                <x-table.table-tr>
+                    <x-table.table-th colspan="6" class="font-bold">Total</x-table.table-th>
+                    <x-table.table-th colspan="2" class="font-bold">{{ number_format($data->total) }}</x-table.table-th>
+                </x-table.table-tr>
             </x-table.table-tbody>
         </x-table.table-table>
     </div>
@@ -97,4 +105,21 @@
         </x-table.table-table>
     </div>
     @endif
+    <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+
+
+
+    <h3 class="text-lg font-bold my-3">Actions</h3>
+        <x-secondary-button type="button">
+            <a href="{{ route('trades.invoice', $data->id) }}" target="_blank" class="btn btn-primary">
+                Invoice
+            </a>
+        </x-secondary-button> 
+
+        <x-secondary-button type="button">
+            <a href="{{ route('trades.invoice', 
+                            ['id' => $data->id, 'invoice_type' => 'invoice_formal']) }}" target="_blank" class="btn btn-primary">
+                Invoice Formal
+            </a>
+        </x-secondary-button>
     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>

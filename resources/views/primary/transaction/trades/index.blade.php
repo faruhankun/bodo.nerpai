@@ -26,19 +26,6 @@
     </x-slot>
 </x-crud.index-basic>
 
-<script>
-    function create() {
-        // auto set basecode
-        document.getElementById('_basecode').value = document.getElementById('_type_id').selectedOptions[0].dataset
-            .basecode;
-
-        let form = document.getElementById('createDataForm');
-        form.action = '/trades';
-
-        // Dispatch event ke Alpine.js untuk membuka modal
-        window.dispatchEvent(new CustomEvent('create-modal'));
-    }
-</script>
 
 
 <!-- Tabel & EXIM  -->
@@ -47,7 +34,13 @@
         let indexTable = $('#indexTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('trades.data') }}",   
+            ajax: {
+                url: "{{ route('trades.data') }}",
+                data: {
+                    return_type: 'DT',
+                    space_id: '{{$space_id}}',
+                }
+            },
             pageLength: 10,
             columns: [{
                     data: 'id'

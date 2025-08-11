@@ -48,6 +48,8 @@ class JournalSupplyService
         return $tx;
     }
 
+
+    
     public function updateJournal($tx, $data, $details = [])
     {
         // Update main journal entry
@@ -133,9 +135,9 @@ class JournalSupplyService
     public function mirrorJournalToChildren($tx_id)
     {
         try {
-            $tx = Transaction::with('children', 'input')->findOrFail($tx_id);
+            $tx = Transaction::with('outputs', 'input')->findOrFail($tx_id);
 
-            $tx_related = $tx->children ?? [];
+            $tx_related = $tx->outputs ?? [];
             if($tx->input){
                 $tx_related[] = $tx->input;
             }

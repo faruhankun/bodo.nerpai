@@ -98,53 +98,41 @@ class TradeController extends Controller
         try {
             $validated = $request->validate([
                 'sender_id' => 'required',
-                'sent_date' => 'nullable|date',
+                'sent_time' => 'nullable',
                 'sender_notes' => 'nullable|string|max:255',
-                'input_id' => 'nullable',
-                
-                'receiver_id' => 'required',
-                'received_date' => 'nullable|date',
-                'receiver_notes' => 'nullable|string|max:255',
-                'output_id' => 'nullable',
             ]);
 
-            // dd($validated);
-
-            $tx = Transaction::create([
-                'model_type' => 'TRD',
-                'space_type' => 'SPACE',
+            $data = [
                 'space_id' => $space_id,
-
-                'sender_type' => 'PLAY',
                 'sender_id' => $validated['sender_id'],
-                'sent_time' => $validated['sent_date'] ?? now()->format('Y-m-d'),
-                'sender_notes' => $validated['sender_notes'] ?? null,
-                'input_type' => 'SPACE',
-                'input_id' => $validated['input_id'] ?? null,
+                'sent_time' => $validated['sent_time'] ?? now(),
+                'sender_notes' => $validated['sender_notes'],
+            ];
 
-                'receiver_type' => 'PLAY',
-                'receiver_id' => $validated['receiver_id'],
-                'received_time' => $validated['received_date'] ?? null,
-                'receiver_notes' => $validated['receiver_notes'] ?? null,
-                'output_type' => 'SPACE',
-                'output_id' => $validated['output_id'] ?? null,
-            ]);
-
-            $tx->generateNumber();
-            $tx->save();
+            $journal = $this->tradeService->addJournal($data, $request);
 
 
             if($request_source == 'api'){
-                return response()->json(['message' => 'Transaction is Created Successfully!', 'success' => true, 'data' => $tx], 200);
+                return response()->json([
+                    'data' => array($journal),
+                    'success' => true,
+                    'message' => "Journal {$journal->id} Created Successfully!",
+                ]);
             }
 
-            return redirect()->route('trades.edit', $tx->id)
-                            ->with('success', 'Transaction is Created Successfully!');
-        } catch (\Throwable $th) {
-            if($request_source == 'api')
-                return response()->json(['message' => $th->getMessage(), 'success' => false], 500);
 
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return redirect()->route('trades.edit', $journal->id)
+                            ->with('success', "Journal {$journal->id} Created Successfully!");
+        } catch (\Throwable $th) {
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'message' => $th->getMessage(),
+                ]);
+            }
+
+            return back()->with('error', 'Error: ' . $th->getMessage());
         }
     }
 
@@ -152,86 +140,83 @@ class TradeController extends Controller
 
     public function edit(String $id)
     {
-        $tx = Transaction::with(['details'])->findOrFail($id);
+        $journal = Transaction::with(['details', 'details.detail'])->findOrFail($id);
+        $model_types = $this->tradeService->model_types;
 
-        $param = request()->all();
-        $players = Player::all();
-        
-        $spaces = [];
-        $space_id = session('space_id') ?? null;
-        if($space_id){
-            $space = Space::with('variables')->findOrFail($space_id);
-            $spaces = $space->AllChildren();
-            $spaces->prepend($space);
-        } else {
-            abort(403);
-        }
-
-        $spaces_with_variable_inventory = Variable::with('space')
-                                                    ->where('key', 'space.setting.inventory')
-                                                    ->whereNotNull('value')
-                                                    ->get()
-                                                    ->pluck('space');
-
-        $spaces = $spaces->whereIn('id', $spaces_with_variable_inventory->pluck('id'));
-
-        return view('primary.transaction.trades.edit', compact('tx', 'spaces', 'players'));
+        return view('primary.transaction.trades.edit', compact('journal', 'model_types'));
     }
 
 
 
-    public function update(Request $request, $id)
+    public function update(String $id, Request $request)
     {
         $request_source = get_request_source($request);
 
-        DB::beginTransaction();
-
         try {
             $validated = $request->validate([
-                'sender_id' => 'required',
-                'sent_date' => 'nullable|date',
-                'sender_notes' => 'nullable|string|max:255',
-                'input_id' => 'nullable',
+                'sent_time' => 'nullable',
+                'handler_id' => 'required',
+                'handler_notes' => 'nullable|string|max:255',
 
-                'receiver_id' => 'nullable',
-                'received_date' => 'nullable|date',
-                'receiver_notes' => 'nullable|string|max:255',
-                'output_id' => 'nullable',
+                'space_origin' => 'nullable',
 
                 'details' => 'nullable|array',
                 'details.*.detail_id' => 'required',
-                'details.*.quantity' => 'nullable|numeric|min:0',
-                'details.*.price' => 'nullable|numeric|min:0',
-                'details.*.discount' => 'nullable|numeric|min:0',
-                'details.*.cost_per_unit' => 'nullable|numeric|min:0',
+                'details.*.model_type' => 'required|string',
+                'details.*.quantity' => 'required|numeric',
+                'details.*.price' => 'required|min:0',
+                'details.*.discount' => 'nullable|min:0',
                 'details.*.notes' => 'nullable|string|max:255',
             ]);
+
             if(!isset($validated['details'])){
                 $validated['details'] = [];
             }
 
-
-            $tx = Transaction::with(['details'])->findOrFail($id);
-
-            $this->tradeService->updateData($tx, $validated, $validated['details']);
+            $journal = Transaction::with(['details'])->findOrFail($id);
 
 
 
-            DB::commit();
+            $data = [
+                'sent_time' => $validated['sent_time'] ?? now(),
+                'handler_notes' => $validated['handler_notes'] ?? null,
+                'handler_type' => 'PLAY',
+                'handler_id' => $validated['handler_id'],
+            ];
+
+            $journal = $this->tradeService->updateJournal($journal, $data, $validated['details']);
+
+
+
             if($request_source == 'api'){
-                return response()->json(['message' => 'Transaction is Updated Successfully!', 'success' => true, 'data' => array($tx)], 200);
+                return response()->json([
+                    'data' => array($journal),
+                    'success' => true,
+                    'message' => "Journal {$journal->id} updated successfully!",
+                ]);
             }
 
-            return redirect()->route('trades.show', $tx->id)
-                            ->with('success', "Transaction {$tx->number} Created Successfully!");
+            return redirect()->route('trades.show', $journal->id)
+                ->with('success', "Journal {$journal->id} updated successfully!");
         } catch (\Throwable $th) {
-            DB::rollBack();
+            if($request_source == 'api'){
+                return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
+            }
 
-            if($request_source == 'api')
-                return response()->json(['message' => $th->getMessage(), 'success' => false], 500);
-
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return back()->with('error', 'Something went wrong. error:' . $th->getMessage());
         }
+    }
+
+
+
+    public function invoice(Request $request, String $id)
+    {
+        $data = Transaction::with(['details', 'details.detail', 'input', 'outputs',
+                                'sender', 'receiver'])->findOrFail($id);
+
+        $invoice_type = $request->input('invoice_type') ?? 'invoice';
+
+        return view('primary.transaction.trades.partials.' . $invoice_type, compact('data'));
     }
 
 
@@ -240,8 +225,10 @@ class TradeController extends Controller
     {
         $request_source = get_request_source($request);
 
+        $tx = null;
+
         try {
-            $tx = Transaction::with(['details', 'details.detail', 'details.detail.item',
+            $tx = Transaction::with(['details', 'details.detail', 'input', 'outputs',
                                     'sender', 'receiver'])->findOrFail($id);
         } catch (\Throwable $th) {
             if($request_source == 'api'){

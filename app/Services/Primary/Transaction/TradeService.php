@@ -49,6 +49,17 @@ class TradeService
         'sales' => 'Sales - Penjualan',
     ];
 
+
+    public $model_types = [
+        ['id' => 'PRE', 'name' => 'Pre Order'],
+        ['id' => 'SO', 'name' => 'Sales'],
+        ['id' => 'DMG', 'name' => 'Damage'],
+        ['id' => 'RTR', 'name' => 'Return'],
+        ['id' => 'MV', 'name' => 'Move'],
+        ['id' => 'UNDF', 'name' => 'Undefined'],
+    ];
+
+
     public function __construct(EximService $eximService
                                 , SpaceService $spaceService)
     {
@@ -59,7 +70,32 @@ class TradeService
 
 
     // crud
-    public function updateData($tx, $data, $details = [])
+    public function addJournal($data, Request $request, $details = [])
+    {
+        $player_id = $data['sender_id'] ?? get_player_id($request, false);
+        $space_id = $data['space_id'] ?? (get_space_id($request) ?? null);
+
+        $tx = Transaction::create([
+            'space_type' => 'SPACE',
+            'space_id' => $data['space_id'] ?? $space_id,
+            'model_type' => 'TRD',
+            'sender_type' => $data['sender_type'] ?? 'PLAY',
+            'sender_id' => $data['sender_id'] ?? $player_id,
+            'input_type' => $data['input_type'] ?? null,
+            'input_id' => $data['input_id'] ?? null,
+            'sent_time' => $data['sent_time'] ?? Date('Y-m-d'),
+            'sender_notes' => $data['sender_notes'] ?? null,
+            'total' => $data['total'] ?? 0,
+        ]);
+
+        $tx->generateNumber();
+        $tx->save();
+
+        return $tx;
+    }
+
+
+    public function updateJournal($tx, $data, $details = [])
     {
         // Update main journal entry
         $tx->update($data);
@@ -69,31 +105,54 @@ class TradeService
 
         // Create new details
         $journalDetails = [];
+        $balance_change = 0;
         foreach ($details as $detail) {
+            // inventory_id
+            $detail['quantity'] = $detail['quantity'] ?? 0;
+
+            $detail['detail_id'] = $detail['detail_id'] ?? null;
+            $detail['debit'] = $detail['quantity'] >= 0 ? $detail['quantity'] : 0;
+            $detail['credit'] = $detail['quantity'] < 0 ? abs($detail['quantity']) : 0;
+            $detail['notes'] = $detail['notes'] ?? null;
+            $detail['model_type'] = $detail['model_type'] ?? 'UNDF';
+            $detail['price'] = $detail['price'] ?? 0;
+            $detail['discount'] = $detail['discount'] ?? 0;
+
+            $detail['sku'] = $detail['sku'] ?? null;
+            $detail['name'] = $detail['name'] ?? null;
+            $detail['weight'] = $detail['weight'] ?? 0;
+
             $journalDetails[] = [
                 'transaction_id' => $tx->id,
                 'detail_type' => 'ITM',
                 'detail_id' => $detail['detail_id'],
-                'quantity' => $detail['quantity'] ?? 1,
-                'price' => $detail['price'] ?? 0,
-                'balance' => ($detail['price'] ?? 0) *(1 - ($detail['discount'] ?? 0 ) / 100),
-                'cost_per_unit' => $detail['cost_per_unit'] ?? 0,
+                'debit' => $detail['debit'],
+                'credit' => $detail['credit'],
                 'notes' => $detail['notes'] ?? null,
+                'quantity' => $detail['quantity'],
+                'model_type' => $detail['model_type'],
+                'price' => $detail['price'],
+                'discount' => $detail['discount'],
+                'sku' => $detail['sku'],
+                'name' => $detail['name'],
+                'weight' => $detail['weight'],
             ];
+
+            $balance_change += $detail['quantity'] * $detail['price'] * (1 - $detail['discount']);
         }
 
         $tx->details()->createMany($journalDetails);
 
-        
-        if($tx->number == null){
+        if(is_null($tx->number))
             $tx->generateNumber();
-            $tx->save();
-        }
-
+        $tx->total = $balance_change;
         $tx->save();
+
 
         return $tx;
     }
+
+
 
     public function getData(Request $request){
         $space_id = get_space_id($request);
@@ -143,8 +202,76 @@ class TradeService
 
 
 
-        // return result
-        return DataTables::of($query)->make(true);
+        $return_type = $request->get('return_type') ?? 'json';
+        if($return_type == 'DT'){
+            return DataTables::of($query)
+                ->addColumn('actions', function ($data) {
+                    $route = 'trades';
+
+                    $actions = [
+                        'show' => 'button',
+                        'edit' => 'button',
+                        'delete' => 'button',
+                    ];
+
+
+                    // jika punya input atau children, maka tidak bisa dihapus
+                    if($data->outputs->isNotEmpty() || $data->input){
+                        unset($actions['delete']);
+                    }
+
+
+                    return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
+                })
+
+                ->addColumn('sku', function ($data){
+                    return $data->details->map(function ($detail){
+                        return $detail->detail->sku;
+                    })->implode(', ');
+                })
+
+                ->addColumn('all_notes', function ($data){
+                    return $data->sender_notes . '<br>' . $data->handler_notes;
+                })
+
+                ->addColumn('data', function ($data) {
+                    return $data;
+                })
+
+                ->filter(function ($query) use ($request) {                                  
+                    if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
+                        $search = $request->search['value'] ?? $request->q;
+
+                        $query = $query->where(function ($q) use ($search) {
+                            $q->where('transactions.id', 'like', "%{$search}%")
+                                ->orWhere('transactions.sent_time', 'like', "%{$search}%")
+                                ->orWhere('transactions.number', 'like', "%{$search}%")
+                                ->orWhere('transactions.sender_notes', 'like', "%{$search}%")
+                                ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
+
+                            $q->orWhereHas('details', function ($q2) use ($search) {
+                                $q2->where('transaction_details.notes', 'like', "%{$search}%")
+                                    ->orWhere('transaction_details.model_type', 'like', "%{$search}%")
+                                ;
+                            });
+
+                            $q->orWhereHas('details.detail', function ($q2) use ($search) {
+                                $q2->where('inventories.name', 'like', "%{$search}%")
+                                    ->orWhere('inventories.sku', "{$search}")
+                                ;
+                            });
+                        });
+                    }    
+                })
+
+                ->rawColumns(['actions', 'all_notes'])
+                ->make(true);
+            }
+
+
+
+            // return result
+            return DataTables::of($query)->make(true);
     } 
 
 
@@ -161,6 +288,7 @@ class TradeService
 
         return $query;
     }
+
 
 
     public function getIndexData(Request $request){

@@ -37,23 +37,6 @@
             'route' => "dashboard_space",
             'text' => 'Lobby',
         ],
-        'Space' => [
-            'dropdown_id' => 'spaces',
-            'dropdown_text' => 'Lahan',
-            'dropdown_items' => [
-                'spaces' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "spaces.index",
-                    'text' => 'Spaces',
-                ],
-                'spacesr' => [
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "spacesr",
-                    'text' => 'Lahan (beta)',
-                ]
-            ]
-        ],
 
         'Supplies' => [
             'dropdown_id' => 'supplies',
@@ -89,6 +72,54 @@
                     'route_params' => [
                         'summary_type' => 'balance_stock',
                     ],
+                ],
+            ]
+        ],
+
+
+        'Sosial' => [
+            'dropdown_id' => 'social',
+            'dropdown_text' => 'Sosial',
+            'dropdown_items' => [
+                'trade' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "trades.index",
+                    'text' => 'Trades',
+                ],
+
+                'interactions' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "players.index",
+                    'text' => 'Interactions',
+                ],
+            ]
+        ],
+
+        'Players' => [
+            'dropdown_id' => 'players',
+            'dropdown_text' => 'Relasi',
+            'dropdown_items' => [
+                'players' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "players.index",
+                    'text' => 'Kontak',
+                ],
+                
+                'space_players' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "space_players.index",
+                    'text' => 'Space Players',
+                ],
+
+                'teams' => [
+                    'auth' => true,
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "teams.index",
+                    'text' => 'Teams',
                 ],
             ]
         ],
@@ -145,50 +176,22 @@
             ]
         ],
 
-        'Sosial' => [
-            'dropdown_id' => 'social',
-            'dropdown_text' => 'Sosial',
+        
+        'Space' => [
+            'dropdown_id' => 'spaces',
+            'dropdown_text' => 'Lahan',
             'dropdown_items' => [
-                'trade' => [
+                'spaces' => [
                     'auth' => true,
                     'icon' => 'icon-checklist-paper',
-                    'route' => "trades.index",
-                    'text' => 'Trades',
+                    'route' => "spaces.index",
+                    'text' => 'Spaces',
                 ],
-
-                'interactions' => [
-                    'auth' => true,
+                'spacesr' => [
                     'icon' => 'icon-checklist-paper',
-                    'route' => "players.index",
-                    'text' => 'Interactions',
-                ],
-            ]
-        ],
-
-        'Players' => [
-            'dropdown_id' => 'players',
-            'dropdown_text' => 'Relasi',
-            'dropdown_items' => [
-                'players' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "players.index",
-                    'text' => 'Kontak',
-                ],
-                
-                'space_players' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "space_players.index",
-                    'text' => 'Space Players',
-                ],
-
-                'teams' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "teams.index",
-                    'text' => 'Teams',
-                ],
+                    'route' => "spacesr",
+                    'text' => 'Lahan (beta)',
+                ]
             ]
         ],
 

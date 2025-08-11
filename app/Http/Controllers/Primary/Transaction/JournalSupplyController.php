@@ -13,6 +13,7 @@ use App\Models\Primary\Transaction;
 use App\Models\Primary\Inventory;
 use App\Models\Primary\TransactionDetail;
 use App\Models\Primary\Item;
+use App\Models\Primary\Space;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
@@ -189,7 +190,7 @@ class JournalSupplyController extends Controller
                 $validated['details'] = [];
             }
 
-            $journal = Transaction::with(['details', 'children'])->findOrFail($id);
+            $journal = Transaction::with(['details', 'outputs'])->findOrFail($id);
 
 
 
@@ -211,8 +212,8 @@ class JournalSupplyController extends Controller
 
 
             
-            // mirror journal to children
-            if($journal->children->isNotEmpty() || $journal->input){
+            // mirror journal to outputs
+            if($journal->outputs->isNotEmpty() || $journal->input){
                 $this->journalSupply->mirrorJournalToChildren($journal->id);
             }
 
@@ -295,8 +296,8 @@ class JournalSupplyController extends Controller
                 ];
 
 
-                // jika punya input atau children, maka tidak bisa dihapus
-                if($data->children->isNotEmpty() || $data->input){
+                // jika punya input atau outputs, maka tidak bisa dihapus
+                if($data->outputs->isNotEmpty() || $data->input){
                     unset($actions['delete']);
                 }
 
