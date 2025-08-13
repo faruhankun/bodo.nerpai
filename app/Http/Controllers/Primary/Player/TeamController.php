@@ -111,7 +111,7 @@ class TeamController extends Controller
                 })
                 
                 ->addColumn('show_roles', function ($data) {
-                    $space_roles = $data->roles ?? [];
+                    $space_roles = $data->roles ?? collect();
 
                     return $space_roles->map(function ($role) {
                         return '<span
@@ -122,8 +122,8 @@ class TeamController extends Controller
                 })
 
                 ->addColumn('show_permissions', function ($data) {
-                    $space_roles = $data->roles ?? [];
-                    $space_permissions = $space_roles->first()->permissions ?? [];
+                    $space_roles = $data->roles ?? collect();
+                    $space_permissions = $space_roles->first()->permissions ?? collect();
                 
                     return $space_permissions->map(function ($permission) {
                         return '<span

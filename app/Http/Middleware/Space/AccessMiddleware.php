@@ -19,7 +19,7 @@ class AccessMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $space_id = session('space_id') ?? null;
+        $space_id = get_space_id($request);
 
         if($space_id){
             $player = Auth::user()->player;
@@ -33,6 +33,10 @@ class AccessMiddleware
                     abort(403);
                 }
             }
+
+
+
+            setPermissionsTeamId($space_id);
         } else {
             $this->forgetSpace();
         }

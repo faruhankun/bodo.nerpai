@@ -60,7 +60,8 @@ $(document).ready(function() {
     $(document).ready(function() {
         $('#create_player_id').select2({
             placeholder: 'Search & Select Player',
-            minimumInputLength: 2,
+            width: '100%',
+            minimumInputLength: 0,
             ajax: {
                 url: '/space_players/search',
                 dataType: 'json',

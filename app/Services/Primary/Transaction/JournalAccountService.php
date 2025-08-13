@@ -53,7 +53,8 @@ class JournalAccountService
         // post journal to GL
         // $tx_ja->postJournalEntrytoGeneralLedger();
 
-        $tx_ja->generateNumber();
+        if($tx_ja->number == null)
+            $tx_ja->generateNumber();
         $tx_ja->save();
 
         return $tx_ja;

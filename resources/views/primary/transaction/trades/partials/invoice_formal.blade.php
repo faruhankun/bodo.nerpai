@@ -1,3 +1,9 @@
+@php
+    $logoPath = public_path('svg/' . $data->space?->name . '.svg');
+    $logoUrl = file_exists($logoPath) ? asset('svg/' . $data->space?->name . '.svg') : asset('svg/hehe.svg');
+@endphp
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -76,7 +82,7 @@
     <div class="invoice-box">
         <!-- Header -->
         <div class="header">
-            <img src="{{ asset('svg/hehe.svg') }}" alt="Logo">
+            <img src="{{ $logoUrl }}" alt="Logo">
             <div class="space-info">
                 <h1>{{ $data->space?->name }}</h1>
                 <h3>{{ $data->space?->address ?? 'Space Address' }}</h3>
@@ -94,13 +100,13 @@
             </tr>
             <tr>
                 <th><strong>NAMA PEMBELI</strong></th>
-                <td>{{ $data->customer_name ?? 'CUSTOMER NAME' }}</td>
+                <td>{{ $data->receiver?->name ?? 'CUSTOMER NAME' }}</td>
                 <th><strong>TOKO</strong></th>
                 <td>{{ $data->space?->name ?? '-' }}</td>
             </tr>
             <tr>
                 <th><strong>CATATAN</strong></th>
-                <td colspan="3">{{ $data->handler_notes ?? '' }}</td>
+                <td colspan="3">{{ $data->receiver_notes ?? '' }}</td>
             </tr>
         </table>
 

@@ -128,7 +128,7 @@ class SpacePlayerController extends Controller
 
     public function search(Request $request)
     {
-        $search = $request->q;
+        $search = $request->q ?? '';
 
         $space_id = $request->space_id;
         $space = Space::with('players')->find($space_id);
@@ -139,6 +139,9 @@ class SpacePlayerController extends Controller
                 ->orWhere('id', 'like', "%$search%");
         })
             ->whereNotIn('id', $existing_players)
+
+            ->where('space_id', null)
+
             ->orderBy('id', 'desc')
             ->limit(50) // limit hasil
             ->get()

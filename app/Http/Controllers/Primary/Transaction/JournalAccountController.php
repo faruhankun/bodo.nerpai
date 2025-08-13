@@ -281,26 +281,7 @@ class JournalAccountController extends Controller
 
         // search
         if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
-            $search = $request->search['value'] ?? $request->q;
-
-            $journal_accounts = $journal_accounts->where(function ($q) use ($search) {
-                $q->where('transactions.id', 'like', "%{$search}%")
-                    ->orWhere('transactions.number', 'like', "%{$search}%")
-                    ->orWhere('transactions.sent_time', 'like', "%{$search}%")
-                    ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
-
-                $q->orWhereHas('details', function ($q2) use ($search) {
-                    $q2->where('transaction_details.notes', 'like', "%{$search}%")
-                        ->orWhere('transaction_details.model_type', 'like', "%{$search}%")
-                    ;
-                });
-
-                $q->orWhereHas('details.detail', function ($q2) use ($search) {
-                    $q2->where('inventories.name', 'like', "%{$search}%")
-                        ->orWhere('inventories.code', 'like', "%{$search}%")
-                    ;
-                });
-            });
+            
         }
 
 
@@ -318,7 +299,26 @@ class JournalAccountController extends Controller
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
             ->filter(function ($query) use ($request) {
-                
+                $search = $request->search['value'] ?? $request->q;
+
+                $query = $query->where(function ($q) use ($search) {
+                    $q->where('transactions.id', 'like', "%{$search}%")
+                        ->orWhere('transactions.number', 'like', "%{$search}%")
+                        ->orWhere('transactions.sent_time', 'like', "%{$search}%")
+                        ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
+
+                    $q->orWhereHas('details', function ($q2) use ($search) {
+                        $q2->where('transaction_details.notes', 'like', "%{$search}%")
+                            ->orWhere('transaction_details.model_type', 'like', "%{$search}%")
+                        ;
+                    });
+
+                    $q->orWhereHas('details.detail', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%")
+                        ;
+                    });
+                });
             })
             ->rawColumns(['actions'])
             ->make(true);
@@ -424,7 +424,7 @@ class JournalAccountController extends Controller
                 ]);
             }
 
-            return back()->with('error', 'Failed to import csv. Please try again.');
+            return back()->with('error', 'Failed to import csv. Error:' . $th->getMessage());
         }
 
         DB::commit();

@@ -51,8 +51,9 @@ class TradeService
 
 
     public $model_types = [
-        ['id' => 'PRE', 'name' => 'Pre Order'],
+        ['id' => 'PO', 'name' => 'Purchase'],
         ['id' => 'SO', 'name' => 'Sales'],
+        ['id' => 'PRE', 'name' => 'Pre Order'],
         ['id' => 'DMG', 'name' => 'Damage'],
         ['id' => 'RTR', 'name' => 'Return'],
         ['id' => 'MV', 'name' => 'Move'],
@@ -160,6 +161,17 @@ class TradeService
         $query = $this->getQueryData($request);
 
 
+
+        // filter model
+        $model_type_select = $request->get('model_type_select') ?? '';
+        if($model_type_select != 'all'){
+            $query->whereHas('details', function($q) use ($model_type_select){
+                $q->where('model_type', $model_type_select);
+            });
+        }
+
+
+
         // Limit
         $limit = $request->get('limit');
         if($limit){
@@ -256,8 +268,8 @@ class TradeService
                             });
 
                             $q->orWhereHas('details.detail', function ($q2) use ($search) {
-                                $q2->where('inventories.name', 'like', "%{$search}%")
-                                    ->orWhere('inventories.sku', "{$search}")
+                                $q2->where('name', 'like', "%{$search}%")
+                                    ->orWhere('sku', "{$search}")
                                 ;
                             });
                         });

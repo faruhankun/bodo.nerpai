@@ -22,7 +22,7 @@
         <div class=" sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
-                    <h3 class="text-lg font-bold dark:text-white">Manage {{ $header }}</h3>
+                    <h3 class="text-2xl font-bold dark:text-white">Manage {{ $header }}</h3>
                     <p class="text-sm dark:text-gray-200 mb-6">Create, edit, and manage your {{ $model }} listings.</p>
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 

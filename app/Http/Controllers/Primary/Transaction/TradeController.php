@@ -140,7 +140,7 @@ class TradeController extends Controller
 
     public function edit(String $id)
     {
-        $journal = Transaction::with(['details', 'details.detail'])->findOrFail($id);
+        $journal = Transaction::with(['details', 'details.detail', 'input', 'outputs', 'sender', 'receiver'])->findOrFail($id);
         $model_types = $this->tradeService->model_types;
 
         return view('primary.transaction.trades.edit', compact('journal', 'model_types'));
@@ -155,8 +155,12 @@ class TradeController extends Controller
         try {
             $validated = $request->validate([
                 'sent_time' => 'nullable',
+                
                 'handler_id' => 'required',
                 'handler_notes' => 'nullable|string|max:255',
+                
+                'receiver_id' => 'nullable',
+                'receiver_notes' => 'nullable|string|max:255',
 
                 'space_origin' => 'nullable',
 
@@ -179,6 +183,10 @@ class TradeController extends Controller
 
             $data = [
                 'sent_time' => $validated['sent_time'] ?? now(),
+                'receiver_type' => 'PLAY',
+                'receiver_id' => $validated['receiver_id'] ?? null,
+                'receiver_notes' => $validated['receiver_notes'] ?? null,
+
                 'handler_notes' => $validated['handler_notes'] ?? null,
                 'handler_type' => 'PLAY',
                 'handler_id' => $validated['handler_id'],

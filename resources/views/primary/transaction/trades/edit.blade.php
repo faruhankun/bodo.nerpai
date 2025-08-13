@@ -29,6 +29,7 @@
                         @method('PUT')
 
 
+
                         @include('primary.transaction.trades.partials.dataform', ['form' => ['id' => 'Edit Journal', 'mode' => 'edit'], 'data' => $journal])
 
 
@@ -75,28 +76,7 @@
         </div>
     </div>
 
-    <script>
-        $(document).ready(function() {
-            // Journal
-            let journal = {!! json_encode($journal) !!};
-            let journal_details = {!! json_encode($journal->details) !!};
 
-            let sentTime = '{{ $journal->sent_time->format('Y-m-d') }}';
-            $("#edit_sent_time").val(sentTime);
-            $("#edit_handler_notes").val(journal.handler_notes);
-
-            // Details
-            let detailIndex = {{ $journal->details->count() }};
-            journal_details.forEach(appendDetailRow);
-            
-            // setTimeout(() => {
-            //     $('.inventory-select').each(function() {
-            //         initInventorySelect($(this));
-            //     });
-            // }, 0);
-        });
-    </script>
-    
     <!-- Rows -->
     <script>
         let detailIndex = 0;
@@ -111,7 +91,7 @@
         function renderDetailRow(detail = {}) {
             const rowIndex = detailIndex++;
             const selectedId = detail.detail_id || '';
-            const selectedModel = detail.model_type || 'SO';
+            const selectedModel = detail.model_type || '';
             const quantity = detail.quantity || 1;
             const price = detail.price || 0;
             const discount = detail.discount || 0;
@@ -255,29 +235,80 @@
             // Your validation logic here
             let isValid = true;
 
-            // cek apakah setiap baris, debit/creditnya tidak sama 0
-            let totalDebit = 0;
-            $(".debit-input").each(function() {
-                if ($(this).val() == 0) {
-                    if($(this).closest("tr").find(".credit-input").val() == 0){
-                        alert("Debit and Credit must not be zero!");
-
-                        isValid = false;
-                        return false;
-                    }
-                }
-
-                totalDebit += parseFloat($(this).val()) || 0;
-            });
-
-            // if(totalDebit == 0){
-            //     alert("Debit and Credit must not be zero!");
-
-            //     isValid = false;
-            // }
-
             return isValid; // Return true if the form is valid, false otherwise
         }
     </script>
 
 </x-dynamic-component>
+
+
+<script>
+    $(document).ready(function() {
+        $('#edit_receiver_id').select2({
+            placeholder: 'Search & Select Kontak',
+            minimumInputLength: 1,
+            width: '100%',
+            ajax: {
+                url: '/players/data',
+                dataType: 'json',
+                paginate: true,
+                data: function(params) {
+                    return {
+                        q: params.term,
+                        return_type: 'json',
+                        space: 'true',
+                        space_id: '{{ $space_id }}',
+                        page: params.page || 1,
+                    };
+                },
+                processResults: function(result) {
+                    console.log(result);
+                    return {
+                        results: result.map(item => ({
+                            id: item.id,
+                            text: item.id + ' : ' + item.name + ' (' + item.email + ' : ' + item.phone_number + ')',
+                        }))
+                    }
+                },
+                cache: true
+            }
+        });
+
+        $('#edit_receiver_id').on('select2:select', function(e) {
+            const selected = e.params.data;
+            console.log(selected);
+            
+            $('#edit_receiver_address').html(selected.text);
+        });
+    });
+</script>
+
+
+<script>
+        $(document).ready(function() {
+            // Journal
+            let journal = {!! json_encode($journal) !!};
+            let journal_details = {!! json_encode($journal->details) !!};
+
+            let sentTime = '{{ $journal->sent_time->format('Y-m-d') }}';
+            $("#edit_sent_time").val(sentTime);
+            $("#edit_sender_notes").val(journal.sender_notes);
+
+            $("#edit_handler_notes").val(journal.handler_notes);
+
+            const option = new Option(journal.receiver.name, journal.receiver.id, true, true);
+            $("#edit_receiver_id").append(option).trigger('change');
+            $('#edit_receiver_address').html(journal.receiver.email + ': ' + journal.receiver.phone_number + ' <br> ' + journal.receiver.address);
+            $("#edit_receiver_notes").val(journal.receiver_notes);
+
+            // Details
+            let detailIndex = {{ $journal->details->count() }};
+            journal_details.forEach(appendDetailRow);
+            
+            // setTimeout(() => {
+            //     $('.inventory-select').each(function() {
+            //         initInventorySelect($(this));
+            //     });
+            // }, 0);
+        });
+    </script>

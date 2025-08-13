@@ -45,6 +45,7 @@ class PlayerController extends Controller
         }
 
 
+
         // Limit
         $limit = $request->get('limit');
         if($limit){
@@ -56,6 +57,7 @@ class PlayerController extends Controller
         }
 
         
+
         // Search
         $keyword = $request->get('q');
         if($keyword){
@@ -100,6 +102,10 @@ class PlayerController extends Controller
                 ->make(true);
         }
 
+
+        if($return_type == 'json'){
+            return response()->json($query->get());
+        }
 
         // return result
         return DataTables::of($query)->make(true);

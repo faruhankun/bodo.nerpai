@@ -18,9 +18,9 @@
             Space: {{ $data?->space?->name ?? 'N/A' }}
         </x-div-box-show>
         <x-div-box-show title="Total Amount">Rp{{ number_format($data->total, 2) }}</x-div-box-show>
-        <x-div-box-show title="TX Terkait">
-            TX: {{ $data->input?->number ?? '-' }} <br>
-            Space: {{ $data?->input?->space?->name ?? 'N/A' }}
+        <x-div-box-show title="Receiver">
+            Receiver: {{ $data?->receiver?->name ?? 'N/A' }} <br>
+            Notes: {{ $data?->receiver_notes ?? 'N/A' }}
         </x-div-box-show>
         <!-- <x-div-box-show title="TX Tujuan">
             TX: {{ $data->output?->number ?? '-' }} <br>

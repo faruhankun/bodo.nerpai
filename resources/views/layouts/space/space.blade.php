@@ -82,7 +82,7 @@
             'dropdown_text' => 'Sosial',
             'dropdown_items' => [
                 'trade' => [
-                    'auth' => true,
+                    'auth' => $user->can('space.trades.po') || $user->can('space.trades.so') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "trades.index",
                     'text' => 'Trades',
@@ -102,21 +102,21 @@
             'dropdown_text' => 'Relasi',
             'dropdown_items' => [
                 'players' => [
-                    'auth' => true,
+                    'auth' => $user->can('spaces.players') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "players.index",
                     'text' => 'Kontak',
                 ],
                 
                 'space_players' => [
-                    'auth' => true,
+                    'auth' => $user->can('space.teams') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "space_players.index",
                     'text' => 'Space Players',
                 ],
 
                 'teams' => [
-                    'auth' => true,
+                    'auth' => $user->can('space.teams') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "teams.index",
                     'text' => 'Teams',
@@ -200,21 +200,21 @@
             'dropdown_text' => 'Access',
             'dropdown_items' => [
                 'roles' => [
-                    'auth' => $user->can('space.roles'),
+                    'auth' => $user->can('space.roles') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "roles.index",
                     'text' => 'Roles',
                 ],
 
                 'skills' => [
-                    'auth' => $user->can('space.skills'),
+                    'auth' => $user->can('space.skills') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "skills.index",
                     'text' => 'Skills',
                 ],
 
                 'variables' => [
-                    'auth' => $user->can('space.variables'),
+                    'auth' => $user->can('space.variables') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "variables.index",
                     'text' => 'Variables',

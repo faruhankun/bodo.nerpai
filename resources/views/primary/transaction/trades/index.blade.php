@@ -1,16 +1,45 @@
 @php
+    $request = request();
+    $user = auth()->user();
+    $space_role = session('space_role') ?? null;
+
     $space_id = session('space_id') ?? null;
     if(is_null($space_id)){
         abort(403);
     }
 
     $player = session('player_id') ? \App\Models\Primary\Player::findOrFail(session('player_id')) : Auth::user()->player;
+
+
+
+    $model_type_select = $request->get('model_type_select') ?? null;
+    $model_type_option = [];
+
+    if($user->can('space.trades.po') && $user->can('space.trades.so') || $space_role == 'owner'){
+        $model_type_option['all'] = 'Semua Trades';   
+    }
+
+    if($user->can('space.trades.po') || $space_role == 'owner'){
+        $model_type_option['PO'] = 'Purchase Order';
+    }
+
+    if($user->can('space.trades.so') || $space_role == 'owner'){
+        $model_type_option['SO'] = 'Sales Order';
+    }
+
 @endphp
 
 <x-crud.index-basic header="Trades" model="trades" table_id="indexTable" 
                     :thead="['ID', 'Date', 'Number', 'Description', 'SKU','Total', 'Actions']">
     <x-slot name="buttons">
         @include('primary.transaction.trades.create')
+
+        <x-input-select name="model_type_select" id="model-type-select">
+            <option value="">-- Select Type --</option>
+            @foreach ($model_type_option as $key => $value)
+                <option value="{{ $key }}" {{ $model_type_select == $key ? 'selected' : '' }}>{{ $value }}</option>
+            @endforeach
+        </x-input-select>
     </x-slot>
 
     <x-slot name="filters">
@@ -36,9 +65,10 @@
             serverSide: true,
             ajax: {
                 url: "{{ route('trades.data') }}",
-                data: {
-                    return_type: 'DT',
-                    space_id: '{{$space_id}}',
+                data: function (d) {
+                    d.return_type = 'DT';
+                    d.space_id = {{ $space_id }};
+                    d.model_type_select = $('#model-type-select').val() || '';
                 }
             },
             pageLength: 10,
@@ -94,6 +124,12 @@
             ]
         });
 
+
+
+        
+        $('#model-type-select').on('change', function() {
+            indexTable.ajax.reload();
+        });
 
 
         // Export Import

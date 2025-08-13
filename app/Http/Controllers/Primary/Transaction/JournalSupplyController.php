@@ -336,9 +336,9 @@ class JournalSupplyController extends Controller
                             ;
                         });
 
-                        $q->orWhereHas('details.detail', function ($q2) use ($search) {
-                            $q2->where('inventories.name', 'like', "%{$search}%")
-                                ->orWhere('inventories.sku', "{$search}")
+                        $q->orWhereHas('details.detail', function ($q3) use ($search) {
+                            $q3->where('name', 'like', "%{$search}%")
+                                ->orWhere('sku', "{$search}")
                             ;
                         });
                     });
