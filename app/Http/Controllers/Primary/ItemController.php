@@ -198,7 +198,7 @@ class ItemController extends Controller
 
 
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $request_source = get_request_source($request);
 

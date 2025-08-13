@@ -10,6 +10,7 @@
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.1",
         "laravel/tinker": "^2.9",
+        "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-permission": "^6.10",
         "yajra/laravel-datatables-oracle": "11.0"
     },

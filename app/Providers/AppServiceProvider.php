@@ -5,6 +5,11 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Spatie\Activitylog\Models\Activity;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Event;
 
 use App\Models\Primary\Player;
 use App\Models\Primary\Space;
@@ -90,5 +95,78 @@ class AppServiceProvider extends ServiceProvider
             'ITM' => Item::class,
             'TX' => Transaction::class,
         ]);
+
+
+
+        // logs
+
+        $excludedModels = [
+            Activity::class,
+            // \Laravel\Sanctum\PersonalAccessToken::class, // kalau pakai Sanctum
+        ];
+
+
+        // Listen semua created
+        Event::listen('eloquent.created: *', function ($event, $models) use ($excludedModels) {
+            $model = $models[0];
+            if (!in_array(get_class($model), $excludedModels)) {
+                $this->logActivity('created', $model, [], $model->getAttributes());
+            }
+        });
+
+        // Listen semua updated
+        Event::listen('eloquent.updated: *', function ($event, $models) use ($excludedModels) {
+            $model = $models[0];
+            if (!in_array(get_class($model), $excludedModels)) {
+                $changes = $model->getChanges();
+
+                // Ambil hanya nilai lama dari field yang berubah
+                $old = collect($changes)
+                    ->mapWithKeys(fn($value, $field) => [$field => $model->getOriginal($field)])
+                    ->toArray();
+
+                $this->logActivity('updated', $model, $old, $changes);
+            }
+        });
+
+        // Listen semua deleted
+        Event::listen('eloquent.deleted: *', function ($event, $models) use ($excludedModels) {
+            $model = $models[0];
+            if (!in_array(get_class($model), $excludedModels)) {
+                $this->logActivity('deleted', $model, $model->getOriginal(), []);
+            }
+        });
 	}
+
+
+    private function logActivity($event, $model, $old = [], $new = [])
+    {
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($model)
+            ->withProperties([
+                'old' => $old,
+                'attributes' => $new,
+                'ip_address' => Request::ip(),
+                'user_agent' => '',
+                'url' => request()->getRequestUri(),
+            ])
+            ->log(class_basename($model) . " {$event}");
+    }
+
+
+    private function shouldLog($model, $excludedModels)
+    {
+        if (app()->runningInConsole() || !auth()->check()) {
+            return false;
+        }
+
+        foreach ($excludedModels as $excluded) {
+            if ($model instanceof $excluded) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

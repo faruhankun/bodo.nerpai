@@ -13,6 +13,10 @@ use App\Http\Controllers\Space\CompanyController;
 
 use App\Http\Controllers\Company\Client\MigrateClientController;
 
+
+use App\Http\Controllers\Log\ActivityLogController;
+
+
 use App\Http\Middleware\AppMiddleware;
 use App\Http\Middleware\CompanyMiddleware;
 use App\Http\Middleware\Space\SpaceMiddleware;
@@ -38,7 +42,6 @@ Route::middleware([
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
 });
 
 
@@ -62,6 +65,10 @@ Route::middleware([
     Route::get('/ranks/data', [RoleController::class, 'getRolesData'])->name('ranks.data');
 
     Route::resource('permissions', PermissionController::class);
+
+
+    Route::get('logs/data', [ActivityLogController::class, 'getData'])->name('logs.data');
+    Route::resource('logs', ActivityLogController::class);
 });
 
 
