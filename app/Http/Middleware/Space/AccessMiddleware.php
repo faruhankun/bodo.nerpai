@@ -19,7 +19,7 @@ class AccessMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $space_id = get_space_id($request);
+        $space_id = get_space_id($request, false);
 
         if($space_id){
             $player = Auth::user()->player;

@@ -72,7 +72,9 @@ class InventoryController extends Controller
         $baseQuery = TransactionDetail::with(['transaction', 'detail'])
             ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->select('transaction_details.*')
-            ->orderBy('transactions.sent_time', 'asc');
+            ->orderBy('transactions.sent_time', 'asc')
+            ->where('transactions.model_type', 'JS')
+            ;
             // ->whereBetween('sent_time', [
             //     Carbon::parse($validated['start_date'])->startOfDay(),
             //     Carbon::parse($validated['end_date'])->endOfDay()
@@ -207,7 +209,7 @@ class InventoryController extends Controller
         if($orderby && $orderdir){
             $query->orderBy($orderby, $orderdir);
         } else {
-            $query->orderBy('id', 'desc');
+            $query->orderBy('id', 'asc');
         }
 
 
@@ -337,6 +339,9 @@ class InventoryController extends Controller
         } 
 
 
+        $supplies = $supplies->orderBy('id', 'asc');
+
+
         return DataTables::of($supplies)
             ->addColumn('getSupplyBalance', function ($data) {
                 // return $data->getSupplyBalance();
@@ -415,7 +420,7 @@ class InventoryController extends Controller
             ->where('model_type', 'SUP')
             ->where('space_type', 'SPACE')
             ->where('space_id', $space_id)
-            ->orderBy('id', 'desc')
+            ->orderBy('id', 'asc')
             ->limit(50) // limit hasil
             ->get()
             ->map(function ($ivt) {

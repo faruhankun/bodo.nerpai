@@ -240,6 +240,8 @@ class ItemController extends Controller
                     ->whereIn('space_id', $space_and_parents);
 
 
+        $items = $items->orderBy('id', 'asc');
+
 
         return DataTables::of($items)
             ->addColumn('supplies', function ($data) use ($spaces_id) {
@@ -328,7 +330,7 @@ class ItemController extends Controller
 
             ->whereIn('space_id', $space_and_parents)
 
-            ->orderBy('id', 'desc')
+            ->orderBy('id', 'asc')
             ->limit(50) // limit hasil
             ->get()
             ->map(function ($item) {
@@ -501,11 +503,19 @@ class ItemController extends Controller
     public function exportData(Request $request)
     {
         $params = json_decode($request->get('params'), true);
-        
         $space_id = get_space_id($request);
 
-        $query = Item::where('space_type', 'SPACE')->where('space_id', $space_id);
-        
+
+
+        $query = Item::with('inventories')
+                    ->where('space_type', 'SPACE')
+                    ->where('space_id', $space_id);
+
+        $space = Space::findOrFail($space_id);
+        $spaces = $space->spaceAndChildren();
+
+
+
         // Apply search filter
         if (!empty($params['search']['value'])) {
             $search = $params['search']['value'];
@@ -529,41 +539,59 @@ class ItemController extends Controller
         }
 
         $query->take(10000);
-
         $items = $query->get();
+
+
 
         $filename = 'export_items_' . now()->format('Ymd_His') . '.csv';
         $columns = ['id', 'code', 'sku', 'name', 'price', 'cost', 'weight', 'notes', 'status', 'created_at', 'model_type'];
 
-        $callback = function () use ($items, $columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
+        foreach($spaces as $space){
+            $columns[] = 'stok ' . $space->name;
+            $columns[] = 'cost ' . $space->name;
+        }
 
-            foreach ($items as $item) {
-                fputcsv($file, [
-                    $item->id,
-                    $item->code,
-                    $item->sku,
-                    $item->name,
-                    $item->price,
-                    $item->cost,
-                    $item->weight,
-                    $item->notes,
-                    $item->status,
-                    $item->created_at,
-                    $item->model_type,
-                ]);
-            }
 
-            fclose($file);
-        };
+        try {
+            $callback = function () use ($items, $columns, $spaces) {
+                $file = fopen('php://output', 'w');
+                fputcsv($file, $columns);
+
+                foreach ($items as $item) {
+                    $row = [
+                        $item->id,
+                        $item->code,
+                        $item->sku,
+                        $item->name,
+                        $item->price,
+                        $item->cost,
+                        $item->weight,
+                        $item->notes,
+                        $item->status,
+                        $item->created_at,
+                        $item->model_type,
+                    ];
+
+
+                    $ivts = $item->inventories;
+                    foreach($spaces as $space){
+                        $ivt = $ivts->where('space_id', $space->id)->first() ?? new Inventory();
+                        $row[] = $ivt?->balance ?? 0;
+                        $row[] = $ivt?->cost_per_unit ?? 0;
+                    }
+
+                    fputcsv($file, $row);
+                }
+
+                fclose($file);
+            };
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage(), 'success' => false, 'data' => []], 500);
+        }
 
         return response()->stream($callback, 200, [
             "Content-Type" => "text/csv",
             "Content-Disposition" => "attachment; filename=\"$filename\"",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0"
         ]);
     }
 }

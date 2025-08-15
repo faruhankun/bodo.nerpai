@@ -56,6 +56,7 @@ class JournalSupplyService
         $tx->update($data);
 
         // Delete old details
+        $old_details_ids = collect($tx->details)->pluck('detail_id')->unique();
         $tx->details()->delete();
 
         // Create new details
@@ -94,8 +95,11 @@ class JournalSupplyService
         $tx->total = $balance_change;
         $tx->save();
 
+
+
         // Update Balance
         $supply_ids = collect($details)->pluck('detail_id')->unique();
+        $supply_ids = $supply_ids->merge($old_details_ids)->unique();
         foreach($supply_ids as $supply_id) {
             $supply = Inventory::find($supply_id);
             $supply->updateSupplyBalance();

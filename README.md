@@ -40,7 +40,8 @@ We would like to extend our thanks to the following sponsors for funding Nerpai 
 
 - **[Jawir Team - Nerpai Foundation](https://nerpai.space/)**
 - **[Haebot](https://haebot.com)**
-- **[WebReinvent](https://webreinvent.com/)**
+- **[LinCie](https://link.lincie.me)**
+- **[Fuhrer](https://maps.app.goo.gl/sc1ybXHuELae5tF87)**
 
 
 
