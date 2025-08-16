@@ -1,14 +1,15 @@
 @php
-
-    $space_id = session('space_id') ?? null;
-    if(is_null($space_id)){
-        abort(403);
-    }
+    $space_id = get_space_id(request());
     $space = \App\Models\Primary\Space::findOrFail($space_id);
     $spaces = $space->spaceAndChildren();
 
     $supplies = $data->inventories
                     ->whereIn('space_id', $spaces->pluck('id')->toArray());
+
+    $user = auth()->user();
+    $space_role = session('space_role') ?? null;
+
+    $allow_cost = $user->can('space.supplies.cost', 'web') || $space_role == 'owner';
 @endphp
 
 <x-crud.modal-show title="Item Details" trigger="View">
@@ -17,7 +18,11 @@
         <x-div-box-show title="SKU">{{ $data->sku ?? 'N/A' }}</x-div-box-show>
         <x-div-box-show title="Name">{{ $data->name ?? 'N/A' }}</x-div-box-show>
         <x-div-box-show title="Price">{{ $data->price ?? 'N/A' }}</x-div-box-show>
-        <x-div-box-show title="Cost">{{ $data->cost ?? 'N/A' }}</x-div-box-show>
+
+        @if($allow_cost)
+            <x-div-box-show title="Cost">{{ $data->cost ?? 'N/A' }}</x-div-box-show>
+        @endif
+
         <x-div-box-show title="Status">{{ $data->status }}</x-div-box-show>
         <x-div-box-show title="Notes">{{ $data->notes ?? 'N/A' }}</x-div-box-show>
     </div>
@@ -51,7 +56,7 @@
                         <x-table.table-td>{{ $supply->sku ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ $supply->space_type ?? 'N/A' }} : {{ $supply->space?->name ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ intval($supply->balance) ?? 'N/A' }}</x-table.table-td>
-                        <x-table.table-td class="py-4">Rp{{ number_format($supply->cost_per_unit, 2) }}</x-table.table-td>
+                        <x-table.table-td class="py-4">Rp{{ $allow_cost ? number_format($supply->cost_per_unit, 2) : 'null' }}</x-table.table-td>
                         <x-table.table-td>{{ $detail->notes ?? 'N/A' }}</x-table.table-td>
                     </x-table.table-tr>
 
@@ -66,7 +71,7 @@
                     <x-table.table-th></x-table.table-th>
                     <x-table.table-th class="text-lg font-bold">Total</x-table.table-th>
                     <x-table.table-th class="text-lg">{{ $balance_total }}</x-table.table-th>
-                    <x-table.table-th class="text-lg">Rp{{ number_format($cost_total) }}</x-table.table-th>
+                    <x-table.table-th class="text-lg">Rp{{ $allow_cost ? number_format($cost_total) : 'null' }}</x-table.table-th>
                     <x-table.table-th></x-table.table-th>
                 </x-table.table-tr>
             </x-table.table-tbody>

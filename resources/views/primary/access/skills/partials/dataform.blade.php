@@ -5,8 +5,7 @@
 <!-- Select Item -->
 <x-div.box-input for="guard_name" title="Item">
     <select name="guard_name" id="{{ $form['mode'] ?? '' }}_guard_name" class="w-full px-4 py-2 border rounded">
-        <option value="">-- Select Guard --</option>
-        <option value="web">web</option>
+        <option value="web" selected>web</option>
         <option value="api">api</option>
         <option value="space">space</option>
     </select>

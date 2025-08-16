@@ -31,7 +31,7 @@
         form.action = '/roles';
 
         // Dispatch event ke Alpine.js untuk membuka modal
-        window.dispatchEvent(new CustomEvent('create-modal'));
+        window.dispatchEvent(new CustomEvent('modal-create'));
     }
 
     $('#createDataForm').on('submit', function(e) {
@@ -50,7 +50,7 @@
                 $('#indexTable').DataTable().ajax.reload(null, false);
 
                 // Tutup modal (kalau pakai Alpine.js, sesuaikan)
-                window.dispatchEvent(new CustomEvent('close-create-modal'));
+                window.dispatchEvent(new CustomEvent('close-modal-create'));
 
                 // Optional: tampilkan notifikasi
                 Swal.fire({

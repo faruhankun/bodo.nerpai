@@ -1,10 +1,10 @@
 @php 
-    $space_id = session('space_id') ?? null;
+    $space_id = get_space_id(request());
 
-    if(is_null($space_id)){
-        abort(403);
-    }
+    $user = auth()->user();
+    $space_role = session('space_role') ?? null;
 
+    $allow_cost = $user->can('space.supplies.cost', 'web') || $space_role == 'owner';
 @endphp
 
 <x-crud.index-basic header="Supplies" 
@@ -149,6 +149,8 @@
 
 <script>
     $(document).ready(function() {
+        let allow_cost = "{{ $allow_cost }}" ? true : false;
+
         let indexTable = $('#indexTable').DataTable({
             scrollX: true,
             processing: true,
@@ -178,15 +180,19 @@
                 },
 
                 { data: 'cost_per_unit', render: function(data, type, row, meta) {
-                    return new Intl.NumberFormat('id-ID', {
+                    let cost_per_unit = new Intl.NumberFormat('id-ID', {
                         maximumFractionDigits: 2
                     }).format(data);
+
+                    return allow_cost ? cost_per_unit : 'null';
                 }},
 
                 { data: 'cost_total', render: function(data, type, row, meta) {
-                    return new Intl.NumberFormat('id-ID', {
+                    let cost_total = new Intl.NumberFormat('id-ID', {
                         maximumFractionDigits: 2
                     }).format(data);
+
+                    return allow_cost ? cost_total : 'null';
                 }},
 
                 { data: 'notes' },
