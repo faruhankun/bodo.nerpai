@@ -31,7 +31,8 @@ class PlayerController extends Controller
     public function getData(Request $request){
         $request_source = get_request_source($request);
 
-        $query = Player::with('type', 'size');
+        $query = Player::with('type', 'size', 
+                                'transactions_as_receiver', 'transactions_as_receiver.details');
 
 
 
@@ -42,6 +43,20 @@ class PlayerController extends Controller
             $spaces = array($space_id);
             
             $query = $query->whereIn('space_id', $spaces);
+        }
+
+
+
+        // transaction
+        $model_type_select = $request->get('model_type_select') ?? 'null';
+        if($model_type_select != 'all'){
+            if($model_type_select == 'null'){
+                $query->whereDoesntHave('transactions_as_receiver');
+            } else {
+                $query->whereHas('transactions_as_receiver.details', function($q) use ($model_type_select){
+                    $q->where('model_type', $model_type_select);
+                });
+            }
         }
 
 

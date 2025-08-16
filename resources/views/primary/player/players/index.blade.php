@@ -1,7 +1,26 @@
 @php
     $player_id = session('player_id') ?? auth()->user()->player->id;
-
+    $request = request();
+    $user = auth()->user();
+    $space_role = session('space_role') ?? null;
     $space_id = session('space_id') ?? null;
+
+
+
+    $model_type_select = $request->get('model_type_select') ?? null;
+    $model_type_option = [];
+
+    if($user->can('space.trades.po') && $user->can('space.trades.so') || $space_role == 'owner'){
+        $model_type_option['all'] = 'Semua Kontak';   
+    }
+
+    if($user->can('space.trades.po') || $space_role == 'owner'){
+        $model_type_option['PO'] = 'Pembelian';
+    }
+
+    if($user->can('space.trades.so') || $space_role == 'owner'){
+        $model_type_option['SO'] = 'Penjualan';
+    }
 @endphp
 
 <x-crud.index-basic header="Kontak" 
@@ -11,7 +30,23 @@
                 >
     <x-slot name="buttons">
         @include('primary.player.players.create')
+
+        <x-input-select name="model_type_select" id="model-type-select">
+            <option value="">-- Filter --</option>
+            @foreach ($model_type_option as $key => $value)
+                <option value="{{ $key }}" {{ $model_type_select == $key ? 'selected' : '' }}>{{ $value }}</option>
+            @endforeach
+        </x-input-select>
     </x-slot>
+
+
+
+    <x-slot name="filters">
+        <!-- export import  -->
+        <x-crud.exim-csv route_import="{{ route('players.exim') . '?query=import' }}" route_template="{{ route('players.exim') . '?query=importTemplate' }}">
+        </x-crud.exim-csv>
+    </x-slot>
+
 
 
     <x-slot name="modals">
@@ -190,11 +225,12 @@
             serverSide: true,
             ajax: {
                 url: "/players/data",
-                data: {
-                    return_type: 'DT',
-                    space: 'this',
-                    space_id: space_id,
-                }
+                data: function(d) {
+                    d.return_type = 'DT';
+                    d.space = 'this';
+                    d.space_id = space_id;
+                    d.model_type_select = $('#model-type-select').val() || '';
+                },
             },
             columns: [
                 { data: 'id' },
@@ -204,6 +240,27 @@
                 { data: 'notes' },
                 { data: 'actions', orderable: false, searchable: false }
             ]
+        });
+
+
+        $('#model-type-select').on('change', function() {
+            indexTable.ajax.reload();
+        });
+
+
+
+        // export
+        // Export Import
+        $('#exportVisibleBtn').on('click', function(e) {
+            e.preventDefault();
+
+            let params = indexTable.ajax.params();
+            
+            let exportUrl = '{{ route("players.exim") }}' + '?query=export' 
+                                + '&model_type_select=' + $('#model-type-select').val() 
+                                + '&params=' + encodeURIComponent(JSON.stringify(params));
+
+            window.location.href = exportUrl;
         });
     });
 </script>

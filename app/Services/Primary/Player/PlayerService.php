@@ -18,18 +18,11 @@ class PlayerService
 {
     protected $eximService;
     protected $import_columns = [
-        'size_type (*) (PERS/GRP)',
-        'size_id (id)',
         'code', 
-        'name (*)',
-        'full_name',
+        'name',
         'address (json)',
-        'birth_date',
-        'death_date',
-        'email (*)',
-        'phone_number (*)',
-        'gender',
-        'id_card_number',
+        'email',
+        'phone_number',
         'notes',
     ];
 
@@ -125,16 +118,27 @@ class PlayerService
 
     public function getQueryData(Request $request)
     {
-        $space_id = $this->getSpaceId($request);
+        $space_id = get_space_id($request);
 
-        $query = Player::with('type', 'size')
-                        ->whereIn('id', function ($query) use ($space_id) {
-                            $query->select('model2_id')
-                                ->from('relations')
-                                ->where('model2_type', 'PLAY')
-                                ->where('model1_type', 'SPACE')
-                                ->where('model1_id', $space_id);
-                        });
+        $query = Player::with('type', 'size',
+                                'transactions_as_receiver', 'transactions_as_receiver.details')
+                        ->where('space_id', $space_id);
+
+
+        
+        // transaction
+        $model_type_select = $request->get('model_type_select') ?? 'null';
+        if($model_type_select != 'all'){
+            if($model_type_select == 'null'){
+                $query->whereDoesntHave('transactions_as_receiver');
+            } else {
+                $query->whereHas('transactions_as_receiver.details', function($q) use ($model_type_select){
+                    $q->where('model_type', $model_type_select);
+                });
+            }
+        }                
+
+
 
         return $query;
     }
@@ -143,11 +147,13 @@ class PlayerService
     public function exportData(Request $request)
     {
         $params = json_decode($request->get('params'), true);
-        
+
         $query = $this->getQueryData($request);
         // search & order filter
         $query = $this->eximService->exportQuery($query, $params, ['code', 'name', 'size_type', 'notes']);
 
+
+        
         $query->take(10000);
         $collects = $query->get();
 
@@ -171,7 +177,7 @@ class PlayerService
             $row['email'] = $collect->email ?? '';
             $row['phone_number'] = $collect->phone_number ?? '';
 
-            $row['address'] = $collect->address ?? '';
+            $row['address'] = $collect->address ? (is_array($collect->address) ? implode(', ', $collect->address) : $collect->address) : '';
             $row['birth_date'] = $collect->birth_date ?? '';
             $row['death_date'] = $collect->death_date ?? '';
 
@@ -184,6 +190,8 @@ class PlayerService
             $data[] = $row;
         }
 
+
+
         $response = $this->eximService->exportCSV(['filename' => $filename], $data);
 
         return $response;
@@ -192,8 +200,11 @@ class PlayerService
 
     public function importData(Request $request)
     {
-        $space_id = $this->getSpaceId($request);
-        $player_id = $request->player_id ?? (session('player_id') ?? auth()->user()->player->id);
+        $space_id = get_space_id($request);
+        $player_id = get_player_id($request);
+
+        DB::beginTransaction();
+
 
         try {
             $validated = $request->validate([
@@ -204,7 +215,7 @@ class PlayerService
             $file = $validated['file'];
             $data = collect();
             $failedRows = collect();
-            $requiredHeaders = ['size_type (*) (PERS/GRP)', 'name (*)'];
+            $requiredHeaders = ['name'];
 
 
             // Read the CSV into an array of associative rows
@@ -215,106 +226,37 @@ class PlayerService
             foreach($data as $i => $row){
                 try {
                     // skip if no code or name
-                    if (empty($row['name (*)'])) {
+                    if (empty($row['name'])) {
                         throw new \Exception('Missing required field: name');
                     }
 
 
                     $player_data = [
                         'code' => $row['code'] && !empty($row['code']) ? $row['code'] : null,
-                        'size_type' => $row['size_type (*) (PERS/GRP)'] && !empty($row['size_type (*) (PERS/GRP)']) ? $row['size_type (*) (PERS/GRP)'] : 'PERS',
-                        'size_id' => $row['size_id (id)'] && !empty($row['size_id (id)']) ? $row['size_id (id)'] : null,
-                        'name' => $row['name (*)'] && !empty($row['name (*)']) ? $row['name (*)'] : null,
+                        'name' => $row['name'] && !empty($row['name']) ? $row['name'] : null,
                         'address' => $row['address (json)'] ?? '',
-                        'notes' => $row['notes'] ?? null,
-                    ];
-
-                    $birthDate = $row['birth_date'] ?? null;
-                    $deathDate = $row['death_date'] ?? null;
-                    $size_data = [
-                        'name' => $row['name (*)'] && !empty($row['name (*)']) ? $row['name (*)'] : null,
-                        'full_name' => $row['full_name'] ?? null,
-                        'email' => $row['email (*)'] && !empty($row['email (*)']) ? $row['email (*)'] : null,
-                        'phone_number' => $row['phone_number (*)'] && !empty($row['phone_number (*)']) ? $row['phone_number (*)'] : null,
-                        'address' => $row['address (json)'] ?? '',
-                        'birth_date' => (!empty($birthDate) && strtotime($birthDate)) ? date('Y-m-d', strtotime($birthDate)) : null,
-                        'death_date' => (!empty($deathDate) && strtotime($deathDate)) ? date('Y-m-d', strtotime($deathDate)) : null,
-                        'gender' => $row['gender'] ?? null,
-                        'id_card_number' => $row['id_card_number'] ?? null,
+                        'email' => $row['email'] && !empty($row['email']) ? $row['email'] : null,
+                        'phone_number' => $row['phone_number'] && !empty($row['phone_number']) ? $row['phone_number'] : null,
                         'notes' => $row['notes'] ?? null,
                     ];
 
 
-
-                    // look for size
-                    if($player_data['size_type'] == 'PERS'){
-                        $size = Person::where('name', $size_data['name']);
-                    } else if($player_data['size_type'] == 'GRP'){
-                        $size = Group::where('name', $size_data['name']);
-                    }
-                    
-                    if(!empty($player_data['size_id'])){
-                        $size->where('id', $player_data['size_id']);
-                    }
-
-                    if(!empty($player_data['email'])){
-                        $size->where('email', $player_data['email']);
-                    }
-
-                    if(!empty($player_data['phone_number'])){
-                        $size->where('phone_number', $player_data['phone_number']);
-                    }
-
-                    $size = $size->first();
-
-                    if($size){
-                        // update size
-                        $size->update($size_data);
-                    } else {
-                        // create size
-                        if($player_data['size_type'] == 'PERS'){
-                            $size = Person::create($size_data);
-                        } else if($player_data['size_type'] == 'GRP'){
-                            $size = Group::create($size_data);
-                        }
-                    }
+                    $player_data['space_type'] = 'SPACE';
+                    $player_data['space_id'] = $space_id;
 
 
 
-                    // look for player
-                    $player = Player::with('type', 'size')
-                                    ->where('size_id', $size->id)
-                                    ->where('size_type', $player_data['size_type'])
-                                    ->where('name', $size_data['name'])
-                                    ->first();
-
-                    $player_data['size_id'] = $size->id;
-                    if($player){
-                        // update player
-                        $player->update($player_data);  
-                    } else {
-                        // create player
-                        $player = Player::create($player_data);
-                    }
-
-
-
-                    // connect player to space
-                    $relation = Relation::where('model1_type', 'SPACE')
-                                        ->where('model1_id', $space_id)
-                                        ->where('model2_type', 'PLAY')
-                                        ->where('model2_id', $player->id)
-                                        ->first();
-                    if(!$relation){
-                        Relation::create([
-                            'model1_type' => 'SPACE',
-                            'model1_id' => $space_id,
-                            'model2_type' => 'PLAY',
-                            'model2_id' => $player->id,
-                            'type' => 'guest',
-                            'notes' => 'imported from csv',
-                        ]);
-                    }
+                    $player = Player::updateOrCreate([
+                        'space_type' => 'SPACE',
+                        'space_id' => $space_id,
+                        'code' => $player_data['code'],
+                        'name' => $player_data['name'],
+                    ], [
+                        'address' => $player_data['address'],
+                        'email' => $player_data['email'],
+                        'phone_number' => $player_data['phone_number'],
+                        'notes' => $player_data['notes'],
+                    ]);
                 } catch (\Throwable $e) {
                     $row['row'] = $i + 2; 
                     $row['error'] = $e->getMessage();
@@ -325,17 +267,21 @@ class PlayerService
 
             // Jika ada row yang gagal, langsung return CSV dari memory
             if (count($failedRows) > 0) {
+                DB::rollBack();
+
                 $filename = "failed_import_{$this->routerName}_" . now()->format('Ymd_His') . '.csv';
                 
                 return $this->eximService->exportCSV(['filename' => $filename], $failedRows);
             }
-
-
-            return back()->with('success', 'CSV uploaded and processed Successfully!');
         } catch (\Throwable $th) {
+            DB::rollBack();
+
             return back()->with('error', 'Failed to import csv. Please try again.' . $th->getMessage());
         }
 
-        return $response;
+
+        DB::commit();
+
+        return back()->with('success', 'Successfully imported csv :D');
     } 
 }

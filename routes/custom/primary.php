@@ -119,6 +119,9 @@ Route::middleware([
 
     
     // Players
+    Route::post('players/exim', [PlayerController::class, 'eximData'])->name('players.exim');
+    Route::get('players/exim', [PlayerController::class, 'eximData'])->name('players.exim');
+
     Route::post('/players/switch/{id}', [PlayerController::class, 'switchPlayer'])->name('players.switch');
     Route::get('players/exit/{route}', [PlayerController::class, 'exitPlayer'])->name('players.exit');
     Route::get('players/exit', [PlayerController::class, 'exitPlayer'])->name('players.exit');
