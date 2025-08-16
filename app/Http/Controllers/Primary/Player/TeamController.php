@@ -16,6 +16,7 @@ use Spatie\Permission\PermissionRegistrar;
 use App\Models\User;
 use App\Models\Primary\Player;
 use App\Models\Primary\Space;
+use App\Models\Primary\Relation;
 
 
 
@@ -25,6 +26,11 @@ class TeamController extends Controller
         $space_id = get_space_id($request, false);
 
         $query = User::with('player', 'roles', 'permissions');
+
+        $query->with('player.space_relations', function ($q) use ($space_id) {
+            $q->where('model1_id', $space_id)
+                ->limit(1);
+        });
 
 
 
@@ -133,6 +139,26 @@ class TeamController extends Controller
                     })->implode(' '); 
                 })
 
+                ->addColumn('relation_type', function ($data) use ($space_id) {
+                    return $data->player->space_relations
+                                ->where('model1_id', $space_id)
+                                ->first()
+                                ->type ?? '';
+                })
+
+                ->addColumn('relation_notes', function ($data) use ($space_id) {
+                    return $data->player->space_relations
+                                ->where('model1_id', $space_id)
+                                ->first()
+                                ->notes ?? '';
+                })
+
+                // ->addColumn('relation', function ($data) use ($space_id) {
+                //     return $data->player->space_relations
+                //                 ->where('model1_id', $space_id)
+                //                 ->first() ?? [];
+                // })
+
                 ->rawColumns(['actions', 'show_roles', 'show_permissions'])
                 ->make(true);
         }
@@ -185,69 +211,45 @@ class TeamController extends Controller
 
 
 
-    public function manageRoles(Request $request){
-        $space_id = get_space_id($request);
-
-        $validated = $request->validate([
-            'model_type' => 'nullable',
-            'model_id' => 'required',
-            'role_id' => 'required',
-            'action' => 'nullable',
-        ]);
-        if(!isset($validated['action'])){
-            $validated['action'] = 'assignRole';
-        }
-        if(!isset($validated['model_type'])){
-            $validated['model_type'] = 'USER';
-        }
-
-
-
-        $allowed_models = [
-            'USER' => User::class,
-            'PLAY' => Player::class,
-        ];
-
-
-        if(!isset($allowed_models[$validated['model_type']])){
-            return response()->json(['message' => 'Invalid model type', 'success' => false, 'input' => $request->all], 400);
-        }
-
-
-
-        $role = Role::findOrFail($validated['role_id']);
-        $modelClass = $allowed_models[$validated['model_type']];
-        $model = $modelClass::findOrFail($validated['model_id']);
-
-        app(PermissionRegistrar::class)->setPermissionsTeamId($space_id);
-        
-        
-        $allowed_actions = [
-            'assign' => 'assignRole',
-            'remove' => 'removeRole',
-            'sync' => 'syncRoles',
-        ];
-
-        if(!isset($allowed_actions[$validated['action']])){
-            return response()->json(['message' => 'Invalid action', 'success' => false, 'input' => $request->all], 400);
-        }
-        
-        $method = $allowed_actions[$validated['action']];
-        $model->$method($role);
-
-
-
-        return response()->json(['message' => 'Role assigned successfully', 'success' => true, 'data' => $model, 'input' => $request->all], 200);
-    }
-
-
-
-
     public function store(Request $request)
     {
         $space_id = get_space_id($request);
+
+
+        $validatedData = $request->validate([
+            'user_id' => 'required',
+            'type' => 'required|string|max:50',
+            'status' => 'required|string|max:50',
+            'notes' => 'nullable|string',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+        $player_id = $user?->player_id;
+
+
+
+        $relation = [];
+        try {
+            $relation = Relation::updateOrCreate(
+                [
+                    'model1_type' => 'SPACE',
+                    'model1_id' => $space_id,
+                    'model2_type' => 'PLAY',
+                    'model2_id' => $player_id,
+                ],
+                [
+                    'type' => $request->type,
+                    'status' => $request->status,
+                    'notes' => $request->notes
+                ]
+            );
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage(), 'success' => false], 400);
+        }
+
     
-        return response()->json(['message' => 'Role created successfully', 'success' => true, 'data' => $role], 200);
+
+        return response()->json(['message' => 'User assigned successfully', 'success' => true, 'data' => $relation], 200);
     }
 
 
@@ -256,35 +258,79 @@ class TeamController extends Controller
     {
         $space_id = get_space_id($request);
 
+
+        $relation = [];
         try {
             $validated = $request->validate([
-                'role_id' => 'required|exists:roles,id',
+                'role_id' => 'nullable|exists:roles,id',
+
+                'type' => 'nullable',
+                'notes' => 'nullable',
             ]);
+
+
 
             $user = User::findOrFail($id);
 
-            $role = Role::findOrFail($validated['role_id']);
 
-            app(PermissionRegistrar::class)->setPermissionsTeamId($space_id);
+            if(isset($validated['role_id'])){
+                $role = Role::findOrFail($validated['role_id']);
+                
+                app(PermissionRegistrar::class)->setPermissionsTeamId($space_id);
+    
+                $user->syncRoles($role);
+            }
 
-            $user->syncRoles($role);
+
+            // update relation
+            $relation = Relation::updateOrCreate(
+                [
+                    'model1_type' => 'SPACE',
+                    'model1_id' => $space_id,
+                    'model2_type' => 'PLAY',
+                    'model2_id' => $user->player_id,
+                ],
+                [
+                    'type' => $validated['type'],
+                    'notes' => $validated['notes']
+                ]
+            );
 
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage(), 'success' => false, 'input' => $request->all], 400);
         }
 
 
-        return response()->json(['message' => 'Team updated successfully', 'success' => true, 'data' => [], 'input' => $request->all], 200);
+        return response()->json(['message' => 'Team updated successfully', 'success' => true, 'data' => $relation, 'input' => $request->all], 200);
     }
 
 
 
-    public function destroy(String $id)
+    public function destroy(Request $request, String $id)
     {
-        $role = Role::findOrFail($id);
-        $role->delete();
+        $space_id = get_space_id($request);
 
-        return response()->json(['message' => 'Role deleted successfully', 'success' => true, 'data' => $role], 200);
+
+        $relations = [];
+        try {
+            $space_and_children = Space::find($space_id)->AllChildren()->pluck('id')->toArray();
+            $space_and_children = array_merge($space_and_children, [$space_id]);
+
+            $relations = Relation::where('model1_type', 'SPACE')
+                                ->whereIn('model1_id', $space_and_children)
+                                ->where('model2_type', 'PLAY')
+                                ->where('model2_id', $id)
+                                ->get();
+
+            foreach ($relations as $relation) {
+                $relation->delete();
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage(), 'success' => false, 'input' => $request->all], 400);
+        }
+
+
+        return response()->json(['message' => 'Team kicked successfully :D', 'success' => true, 'data' => $relations, 'input' => $request->all], 200);
     }
 
 

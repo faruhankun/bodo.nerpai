@@ -70,6 +70,22 @@ class Player extends Model
     }
 
 
+    public function transactions_as_receiver()
+    {
+        return $this->hasMany(Transaction::class, 'receiver_id', 'id')
+                    ->where('receiver_type', 'PLAY');
+    }
+
+
+    public function space_relations()
+    {
+        return $this->hasMany(Relation::class, 'model2_id', 'id')
+                    ->where('model1_type', 'SPACE')
+                    ->where('model2_type', 'PLAY');
+    }
+
+
+
     public function relatedPlayers()
     {
         $relatedIds = DB::table('relations')

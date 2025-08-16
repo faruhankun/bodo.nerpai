@@ -6,7 +6,7 @@
                 model="role" 
                 table_id="indexTable"
                 :thead="[
-                    'Id', 'Name', 'email', 'Roles', 'Permissions', 'Actions']"
+                    'Id', 'Name', 'email', 'Role Umum', 'Roles', 'Permissions', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
         @include('primary.player.teams.create')
@@ -32,7 +32,7 @@
         form.action = '/teams';
 
         // Dispatch event ke Alpine.js untuk membuka modal
-        window.dispatchEvent(new CustomEvent('create-modal'));
+        window.dispatchEvent(new CustomEvent('modal-create'));
     }
 
     $('#createDataForm').on('submit', function(e) {
@@ -51,7 +51,7 @@
                 $('#indexTable').DataTable().ajax.reload(null, false);
 
                 // Tutup modal (kalau pakai Alpine.js, sesuaikan)
-                window.dispatchEvent(new CustomEvent('close-create-modal'));
+                window.dispatchEvent(new CustomEvent('close-modal-create'));
 
                 // Optional: tampilkan notifikasi
                 Swal.fire({
@@ -93,11 +93,16 @@
 
 
     function edit(data) {
+        relation = data.player.space_relations.find((relation) => relation.model1_id == {{ $space_id }});
+        
         document.getElementById('edit_id').value = data.id;
 
         document.getElementById('edit_name').value = data.name;
 
-        // document.getElementById('edit_notes').value = data.notes;
+
+        // from relation
+        document.getElementById('edit_type').value = relation.type;
+        document.getElementById('edit_notes').value = relation.notes;
 
 
         // permissions
@@ -180,7 +185,6 @@
     $(document).ready(function() {
         $('#create_user_id').select2({
             placeholder: 'Search & Select User',
-            minimumInputLength: 2,
             width: '100%',
             padding: '0px 12px',
             ajax: {
@@ -263,8 +267,10 @@
                 { data: 'id', name: 'id' },
                 { data: 'name' },
                 { data: 'email' },
+                { data: 'relation_type' },
                 { data: 'show_roles' },
                 { data: 'show_permissions' },
+                { data: 'relation_notes' },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false },
             ]
         });

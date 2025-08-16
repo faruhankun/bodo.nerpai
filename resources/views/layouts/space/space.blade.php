@@ -107,13 +107,6 @@
                     'route' => "players.index",
                     'text' => 'Kontak',
                 ],
-                
-                'space_players' => [
-                    'auth' => $user->can('space.teams') || $space_role == 'owner',
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "space_players.index",
-                    'text' => 'Space Players',
-                ],
 
                 'teams' => [
                     'auth' => $user->can('space.teams') || $space_role == 'owner',
