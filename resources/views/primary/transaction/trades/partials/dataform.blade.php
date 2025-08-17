@@ -61,5 +61,15 @@
             <x-input-label for="handler_notes">Handler Notes</x-input-label>
             <x-input-textarea name="handler_notes" class="form-control" id="{{ $form['mode'] ?? '' }}_handler_notes"></x-input-textarea>
         </div>
+
+
+        <x-div.box-input for="status" title="Status" label="Status">
+            <x-input-select name="status" class="mt-1 block w-full" id="{{ $form['mode'] ?? '' }}_status" required>
+                <option value="">-- Select Status --</option>
+                @foreach ($status_types as $key => $value)
+                    <option value="{{ $key }}" {{ $data->status == $key ? 'selected' : '' }}>{{ $value }}</option>
+                @endforeach
+            </x-input-select>
+        </x-div.box-input>
     @endif
 </div>

@@ -15,6 +15,10 @@ use App\Models\Primary\Person;
 use App\Models\Primary\Group;
 use App\Models\Primary\Relation;
 use App\Models\Primary\Transaction;
+use App\Models\Primary\Space;
+use App\Models\Primary\TransactionDetail;
+use App\Models\Primary\Item;
+
 
 use Carbon\Carbon;
 
@@ -24,23 +28,30 @@ class TradeService
 {
     protected $eximService;
     protected $spaceService;
+    
     protected $import_columns = [
-        'sender_id',
-        'sender_code',
-        'sender_name',
-        
-        'sent_date', 
+        'date', 
+        'number', 
         'sender_notes',
-        'input_id',
-
+        
         'receiver_id',
-        'receiver_code',
         'receiver_name',
-
-        'received_date',
+        'receiver_email',
+        'receiver_phone', 
+        'receiver_address',
         'receiver_notes',
-        'output_id',
+
+        'model_type', 
+        'item_sku', 
+        'item_name', 
+        'quantity', 
+        'price', 
+        'discount', 
+        'weight', 
+        'notes', 
+        'tags'
     ];
+    
 
     protected $routerName = 'trades';
 
@@ -59,6 +70,21 @@ class TradeService
         ['id' => 'MV', 'name' => 'Move'],
         ['id' => 'UNDF', 'name' => 'Undefined'],
     ];
+
+
+    public $status_types = [
+        'TX_DRAFT' => 'DRAFT',
+        'TX_REQUEST' => 'REQUEST',
+        'TX_APPROVED' => 'APPROVED',
+        'TX_CANCELLED' => 'CANCELLED',
+        'TX_COMPLETED' => 'COMPLETED',
+        'TX_REJECTED' => 'REJECTED',
+        'TX_DELETED' => 'DELETED',
+        'TX_CLOSED' => 'CLOSED',
+        'TX_SHIP' => 'SHIP',
+    ];
+
+
 
 
     public function __construct(EximService $eximService
@@ -149,7 +175,6 @@ class TradeService
         $tx->total = $balance_change;
         $tx->save();
 
-
         return $tx;
     }
 
@@ -159,16 +184,6 @@ class TradeService
         $space_id = get_space_id($request);
 
         $query = $this->getQueryData($request);
-
-
-
-        // filter model
-        $model_type_select = $request->get('model_type_select') ?? '';
-        if($model_type_select != 'all'){
-            $query->whereHas('details', function($q) use ($model_type_select){
-                $q->where('model_type', $model_type_select);
-            });
-        }
 
 
 
@@ -297,6 +312,20 @@ class TradeService
                             ->where('model_type', 'TRD')
                             ->where('space_type', 'SPACE')
                             ->where('space_id', $space_id);
+
+
+        // filter model
+        $model_type_select = $request->get('model_type_select') ?? 'null';
+        if($model_type_select != 'all'){
+            if($model_type_select == 'null' || empty($model_type_select)){
+                $query->whereDoesntHave('details');
+            } else {
+                $query->whereHas('details', function($q) use ($model_type_select){
+                    $q->where('model_type', $model_type_select);
+                });
+            }
+        }
+
 
         return $query;
     }
@@ -474,7 +503,6 @@ class TradeService
         $collects = $query->get();
 
 
-
         // Prepare the CSV data
         $filename = "export_{$this->routerName}_" . now()->format('Ymd_His') . '.csv';
         $data = collect();
@@ -484,27 +512,37 @@ class TradeService
         foreach($collects as $collect){
             $row = [];
 
-            $row['id'] = $collect->id;
             $row['number'] = $collect->number;
-
-            $row['sender_id'] = $collect->sender_id;
-            $row['sender_code'] = $collect->sender?->code;
-            $row['sender_name'] = $collect->sender?->name;
-
-            $row['sent_date'] = Carbon::parse($collect->sent_time)->format('Y-m-d'); 
+            $row['date'] = $collect->sent_time->format('Y-m-d');
             $row['sender_notes'] = $collect->sender_notes;
-            $row['input_id'] = $collect->input_id;
+            $row['status'] = $collect->status;
 
-            $row['receiver_id'] = $collect->receiver_id;
-            $row['receiver_code'] = $collect->receiver?->code;
-            $row['receiver_name'] = $collect->receiver?->name;
 
-            $row['received_date'] = Carbon::parse($collect->received_time)->format('Y-m-d');
-            $row['receiver_notes'] = $collect->receiver_notes;
-            $row['output_id'] = $collect->output_id;
+            // receiver
+            if($collect->receiver){
+                $row['receiver_type'] = $collect->receiver_type;
+                $row['receiver_id'] = $collect->receiver_id;
+                $row['receiver_name'] = $collect->receiver->name ?? 'no name';
+                $row['receiver_address'] = $collect->receiver->address ?? 'no address';
+                $row['receiver_notes'] = $collect->receiver_notes;
+            }
 
-            $data[] = $row;
+
+            foreach($collect->details as $detail){
+                $row['model_type'] = $detail->model_type ?? 'no model type';
+                $row['item_sku'] = $detail->sku ?? 'no sku';
+                $row['item_name'] = $detail->name ?? 'no name';
+                $row['quantity'] = $detail->quantity;
+                $row['price'] = $detail->price;
+                $row['discount'] = $detail->discount;
+                $row['weight'] = $detail->weight;
+                $row['notes'] = $detail->notes;
+                $row['created_at'] = $collect->created_at;
+
+                $data[] = $row;
+            }
         }
+
 
         $response = $this->eximService->exportCSV(['filename' => $filename], $data);
 
@@ -514,158 +552,193 @@ class TradeService
 
     public function importData(Request $request)
     {
-        $space_id = $this->getSpaceId($request);
-        $player_id = $request->player_id ?? (session('player_id') ?? auth()->user()->player->id);
+        $space_id = get_space_id($request);
+
+        $space = Space::findOrFail($space_id);
+        $spaces = array($space_id);
+        $space_parent_id = $space->parent_id ?? null;
+
+        if($space->parent_id){
+            $spaces[] = $space->parent_id;
+        }
+
+
+        $request_source = get_request_source($request);
+        $player_id = get_player_id($request);
+
+
+
+        DB::beginTransaction();
 
         try {
             $validated = $request->validate([
                 'file' => 'required|mimes:csv,txt'
             ]);
 
-
             $file = $validated['file'];
             $data = collect();
             $failedRows = collect();
-            $requiredHeaders = ['size_type (*) (PERS/GRP)', 'name (*)'];
-
+            $requiredHeaders = ['date', 'number', 'model_type', 'item_sku', 'quantity'];
 
             // Read the CSV into an array of associative rows
             $data = $this->eximService->convertCSVtoArray($file, ['requiredHeaders' => $requiredHeaders]);
 
-            
-            // process data
-            foreach($data as $i => $row){
+
+            // Group by transaction number
+            $data_by_number = collect($data)->groupBy('number');
+
+            // dd($data_by_number);
+
+            foreach($data_by_number as $txnNumber => $rows){
                 try {
-                    // skip if no code or name
-                    if (empty($row['name (*)'])) {
-                        throw new \Exception('Missing required field: name');
-                    }
+                    $row_first = $rows[0];
 
+                    // header transaction
+                    $header = [
+                        'number' => $txnNumber,
+                        'space_type' => 'SPACE',
+                        'space_id' => $space_id,
+                        'model_type' => 'TRD',
+                        'sender_type' => 'PLAY',
+                        'sender_id' => $player_id,
+                        'handler_type' => 'PLAY',
+                        'handler_id' => $player_id,
+                        'sent_time' => empty($row_first['date']) ? Date('Y-m-d') : $row_first['date'],
+                        'sender_notes' => $row_first['sender_notes'] ?? null,
 
-                    $player_data = [
-                        'code' => $row['code'] && !empty($row['code']) ? $row['code'] : null,
-                        'size_type' => $row['size_type (*) (PERS/GRP)'] && !empty($row['size_type (*) (PERS/GRP)']) ? $row['size_type (*) (PERS/GRP)'] : 'PERS',
-                        'size_id' => $row['size_id (id)'] && !empty($row['size_id (id)']) ? $row['size_id (id)'] : null,
-                        'name' => $row['name (*)'] && !empty($row['name (*)']) ? $row['name (*)'] : null,
-                        'address' => $row['address (json)'] ?? '',
-                        'notes' => $row['notes'] ?? null,
-                    ];
-
-                    $birthDate = $row['birth_date'] ?? null;
-                    $deathDate = $row['death_date'] ?? null;
-                    $size_data = [
-                        'name' => $row['name (*)'] && !empty($row['name (*)']) ? $row['name (*)'] : null,
-                        'full_name' => $row['full_name'] ?? null,
-                        'email' => $row['email (*)'] && !empty($row['email (*)']) ? $row['email (*)'] : null,
-                        'phone_number' => $row['phone_number (*)'] && !empty($row['phone_number (*)']) ? $row['phone_number (*)'] : null,
-                        'address' => $row['address (json)'] ?? '',
-                        'birth_date' => (!empty($birthDate) && strtotime($birthDate)) ? date('Y-m-d', strtotime($birthDate)) : null,
-                        'death_date' => (!empty($deathDate) && strtotime($deathDate)) ? date('Y-m-d', strtotime($deathDate)) : null,
-                        'gender' => $row['gender'] ?? null,
-                        'id_card_number' => $row['id_card_number'] ?? null,
-                        'notes' => $row['notes'] ?? null,
-
-                        'country' => $row['country'] ?? 'Indonesia',
-                        'province' => $row['province'] ?? null,
-                        'regency' => $row['regency'] ?? null,
-                        'district' => $row['district'] ?? null,
-                        'village' => $row['village'] ?? null,
-                        'postal_code' => $row['postal_code'] ?? null,
-                        'address_detail' => $row['address_detail'] ?? null,
+                        'receiver_type' => 'PLAY',
+                        'receiver_id' => $row_first['receiver_id'] ?? null,
+                        'receiver_notes' => $row_first['receiver_notes'] ?? null
                     ];
 
 
+                    $tx_details = collect();
+                    $tx_total = 0;
 
-                    // look for size
-                    if($player_data['size_type'] == 'PERS'){
-                        $size = Person::where('name', $size_data['name']);
-                    } else if($player_data['size_type'] == 'GRP'){
-                        $size = Group::where('name', $size_data['name']);
-                    }
-                    
-                    if(!empty($player_data['size_id'])){
-                        $size->where('id', $player_data['size_id']);
-                    }
 
-                    if(!empty($player_data['email'])){
-                        $size->where('email', $player_data['email']);
-                    }
 
-                    if(!empty($player_data['phone_number'])){
-                        $size->where('phone_number', $player_data['phone_number']);
-                    }
-
-                    $size = $size->first();
-
-                    if($size){
-                        // update size
-                        $size->update($size_data);
+                    $receiver = Player::query();
+                    if(isset($row_first['receiver_id']) && !empty($row_first['receiver_id'])){
+                        $receiver = $receiver->where('id', $row_first['receiver_id']);
                     } else {
-                        // create size
-                        if($player_data['size_type'] == 'PERS'){
-                            $size = Person::create($size_data);
-                        } else if($player_data['size_type'] == 'GRP'){
-                            $size = Group::create($size_data);
-                        }
+                        if(isset($row_first['receiver_name']) && !empty($row_first['receiver_name']))
+                            $receiver = $receiver->where('name', 'like', '%' . $row_first['receiver_name'] . '%');
+
+                        if(isset($row_first['receiver_email']) && !empty($row_first['receiver_email']))
+                            $receiver = $receiver->where('email', 'like', '%' . $row_first['receiver_email'] . '%');
+
+                        if(isset($row_first['receiver_phone']) && !empty($row_first['receiver_phone']))
+                            $receiver = $receiver->where('phone', 'like', '%' . $row_first['receiver_phone'] . '%');
                     }
+                    $receiver = $receiver->first();
 
-
-
-                    // look for player
-                    $player = Player::with('type', 'size')
-                                    ->where('size_id', $size->id)
-                                    ->where('size_type', $player_data['size_type'])
-                                    ->where('name', $size_data['name'])
-                                    ->first();
-
-                    $player_data['size_id'] = $size->id;
-                    if($player){
-                        // update player
-                        $player->update($player_data);  
-                    } else {
-                        // create player
-                        $player = Player::create($player_data);
-                    }
-
-
-
-                    // connect player to space
-                    $relation = Relation::where('model1_type', 'SPACE')
-                                        ->where('model1_id', $space_id)
-                                        ->where('model2_type', 'PLAY')
-                                        ->where('model2_id', $player->id)
-                                        ->first();
-                    if(!$relation){
-                        Relation::create([
-                            'model1_type' => 'SPACE',
-                            'model1_id' => $space_id,
-                            'model2_type' => 'PLAY',
-                            'model2_id' => $player->id,
-                            'type' => 'guest',
-                            'notes' => 'imported from csv',
+                    if(!$receiver && isset($row_first['receiver_name']) && !empty($row_first['receiver_name'])){
+                        $receiver = Player::create([
+                            'name' => $row_first['receiver_name'] ?? 'no name',
+                            'email' => $row_first['receiver_email'] ?? null,
+                            'phone' => $row_first['receiver_phone'] ?? null,
+                            'address' => $row_first['receiver_address'] ?? null,
+                            'notes' => $row_first['receiver_notes'] ?? null,
+                            'space_type' => 'SPACE',
+                            'space_id' => $space_id,
                         ]);
                     }
+
+                    $header['receiver_id'] = $receiver->id ?? null;
+
+
+                    foreach($rows as $i => $row){
+                        try {
+                            // skip if no code or name
+                            if (empty($row['item_sku']) && empty($row['item_name'])) {
+                                throw new \Exception('Missing required field: item_sku && item_name');
+                            }
+    
+    
+                            // look up item
+                            $item = Item::whereIn('space_id', $spaces)
+                                        ->where('space_type', 'SPACE')
+                                        ->where(function ($q) use ($row) {
+                                            $q->where('sku', $row['item_sku'])
+                                            ->orWhere('name', $row['item_name']);
+                                        })
+                                        ->first();
+    
+
+                            
+                            // create or use item
+                            if(!$item){
+                                $item = Item::create([
+                                    'sku' => $row['item_sku'],
+                                    'name' => $row['item_name'],
+                                    'price' => $row['price'] ?? 0,
+                                    'cost' => $row['cost'] ?? 0,
+                                    'weight' => $row['weight'] ?? 0,
+                                    'notes' => $row['notes'] ?? null,
+                                    'space_type' => 'SPACE',
+                                    'space_id' => $space_parent_id ?? $space_id,
+                                ]);
+                            }
+    
+    
+                            $tx_details->push([
+                                'detail_id' => $item->id,
+                                'model_type' => $row['model_type'] ?? 'UNDF',
+                                'quantity' => $row['quantity'] ?? 0,
+                                'price' => $row['price'] ?? 0,
+                                'discount' => $row['discount'] ?? 0,
+                                'weight' => $row['weight'] ?? 0,
+                                'notes' => $row['notes'] ?? null,
+                            ]);
+                        } catch (\Throwable $e) {
+                            $row['row'] = $i + 1; 
+                            $row['error'] = $e->getMessage();
+                            $failedRows[] = $row;
+                        }
+                    }
+                    
+                    // find tx, create if not exist
+                    $tx = Transaction::where('number', $txnNumber)
+                                        ->where('model_type', 'TRD')
+                                        ->where('space_type', 'SPACE')
+                                        ->where('space_id', $space_id)
+                                        ->first();
+
+                    if (!$tx) {
+                        $tx = Transaction::create($header);
+                    }
+
+
+                    // update
+                    $this->updateJournal($tx, $header, $tx_details->toArray());
                 } catch (\Throwable $e) {
-                    $row['row'] = $i + 2; 
-                    $row['error'] = $e->getMessage();
-                    $failedRows[] = $row;
+                    DB::rollBack();
+
+                    if($request_source == 'api'){ return response()->json(['message' => $e->getMessage(), 'success' => false, 'data' => []], 500); }
+
+                    return back()->with('error', 'Theres an error on tx number ' . $txnNumber . '. Please try again.' . $e->getMessage());
                 }
             }
 
 
             // Jika ada row yang gagal, langsung return CSV dari memory
             if (count($failedRows) > 0) {
-                $filename = "failed_import_{$this->routerName}_" . now()->format('Ymd_His') . '.csv';
+                DB::rollBack();
+
+                $filename = 'failed_import_' . now()->format('Ymd_His') . '.csv';
                 
-                return $this->eximService->exportCSV(['filename' => $filename], $failedRows);
+                return $this->eximService->exportCSV(['filename' => $filename, 'request_source' => $request_source], $failedRows);
             }
-
-
-            return back()->with('success', 'CSV uploaded and processed Successfully!');
         } catch (\Throwable $th) {
+
+            DB::rollBack();
+            if($request_source == 'api'){ return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500); }
             return back()->with('error', 'Failed to import csv. Please try again.' . $th->getMessage());
         }
 
-        return $response;
-    } 
+        
+        DB::commit();
+        if($request_source == 'api'){ return response()->json(['message' => 'CSV uploaded and processed Successfully!', 'success' => true, 'data' => []], 200); }
+        return redirect()->route('trades.index')->with('success', 'CSV uploaded and processed Successfully!');
+    }
 }

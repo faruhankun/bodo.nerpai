@@ -1,3 +1,10 @@
+@if(isset($get_page_show) && $get_page_show == 'show')
+    <h1 class="text-2xl font-bold mb-6">Journal: {{ $data->number }} in {{ $data?->space?->name ?? '$space-name' }}</h1>
+        <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+@endif
+
+
+
 <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
         <!-- <x-div-box-show title="Number">{{ $data->number }}</x-div-box-show> -->
         <x-div-box-show title="Date">{{ optional($data->sent_time)?->format('Y-m-d') ?? '??' }}</x-div-box-show>
@@ -11,21 +18,22 @@
         </x-div-box-show>
         <x-div-box-show title="Notes">
             Sender: {{ $data->sender_notes ?? '-' }}<br>
-            Handler: {{ $data->handler_notes ?? '-' }}
+            Handler: {{ $data->handler_notes ?? '-' }}<br>
+            Receiver: {{ $data->receiver_notes ?? '-' }}
         </x-div-box-show>
         
-        <x-div-box-show title="Space Transaksi ini">
+        <!-- <x-div-box-show title="Space Transaksi ini">
             Space: {{ $data?->space?->name ?? 'N/A' }}
-        </x-div-box-show>
+        </x-div-box-show> -->
         <x-div-box-show title="Total Amount">Rp{{ number_format($data->total, 2) }}</x-div-box-show>
         <x-div-box-show title="Receiver">
             Receiver: {{ $data?->receiver?->name ?? 'N/A' }} <br>
             Notes: {{ $data?->receiver_notes ?? 'N/A' }}
         </x-div-box-show>
-        <!-- <x-div-box-show title="TX Tujuan">
-            TX: {{ $data->output?->number ?? '-' }} <br>
-            Space: {{ $data?->output?->space?->name ?? 'N/A' }}
-        </x-div-box-show> -->
+
+        <x-div-box-show title="Status">
+            {{ $data->status }}
+        </x-div-box-show>
     </div>
     <br>
     <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div>

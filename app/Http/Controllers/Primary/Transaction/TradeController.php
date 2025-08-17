@@ -142,8 +142,9 @@ class TradeController extends Controller
     {
         $journal = Transaction::with(['details', 'details.detail', 'input', 'outputs', 'sender', 'receiver'])->findOrFail($id);
         $model_types = $this->tradeService->model_types;
+        $status_types = $this->tradeService->status_types;
 
-        return view('primary.transaction.trades.edit', compact('journal', 'model_types'));
+        return view('primary.transaction.trades.edit', compact('journal', 'model_types', 'status_types'));
     }
 
 
@@ -171,6 +172,8 @@ class TradeController extends Controller
                 'details.*.price' => 'required|min:0',
                 'details.*.discount' => 'nullable|min:0',
                 'details.*.notes' => 'nullable|string|max:255',
+
+                'status' => 'nullable|string|max:255',
             ]);
 
             if(!isset($validated['details'])){
@@ -190,6 +193,8 @@ class TradeController extends Controller
                 'handler_notes' => $validated['handler_notes'] ?? null,
                 'handler_type' => 'PLAY',
                 'handler_id' => $validated['handler_id'],
+
+                'status' => $validated['status'] ?? null,
             ];
 
             $journal = $this->tradeService->updateJournal($journal, $data, $validated['details']);
@@ -249,13 +254,31 @@ class TradeController extends Controller
         }
 
 
+
+        // for page
+        $get_page_show = $request->get('page_show') ?? null;
+        $page_show = 'null';
+        if($get_page_show){
+            $data = $tx;
+            $tx_related = $data->outputs ?? [];
+            if($data->input){
+                $tx_related[] = $data->input;
+            }
+
+            $get_page_show = 'show';
+            $page_show = view('primary.transaction.trades.partials.datashow', compact('data', 'tx_related', 'get_page_show'))->render();
+        }
+
         if($request_source == 'api'){
             return response()->json([
                 'data' => array($tx),
+                'page_show' => $page_show,
                 'recordFiltered' => 1,
                 'success' => true,
             ]);
         }
+
+
 
         return view('primary.transaction.trades.show', compact('tx'));
     }

@@ -16,7 +16,7 @@
         <div class=" sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
-                    <h1 class="text-2xl font-bold mb-6">Journal: {{ $data->number }}</h1>
+                    <h1 class="text-2xl font-bold mb-6">Journal: {{ $data->number }} in {{ $data?->space?->name ?? '$space-name' }}</h1>
                     <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
                     @include('primary.transaction.trades.partials.datashow')

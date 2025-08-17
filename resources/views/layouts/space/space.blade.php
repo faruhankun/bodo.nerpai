@@ -81,6 +81,13 @@
             'dropdown_id' => 'social',
             'dropdown_text' => 'Sosial',
             'dropdown_items' => [
+                'players' => [
+                    'auth' => $user->can('spaces.players') || $space_role == 'owner',
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "players.index",
+                    'text' => 'Kontak',
+                ],
+                
                 'trade' => [
                     'auth' => $user->can('space.trades.po') || $user->can('space.trades.so') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
@@ -101,13 +108,6 @@
             'dropdown_id' => 'players',
             'dropdown_text' => 'Relasi',
             'dropdown_items' => [
-                'players' => [
-                    'auth' => $user->can('spaces.players') || $space_role == 'owner',
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "players.index",
-                    'text' => 'Kontak',
-                ],
-
                 'teams' => [
                     'auth' => $user->can('space.teams') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',

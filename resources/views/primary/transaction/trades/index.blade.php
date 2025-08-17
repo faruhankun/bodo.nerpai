@@ -30,12 +30,12 @@
 @endphp
 
 <x-crud.index-basic header="Trades" model="trades" table_id="indexTable" 
-                    :thead="['ID', 'Date', 'Number', 'Description', 'SKU','Total', 'Actions']">
+                    :thead="['ID', 'Date', 'Number', 'Description', 'SKU', 'Status', 'Total', 'Actions']">
     <x-slot name="buttons">
         @include('primary.transaction.trades.create')
 
         <x-input-select name="model_type_select" id="model-type-select">
-            <option value="">-- Select Type --</option>
+            <option value="">-- Filter Model --</option>
             @foreach ($model_type_option as $key => $value)
                 <option value="{{ $key }}" {{ $model_type_select == $key ? 'selected' : '' }}>{{ $value }}</option>
             @endforeach
@@ -107,6 +107,13 @@
                         return data || '-';
                     }
                 },
+
+                {
+                    data: 'status',
+                    render: function(data) {
+                        return data || 'unknown';
+                    }
+                },
         
                 {
                     data: 'total',
@@ -138,8 +145,10 @@
 
             let params = indexTable.ajax.params();
             
-            let exportUrl = '{{ route("trades.exim") }}' + '?query=export&params=' + encodeURIComponent(JSON.stringify(params));
-
+            let exportUrl = '{{ route("trades.exim") }}' + '?query=export' 
+                                + '&model_type_select=' + $('#model-type-select').val() 
+                                + '&params=' + encodeURIComponent(JSON.stringify(params));
+                                
             window.location.href = exportUrl;
         });
 
@@ -151,53 +160,20 @@
         const trigger = 'show_modal_js';
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
 
-        // Inject data ke elemen-elemen tertentu di dalam modal
-        $('#modal_number').text(parsed.number ?? '-');
-        $('#modal_date').text(parsed.sent_time.split('T')[0] ?? '-');
-        $('#modal_contributor').html(`Created By: ${parsed.sender?.name ?? 'N/A'}<br>Updated By: ${parsed.handler?.name ?? 'N/A'}`);
-        $('#modal_notes').html(`Sender: ${parsed.sender_notes ?? '-'}<br>Handler: ${parsed.handler_notes ?? '-'}`);
-        $('#modal_total').text(`Rp${parseFloat(parsed.total ?? 0).toLocaleString('id-ID', {minimumFractionDigits: 2})}`);
-        $('#modal_tx_asal').html(`TX: ${parsed.input?.number ?? '-'} <br>Space: ${parsed.input?.space?.name ?? '-'}`);
 
-        document.getElementById('modal_edit_link').href = `/trades/${parsed.id}/edit`;
+        // ajax get data show
+        $.ajax({
+            url: "/api/trades/" + parsed.id,
+            type: "GET",
+            data: {
+                'page_show': 'show'
+            },
+            success: function(data) {
+                let page_show = data.page_show ?? 'null ??';
+                $('#datashow_'+trigger).html(page_show);
 
-        // Inject detail TX
-        let html_detail = '';
-        for (const item of parsed.details ?? []) {
-            html_detail += `
-                <tr style="border-bottom: 1px solid #ccc;">
-                    <td class="pl-4">${item.detail?.sku ?? '?'} : ${item.detail?.name ?? 'N/A'}</td>
-                    <td class="pl-4">${item.quantity ?? 0}</td>
-                    <td class="pl-4">${item.model_type ?? '-'}</td>
-                    <td class="pl-4">${parseFloat(item.cost_per_unit ?? 0).toLocaleString()}</td>
-                    <td class="pl-4">${(item.quantity * item.cost_per_unit).toLocaleString()}</td>
-                    <td class="pl-4">${item.notes ?? '-'}</td>
-                </tr>
-            `;
-        }
-        $('#modal_tx_details_body').html(html_detail);
-
-
-        // Inject TX Related
-        let html_related = '';
-        for (const tx of (parsed.children ?? [])) {
-            html_related += `
-                <tr>
-                    <td class="pl-4">${tx.number}</td>
-                    <td class="pl-4">${tx.space?.name ?? '-'}</td>
-                    <td class="pl-4">${tx.sent_time.split('T')[0] ?? '-'}</td>
-                    <td class="pl-4">${tx.sender?.name ?? '-'} <br> ${tx.handler?.name ?? '-'}</td>
-                    <td class="pl-4">${parseFloat(tx.total ?? 0).toLocaleString('id-ID', {minimumFractionDigits: 2})}</td>
-                    <td class="pl-4">${tx.notes ?? '-'}</td>
-                    <td class="pl-4"></td>
-                </tr>
-            `;
-        }
-        $('#modal_tx_related_body').html(html_related);
-
-
-        // Tampilkan modal
-        window.dispatchEvent(new CustomEvent('open-' + trigger));
+                window.dispatchEvent(new CustomEvent('open-' + trigger));
+            }
+        });        
     }
-
 </script>
