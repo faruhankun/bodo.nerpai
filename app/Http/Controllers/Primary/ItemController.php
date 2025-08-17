@@ -299,7 +299,7 @@ class ItemController extends Controller
                     $query->where(function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
                             ->orWhere('code', 'like', "%{$search}%")
-                            ->orWhere('sku', '=', "%{$search}%")
+                            ->orWhere('sku', "{$search}")
                             ->orWhere('id', 'like', "%{$search}%")
                             ->orWhere('notes', 'like', "%{$search}%")
                             ->orWhere('status', 'like', "%{$search}%")

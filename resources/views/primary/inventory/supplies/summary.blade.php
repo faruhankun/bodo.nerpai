@@ -5,14 +5,11 @@
 
     $real_start_date = request('start_date') ?? null;
     $end_date = request('end_date') ?? now()->format('Y-m-d');
-    $start_date = request('start_date') ?? Carbon::parse($end_date)->startOfMonth()->format('Y-m-d');
+    $start_date = request('start_date') ?? null;
 
     $summary_type = request('summary_type') ?? null;
 
-    $space_id = session('space_id') ?? null;
-    if(is_null($space_id)){
-        abort(403);
-    }
+    $space_id = get_space_id(request());
 @endphp
 <x-dynamic-component :component="'layouts.' . $layout">
     <div class="py-12">
@@ -31,10 +28,10 @@
                                     </select>
                                 </x-div.box-input>
                                 <x-div.box-input label="Start Date" class="m-4">
-                                    <x-input.input-basic type="date" name="start_date" value="{{ $start_date }}"></x-input.input-basic>
+                                    <x-input.input-basic type="date" name="start_date" value="{{ $start_date }}" id="start_date"></x-input.input-basic>
                                 </x-div.box-input>
                                 <x-div.box-input label="End Date" class="m-4">
-                                    <x-input.input-basic type="date" name="end_date" value="{{ $end_date }}" required></x-input.input-basic>
+                                    <x-input.input-basic type="date" name="end_date" value="{{ $end_date }}" id="end_date" required></x-input.input-basic>
                                 </x-div.box-input>
                                 <x-div.box-input label="Filter" class="m-4">
                                     <x-primary-button class="ml-4">Filter</x-primary-button>
@@ -69,6 +66,11 @@
                         @break
                     @endswitch
 
+
+
+                    <div id="react-supplies-modal" data-id="" data-start_date="" data-end_date="" data-account_data></div>
+
+
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                     <!-- Back Button -->
                     <div class="flex mt-8">
@@ -97,3 +99,32 @@
         delete window.datatableInstances['search-table'];
     });
 </script>
+
+
+<script>
+    function show_tx_modal(acc){
+        acc = acc;
+
+        if(acc.id == null){
+            return;
+        }
+
+        const container = document.getElementById('react-supplies-modal');
+        
+        const today = new Date();
+        const year = today.getFullYear();
+        const startDate = $('#start_date').val() ?? `${year}-01-01`;
+        const endDate = $('#end_date').val() ?? today.toISOString().split('T')[0]; // format: YYYY-MM-DD
+
+        container.setAttribute('data-id', acc.id);
+        container.setAttribute('data-start_date', startDate);
+        container.setAttribute('data-end_date', endDate);
+        container.setAttribute('data-account_data', JSON.stringify(acc));
+
+        console.log(acc);
+
+        window.dispatchEvent(new CustomEvent('showSuppliesModal'));
+    }
+</script>
+
+@vite('resources/js/app.jsx')

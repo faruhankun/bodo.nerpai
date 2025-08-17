@@ -579,7 +579,7 @@ class InventoryController extends Controller
         $data = collect();
         $data->summary_types = $this->summary_types;
         $data->items_list = Item::all()->keyBy('id');
-        $data = $this->getSummaryData($data, $txs, $spaces, $validated);
+        $data = $this->getSummaryData($data, $txs, $spaces, $validated, $space_id);
 
 
 
@@ -664,7 +664,7 @@ class InventoryController extends Controller
     }
 
 
-    public function getSummaryData($data, $txs, $spaces, $validated){
+    public function getSummaryData($data, $txs, $spaces, $validated, $space_id = null){
         $summary_type = $validated['summary_type'] ?? null;
         if(is_null($summary_type)){
             return $data;
@@ -675,6 +675,8 @@ class InventoryController extends Controller
         $txs_per_space = $txs->groupBy('space_id');
         $spaces_data = collect();                           
         $items_data = collect();
+        $items_data_all = [];
+
 
         foreach($txs_per_space as $id => $txs){
             $txs_per_date = $txs->groupBy('sent_time');
@@ -740,12 +742,13 @@ class InventoryController extends Controller
 
             $spaces_data->put($id, $space_supply_per_date);
             $items_data->put($id, $items);
+            $items_data_all = array_merge($items_data_all, $items);
         }
 
         $data->spaces_data = $spaces_data;
         $data->stockflow = $spaces_data;
     
-        $data->items_data = $items_data;
+        $data->items_data = collect([$space_id => $items_data_all]);
         $data->stockflow_items = $items_data;
 
         $data->balance_stock = $spaces_data;

@@ -57,12 +57,12 @@
                     'route' => "journal_supplies.index",
                     'text' => 'Mutasi Stok',
                 ],
-                'stockflow' => [
+                'stockflow_items' => [
                     'icon' => 'icon-checklist-paper',
                     'route' => "supplies.summary",
-                    'text' => 'Rangkuman Mutasi Stok',
+                    'text' => 'Rangkuman Barang',
                     'route_params' => [
-                        'summary_type' => 'stockflow',
+                        'summary_type' => 'stockflow_items',
                     ],
                 ],
                 'balance_stock' => [
