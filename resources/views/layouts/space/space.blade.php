@@ -5,7 +5,6 @@
     setPermissionsTeamId($space_id);
 
     $sidebar_access = [
-        'players' => auth()->user()->can('players sidebar', 'web'),
         'users' => auth()->user()->can('users sidebar', 'web'),
         'persons' => auth()->user()->can('persons sidebar', 'web'),
         'companies' => auth()->user()->can('companies sidebar', 'web'),
@@ -82,7 +81,7 @@
             'dropdown_text' => 'Sosial',
             'dropdown_items' => [
                 'players' => [
-                    'auth' => $user->can('spaces.players') || $space_role == 'owner',
+                    'auth' => $user->can('space.players') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "players.index",
                     'text' => 'Kontak',
@@ -221,6 +220,12 @@
             'text' => 'Exit Space',
         ],
     ];
+
+
+    // drop off sidebar
+    if(!$settings['supplies']) {
+        unset($sidebar['Supplies']);
+    }
 @endphp
 
 @extends('layouts.base', [

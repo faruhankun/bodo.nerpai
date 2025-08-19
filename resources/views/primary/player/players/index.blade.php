@@ -52,7 +52,7 @@
     <x-slot name="modals">
         @include('primary.player.players.edit')
 
-        @include('primary.player.players.show')
+        @include('primary.player.players.showjs')
     </x-slot>
 </x-crud.index-basic>
 
@@ -233,7 +233,15 @@
                 },
             },
             columns: [
-                { data: 'id' },
+                {
+                    data: 'id',
+                    className: 'text-blue-600',
+                    render: function (data, type, row, meta) {
+                        return `<a href="/players/${data}" target="_blank">${
+                                    data
+                                }</a>`;
+                    }
+                },
                 { data: 'name' },
                 { data: 'email' },
                 { data: 'phone_number' },
@@ -264,3 +272,28 @@
         });
     });
 </script>
+
+
+<!-- <script>
+    function showjs(data) {
+        console.log(data);
+        const trigger = 'show_modal_js';
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+
+
+        // ajax get data show
+        $.ajax({
+            url: "/api/players/" + parsed.id,
+            type: "GET",
+            data: {
+                'page_show': 'show'
+            },
+            success: function(data) {
+                let page_show = data.page_show ?? 'null ??';
+                $('#datashow_'+trigger).html(page_show);
+
+                window.dispatchEvent(new CustomEvent('open-' + trigger));
+            }
+        });        
+    }
+</script> -->

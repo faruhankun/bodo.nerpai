@@ -85,6 +85,14 @@ class Player extends Model
     }
 
 
+    public function space()
+    {
+        return $this->morphTo();
+    }
+
+
+
+
 
     public function relatedPlayers()
     {

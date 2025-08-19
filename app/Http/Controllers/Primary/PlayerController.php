@@ -113,6 +113,11 @@ class PlayerController extends Controller
 
                     return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
                 })
+
+                ->addColumn('data', function ($data) {
+                    return $data;
+                })
+
                 ->rawColumns(['actions'])
                 ->make(true);
         }
@@ -188,10 +193,10 @@ class PlayerController extends Controller
 
 
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $player = Player::find($id);
-        return view('primary.players.show', compact('player'));
+        $data = Player::findOrFail($id);
+        return view('primary.player.players.show', compact('data'));
     }
 
 
