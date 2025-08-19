@@ -250,7 +250,8 @@ class ItemController extends Controller
                 return '<table class="table-auto w-full">' .
                     '<tbody>' .
                     $ivts->map(function ($inv) {
-                        if ($inv->balance == 0) {
+                        $space_supplies = $inv->space?->variables()->where('key', 'space.setting.supplies')->first();
+                        if ($space_supplies != null && $space_supplies->value == 0) {
                             return '';
                         }
 

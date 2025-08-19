@@ -339,7 +339,13 @@ class InventoryController extends Controller
         } 
 
 
-        $supplies = $supplies->orderBy('id', 'asc');
+
+        // order by id desc by default
+        $order = $request['order'] ?? null;
+        if(!$order){
+            $supplies = $supplies->orderBy('id', 'asc');
+        } 
+
 
 
         return DataTables::of($supplies)

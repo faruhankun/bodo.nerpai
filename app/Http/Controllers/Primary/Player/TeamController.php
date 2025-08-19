@@ -219,9 +219,10 @@ class TeamController extends Controller
         $validatedData = $request->validate([
             'user_id' => 'required',
             'type' => 'required|string|max:50',
-            'status' => 'required|string|max:50',
+            'status' => 'nullable|string|max:50',
             'notes' => 'nullable|string',
         ]);
+        $validatedData['status'] = $validatedData['status'] ?? 'active';
 
         $user = User::findOrFail($request->user_id);
         $player_id = $user?->player_id;
@@ -238,9 +239,9 @@ class TeamController extends Controller
                     'model2_id' => $player_id,
                 ],
                 [
-                    'type' => $request->type,
-                    'status' => $request->status,
-                    'notes' => $request->notes
+                    'type' => $validatedData['type'],
+                    'status' => $validatedData['status'],
+                    'notes' => $validatedData['notes'],
                 ]
             );
         } catch (\Exception $e) {
@@ -308,6 +309,7 @@ class TeamController extends Controller
 
     public function destroy(Request $request, String $id)
     {
+        $request_source = get_request_source($request);
         $space_id = get_space_id($request);
 
 
@@ -327,6 +329,11 @@ class TeamController extends Controller
             }
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage(), 'success' => false, 'input' => $request->all], 400);
+        }
+
+
+        if($request_source == 'web'){
+            return back()->with('success', 'Team kicked successfully :D');
         }
 
 

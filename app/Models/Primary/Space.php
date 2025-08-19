@@ -94,7 +94,7 @@ class Space extends Model
 
     public function variables() 
     {
-        return $this->hasMany(Variable::class)
+        return $this->hasMany(Variable::class, 'space_id', 'id')
                     ->where('space_type', 'SPACE');
     }
 }

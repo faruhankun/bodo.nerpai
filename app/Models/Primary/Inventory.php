@@ -161,7 +161,7 @@ class Inventory extends Model
         }
 
         $balance_cost = $debit_cost - $credit_cost;
-        $this->cost_per_unit = $balance_cost >= 0 ? $balance_cost / $balance : 0;
+        $this->cost_per_unit = $balance_cost >= 0 ? $balance_cost / $balance : ($this?->item->cost ?? 0);
         $this->save();
         
         return $balance;
@@ -209,7 +209,7 @@ class Inventory extends Model
 
         if(isset($param['update'])){
             $this->balance = $balance;
-            $this->cost_per_unit = $balance_cost >= 0 ? $balance_cost / $balance : 0;
+            $this->cost_per_unit = $balance_cost >= 0 ? $balance_cost / $balance : ($this?->item->cost ?? 0);
             $this->save();
         }
         
