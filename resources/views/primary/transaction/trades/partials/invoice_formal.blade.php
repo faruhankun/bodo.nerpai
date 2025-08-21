@@ -132,20 +132,29 @@
                     $total_product = 0;
                 @endphp
                 @foreach($data->details as $detail)
+                    @if($detail->model_type == 'ITR')
+                        @continue
+                    @endif
+
+                    @php 
+                        $qty = abs($detail->quantity);
+                        $price = $detail->price ?? $detail->detail->price;
+                    @endphp
+
                 <tr>
                     <td>{{ $detail->detail?->sku }} | {{ $detail->detail?->name }}</td>
-                    <td class="text-center">{{ $detail->quantity }}</td>
+                    <td class="text-center">{{ $qty }}</td>
                     <td class="text-right">{{ number_format($detail->detail?->weight) }}</td>
-                    <td class="text-right">{{ number_format($detail->detail?->price) }}</td>
+                    <td class="text-right">{{ number_format($price) }}</td>
                     <td class="text-right">{{ $detail->discount * 100 }} %</td>
-                    <td class="text-right">{{ number_format($detail->discount * $detail->detail?->price) }}</td>
-                    <td class="text-right">{{ number_format($detail->quantity * $detail->detail?->price * (1 - $detail->discount)) }}</td>
+                    <td class="text-right">{{ number_format($detail->discount * $price) }}</td>
+                    <td class="text-right">{{ number_format($qty * $price * (1 - $detail->discount)) }}</td>
                 </tr>
 
                     @php
-                        $total_weight += $detail->detail?->weight * $detail->quantity;
-                        $total_product += $detail->quantity * $detail->detail?->price;
-                        $total_discount += $detail->discount * $detail->detail?->price * $detail->quantity;
+                        $total_weight += $detail->detail?->weight * $qty;
+                        $total_product += $qty * $price;
+                        $total_discount += $detail->discount * $price * $qty;
                     @endphp
                 @endforeach
                 <!-- Total berat -->

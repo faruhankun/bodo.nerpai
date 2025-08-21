@@ -171,7 +171,7 @@ class TradeController extends Controller
                 'details.*.quantity' => 'required|numeric',
                 'details.*.price' => 'required|min:0',
                 'details.*.discount' => 'nullable|min:0',
-                'details.*.notes' => 'nullable|string|max:255',
+                'details.*.notes' => 'nullable',
 
                 'status' => 'nullable|string|max:255',
             ]);

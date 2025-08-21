@@ -28,7 +28,7 @@
                         </x-secondary-button>
 
                         @if($space_role == 'admin' || $space_role == 'owner')
-                            <a target="_blank" href="{{ route('trades.edit', $data->id) }}">
+                            <a href="{{ route('trades.edit', $data->id) }}">
                                 <x-primary-button type="button">Edit Journal</x-primary-button>
                             </a>
                         @endif

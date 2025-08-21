@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Primary\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 use Yajra\DataTables\Facades\DataTables;
 
@@ -355,6 +356,8 @@ class ItemController extends Controller
         $request_source = get_request_source($request);
         $space_id = get_space_id($request);
 
+        DB::beginTransaction();
+
         try {
             $validated = $request->validate([
                 'file' => 'required|mimes:csv,txt'
@@ -363,7 +366,7 @@ class ItemController extends Controller
             $file = $validated['file'];
             $data = [];
             $failedRows = [];
-            $requiredHeaders = ['code', 'sku', 'name'];
+            $requiredHeaders = ['sku', 'name'];
 
             // Read the CSV into an array of associative rows
             if (($handle = fopen($file->getRealPath(), 'r')) !== FALSE) {
@@ -373,6 +376,8 @@ class ItemController extends Controller
                 // dd($headers);
                 foreach ($requiredHeaders as $header) {
                     if (!in_array($header, $headers)) {
+                        DB::rollBack();
+
                         return back()->with('error', 'Invalid CSV file. Missing required header: ' . $header);
                     }
                 }
@@ -397,19 +402,22 @@ class ItemController extends Controller
                         throw new \Exception('Missing required field: sku or name');
                     }
 
-                    $item = Item::where('code', $row['code'])
-                    ->orWhere('sku', $row['sku'])
-                    ->orWhere('name', $row['name'])
-                    ->first();
+                    $item = Item::where('sku', $row['sku']);
+
+                    if(isset($row['code']) && !empty($row['code'])) $item = $item->orWhere('code', $row['code']);
+                    if($row['name'] && !empty($row['name'])) $item = $item->orWhere('name', $row['name']);
+                    
+                    $item = $item->first();
+
 
                     $payload = [
-                        'code' => $row['code'],
-                        'sku' => $row['sku'],
-                        'name' => $row['name'],
-                        'price' => $row['price'] ?? 0,
-                        'cost' => $row['cost'] ?? 0,
-                        'weight' => $row['weight (gram)'] ?? 0,
-                        'notes' => $row['notes'] ?? null,
+                        'code' => $row['code'] ?? ($item?->code ?? null),
+                        'sku' => $row['sku'] ?? ($item?->sku ?? $row['name']),
+                        'name' => $row['name'] ?? ($item?->name ?? $row['sku']),
+                        'price' => $row['price'] ?? ($item?->price ?? 0),
+                        'cost' => $row['cost'] ?? ($item?->cost ?? 0),
+                        'weight' => $row['weight (gram)'] ?? ($item?->weight ?? 0),
+                        'notes' => $row['notes'] ?? ($item?->notes ?? ''),
                     ];
 
                     $payload['space_type'] = 'SPACE';
@@ -429,8 +437,11 @@ class ItemController extends Controller
             }
 
 
+
             // Jika ada row yang gagal, langsung return CSV dari memory
             if (count($failedRows) > 0) {
+                DB::rollBack();
+
                 $filename = 'failed_import_' . now()->format('Ymd_His') . '.csv';
 
                 $callback = function () use ($failedRows) {
@@ -456,6 +467,8 @@ class ItemController extends Controller
 
 
 
+            DB::commit();
+
             if($request_source == 'api'){
                 return response()->json([
                     'message' => 'CSV uploaded and processed Successfully!',
@@ -466,6 +479,9 @@ class ItemController extends Controller
 
             return redirect()->route('items.index')->with('success', 'CSV uploaded and processed Successfully!');
         } catch (\Throwable $th) {
+            DB::rollBack();
+
+
             if($request_source == 'api'){
                 return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
             }

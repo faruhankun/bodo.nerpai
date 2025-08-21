@@ -13,7 +13,9 @@
 
 
     $model_type_select = $request->get('model_type_select') ?? null;
-    $model_type_option = [];
+    $model_type_option = [
+        'ITR' => 'Interaksi',   
+    ];
 
     if($user->can('space.trades.po') && $user->can('space.trades.so') || $space_role == 'owner'){
         $model_type_option['all'] = 'Semua Trades';   
@@ -89,7 +91,7 @@
                     data: 'number',
                     className: 'text-blue-600',
                     render: function (data, type, row, meta) {
-                        return `<a href="javascript:void(0)" onclick='showjs(${JSON.stringify(row.data)})'>${
+                        return `<a href="trades/${row.id}" target="_blank">${
                                     data
                                 }</a>`;
                     }
@@ -171,6 +173,9 @@
             success: function(data) {
                 let page_show = data.page_show ?? 'null ??';
                 $('#datashow_'+trigger).html(page_show);
+
+                let modal_edit_link = '/trades/' + parsed.id + '/edit';
+                $('#modal_edit_link').attr('href', modal_edit_link);
 
                 window.dispatchEvent(new CustomEvent('open-' + trigger));
             }

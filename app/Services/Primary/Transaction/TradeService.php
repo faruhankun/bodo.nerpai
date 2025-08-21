@@ -62,6 +62,7 @@ class TradeService
 
 
     public $model_types = [
+        ['id' => 'ITR', 'name' => 'Interaksi'],
         ['id' => 'PO', 'name' => 'Purchase'],
         ['id' => 'SO', 'name' => 'Sales'],
         ['id' => 'PRE', 'name' => 'Pre Order'],
@@ -236,7 +237,7 @@ class TradeService
                     $route = 'trades';
 
                     $actions = [
-                        'show' => 'button',
+                        'show' => 'modaljs',
                         'edit' => 'button',
                         'delete' => 'button',
                     ];

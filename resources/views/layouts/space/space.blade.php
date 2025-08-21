@@ -25,7 +25,7 @@
 
 
     $settings = [
-        'supplies' => get_variable('space.setting.supplies') ?? ($space_role == 'admin' ? true : ($space_role == 'owner' ? true : false)),
+        'supplies' => get_variable('space.setting.supplies') ?? true,
 
         'accounting' => get_variable('space.setting.accounting') ?? ($space_role == 'admin' ? true : ($space_role == 'owner' ? true : false)),
     ];
@@ -92,13 +92,6 @@
                     'icon' => 'icon-checklist-paper',
                     'route' => "trades.index",
                     'text' => 'Trades',
-                ],
-
-                'interactions' => [
-                    'auth' => true,
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "players.index",
-                    'text' => 'Interactions',
                 ],
             ]
         ],

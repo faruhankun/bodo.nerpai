@@ -7,6 +7,7 @@
             <tr>
                 <x-table.table-th>SKU</x-table.table-th>
                 <x-table.table-th>Nama</x-table.table-th>
+                <x-table.table-th>Price</x-table.table-th>
                 <x-table.table-th>In</x-table.table-th>
                 <x-table.table-th>In Value</x-table.table-th>
                 <x-table.table-th>Out</x-table.table-th>
@@ -23,6 +24,7 @@
                     <x-table.table-tr>
                         <x-table.table-td>{{ $value['item']->sku ?? '-' }}</x-table.table-td>
                         <x-table.table-td>{{ $value['item']->name ?? '-' }}</x-table.table-td>
+                        <x-table.table-td>{{ $value['item']->price ?? 0 }}</x-table.table-td>
                         <x-table.table-td>{{ $value['in'] ?? 0 }}</x-table.table-td>
                         <x-table.table-td>{{ $value['in_subtotal'] ?? 0 }}</x-table.table-td>
                         <x-table.table-td>{{ $value['out'] ?? 0 }}</x-table.table-td>

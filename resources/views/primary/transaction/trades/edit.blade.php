@@ -131,7 +131,7 @@
                         <input type="text" size="3" name="details[${rowIndex}][discount]" class="discount-input w-25" value="${formatNumberNoTrailingZeros(discount)}" default="0" min="0">
                     </td>
                     <td>
-                        <input type="text" name="details[${rowIndex}][notes]" class="notes-input" value="${notes}">
+                        <textarea name="details[${rowIndex}][notes]" class="notes-input">${notes}</textarea>
                         <input type="hidden" name="details[${rowIndex}][sku]" class="sku-input" value="${sku}">
                         <input type="hidden" name="details[${rowIndex}][name]" class="name-input" value="${name}">
                         <input type="hidden" name="details[${rowIndex}][weight]" class="weight-input" value="${weight}">
@@ -296,10 +296,13 @@
 
             $("#edit_handler_notes").val(journal.handler_notes);
 
-            const option = new Option(journal.receiver.name, journal.receiver.id, true, true);
-            $("#edit_receiver_id").append(option).trigger('change');
-            $('#edit_receiver_address').html(journal.receiver.email + ': ' + journal.receiver.phone_number + ' <br> ' + journal.receiver.address);
-            $("#edit_receiver_notes").val(journal.receiver_notes);
+
+            if(journal.receiver){
+                const option = new Option(journal.receiver.name, journal.receiver.id, true, true);
+                $("#edit_receiver_id").append(option).trigger('change');
+                $('#edit_receiver_address').html(journal.receiver.email + ': ' + journal.receiver.phone_number + ' <br> ' + journal.receiver.address);
+                $("#edit_receiver_notes").val(journal.receiver_notes);
+            }
 
             // Details
             let detailIndex = {{ $journal->details->count() }};
