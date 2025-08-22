@@ -8,12 +8,15 @@
                         <x-text-input name="name" id="{{ $form['mode'] ?? '' }}_name" class="w-full" placeholder="Name" required></x-text-input>
                     </div>
 
+
+@if($form['mode'] == 'edit')
                     <div class="form-group mb-4">
-                        <x-input-label for="type_type">Space Type</x-input-label>
-                        <x-input-select id="{{ $form['mode'] ?? '' }}_type_type" name="type_type" class="w-full" required>
-                            <option value="SPACE">Space</option>
-                        </x-input-select>
+                        <x-input-label for="address">Alamat</x-input-label>
+                        <x-text-input name="address" id="{{ $form['mode'] ?? '' }}_address" class="w-full" placeholder='{"detail":"??"}' nullable></x-text-input>
                     </div>
+@endif
+
+
 
                     <div class="form-group mb-4">
                         <x-input-label for="status">Status</x-input-label>

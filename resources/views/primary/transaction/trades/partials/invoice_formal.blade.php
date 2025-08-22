@@ -1,6 +1,8 @@
 @php
     $logoPath = public_path('svg/' . $data->space?->name . '.svg');
     $logoUrl = file_exists($logoPath) ? asset('svg/' . $data->space?->name . '.svg') : asset('svg/hehe.svg');
+
+    $address = $data->space->address['detail'] ?? 'Blitar, Jawa Timur';
 @endphp
 
 
@@ -85,7 +87,7 @@
             <img src="{{ $logoUrl }}" alt="Logo">
             <div class="space-info">
                 <h1>{{ $data->space?->name }}</h1>
-                <h3>{{ $data->space?->address ?? 'Space Address' }}</h3>
+                <h3>{{ $address ?? 'Space Address' }}</h3>
                 <h3>{{ $data->space?->phone_number ?? 'Phone Number'}}</h3>
             </div>
         </div>

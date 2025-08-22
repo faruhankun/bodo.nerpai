@@ -27,6 +27,12 @@ class Space extends Model
     ];
 
 
+    protected $casts = [
+        'address' => 'json',
+    ];
+
+
+
     // Relations
     public function type()
     {

@@ -2,9 +2,8 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <x-div-box-show title="Code">{{ $data->code }}</x-div-box-show>
         <x-div-box-show title="Parent">{{ $data->parent_type ?? '?' }} : {{ $data->parent?->code ?? '?' }}</x-div-box-show>
-        <x-div-box-show title="Type">{{ $data->type_type ?? '?' }} : {{ $data->type?->code ?? '?' }}</x-div-box-show>
         <x-div-box-show title="Name">{{ $data->name ?? 'N/A' }}</x-div-box-show>
-        <x-div-box-show title="Address">{{ $data->address ?? 'N/A' }}</x-div-box-show>
+        <x-div-box-show title="Address">{{ json_encode($data->address) ?? '-' }}</x-div-box-show>
         <x-div-box-show title="Status">{{ $data->status }}</x-div-box-show>
         <x-div-box-show title="Notes">
             {{ $data->notes ?? 'N/A' }}

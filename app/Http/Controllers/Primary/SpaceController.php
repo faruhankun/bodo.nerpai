@@ -150,12 +150,18 @@ class SpaceController extends Controller
             $validatedData = $request->validate([
                 'code' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
-                'type_type' => 'required|string|max:255',
-                'status' => 'required|string|max:50',
+                'type_type' => 'nullable|string|max:255',
+                'status' => 'nullable|string|max:50',
                 'notes' => 'nullable|string',
             ]);
+            $validatedData['type_type'] = $validatedData['type_type'] ?? 'SPACE';
 
-            $space = Space::create($validatedData);
+
+            $space = Space::updateOrCreate(
+                ['code' => $validatedData['code']], 
+                $validatedData
+            );
+
 
             $space->parent_type = 'SPACE';
             $parent_id = get_space_id($request, false);
@@ -219,11 +225,14 @@ class SpaceController extends Controller
             $validatedData = $request->validate([
                 'code' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
-                // 'type_type' => 'required|string|max:255',
-                // 'status' => 'required|string|max:50',
+                'address' => 'nullable|string',
                 'notes' => 'nullable|string',
             ]);
-            
+            if($validatedData['address']){
+                $validatedData['address'] = json_decode($validatedData['address'], true);
+            }
+
+
             $space = Space::findOrFail($id);
             $space->update($validatedData);
             $space->save();
@@ -275,35 +284,77 @@ class SpaceController extends Controller
 
     public function getSpacesData(Request $request){
         $space_id = get_space_id($request, false);
-        $player_id = session('player_id') ?? Auth::user()->player_id;
+        $player_id = get_player_id($request, false);
+        $include_self = $request->get("include_self") ?? false;
         
-        $player = Player::findOrFail($player_id);
-
-        $spaces = $player->spacesWithDescendants();
+        
+        // read permissions
+        $user = auth()->user();
         if($space_id){
-            $spaces = $player->spacesWithDescendants()
-                        ->where('parent_type', 'SPACE')
-                        ->where('parent_id', $space_id);
-        } else {
-            // $spaces = Space::with(['parent', 'type'])->get();
+            setPermissionsTeamId($space_id);
+        }
+        $can_crud = $user->can('space.spaces.crud', 'web');
+
+
+        $query = Space::with('parent', 'children');
+
+
+        if($player_id){
+            $query = $query->whereIn('id', function ($q2) use ($player_id) {
+                $q2->select('model1_id')
+                    ->from('relations')
+                    ->where('model1_type', 'SPACE')
+                    ->where('model2_type', 'PLAY')
+                    ->where('model2_id', $player_id);
+            });
         }
 
-        return DataTables::of($spaces)
+
+
+        // children
+        if($space_id && $include_self){
+            $query->where(function ($q2) use ($space_id, $include_self) {
+                $q2->where('parent_type', 'SPACE')
+                    ->where('parent_id', $space_id);
+                
+                if($include_self){
+                    $q2->orWhere('id', $space_id);
+                }
+            });
+        }
+
+
+
+        // include self
+        if(!$include_self){
+            if($space_id){
+                $query->whereNotIn('id', [$space_id]);
+            }
+        }
+        
+
+
+        return DataTables::of($query)
             ->addColumn('parent_display', function ($data) {
                 return ($data->parent_type ?? '?') . ' : ' . ($data->parent?->code ?? '?');
             })
             ->addColumn('type_display', function ($data) {
                 return ($data->type_type ?? '?') . ' : ' . ($data->type?->code ?? '?');
             })
-            ->addColumn('actions', function ($data) {
+            ->addColumn('actions', function ($data) use ($can_crud) {
                 $route = 'spaces';
                 
                 $actions = [
                     'show' => 'modal',
                     'show_modal' => 'primary.spaces.show',
-                    'edit' => 'modal',
-                    'delete' => 'button',
                 ];
+
+
+                if($can_crud){
+                    $actions['edit'] = 'modal';
+                    $actions['delete'] = 'button';
+                }
+
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
