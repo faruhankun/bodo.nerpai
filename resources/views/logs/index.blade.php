@@ -1,10 +1,22 @@
 @php
     $layout = session('layout') ?? 'lobby';
+    $request = request();
+
+
+    $model_type_select = $request->get('model_type_select') ?? null;
+    $model_type_option = \App\Models\User::all()->pluck('name', 'id')->toArray();
 @endphp
 
 <x-crud.index-basic header="Logs" model="log" table_id="indexTable" 
-                    :thead="['User', 'Event', 'Description', 'Old Data', 'New Data', 'IP', 'User Agent', 'URL', 'Waktu']">
+                    :thead="['User', 'Waktu', 'Event', 'Description', 'Old Data', 'New Data', 'IP', 'User Agent', 'URL']">
     <x-slot name="buttons">
+
+        <x-input-select name="model_type_select" id="model-type-select">
+            <option value="">-- Filter User --</option>
+            @foreach ($model_type_option as $key => $value)
+                <option value="{{ $key }}" {{ $model_type_select == $key ? 'selected' : '' }}>{{ $value }}</option>
+            @endforeach
+        </x-input-select>
     </x-slot>
 
     <x-slot name="filters">
@@ -18,21 +30,31 @@
 
 <script>
     $(document).ready(function() {
+        let users = @json($model_type_option);
+
+
         let indexTable = $('#indexTable').DataTable({
             scrollX: true,
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('logs.data') }}",
-                data: {
-                    return_type: 'DT',
+                data: function(d) {
+                    d.return_type = 'DT';
+                    d.space = 'this';
+                    d.user_id = $('#model-type-select').val() || '';
                 },
             },
             pageLength: 10,
             columns: [
+                { data: 'created_at', 
+                    render: function(data) {
+                        return new Date(data).toLocaleString('id-ID');
+                    }
+                },
                 { data: 'causer_id',
                     render: function (data, type, row, meta) {
-                        return row.causer?.name ? row.causer.name : data;
+                        return users[data] ?? 'N/A';
                     }
                 },
                 { data: 'event', name: 'event' },
@@ -54,11 +76,6 @@
                     }
                 },
                 { data: 'properties.url', name: 'properties.url' },
-                { data: 'created_at', 
-                    render: function(data) {
-                        return new Date(data).toLocaleString('id-ID');
-                    }
-                }
             ]
         });
 
@@ -66,5 +83,11 @@
         setInterval(() => {
             indexTable.ajax.reload();
         }, 5000);
+
+
+
+        $('#model-type-select').on('change', function() {
+            indexTable.ajax.reload();
+        });
     });
 </script>

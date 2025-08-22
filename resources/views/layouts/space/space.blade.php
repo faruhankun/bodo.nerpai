@@ -4,17 +4,9 @@
     $space_id = get_space_id(request());
     setPermissionsTeamId($space_id);
 
-    $sidebar_access = [
-        'users' => auth()->user()->can('users sidebar', 'web'),
-        'persons' => auth()->user()->can('persons sidebar', 'web'),
-        'companies' => auth()->user()->can('companies sidebar', 'web'),
-        'roles' => auth()->user()->can('roles sidebar', 'web'),
-        'permissions' => auth()->user()->can('permissions sidebar', 'web'),
-    ];
-
-
     $space_role = session('space_role') ?? null;
 
+    
 
     // Navbar
     $navbar_right = [
@@ -42,21 +34,25 @@
             'dropdown_text' => 'Persediaan',
             'dropdown_items' => [
                 'items' => [
+                    'auth' => $user->can('space.items.sidebar') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "items.index",
                     'text' => 'Daftar Barang',
                 ],
                 'supplies' => [
+                    'auth' => $user->can('space.supplies.sidebar') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "supplies.index",
                     'text' => 'Daftar Akun Persediaan',
                 ],
                 'journal_supplies' => [
+                    'auth' => $user->can('space.journal_supplies.sidebar') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "journal_supplies.index",
                     'text' => 'Mutasi Stok',
                 ],
                 'stockflow_items' => [
+                    'auth' => $user->can('space.supplies.summary') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "supplies.summary",
                     'text' => 'Rangkuman Barang',
@@ -65,6 +61,7 @@
                     ],
                 ],
                 'balance_stock' => [
+                    'auth' => $user->can('space.supplies.summary') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
                     'route' => "supplies.report",
                     'text' => 'Rangkuman Stok (beta)',
@@ -184,6 +181,13 @@
             'dropdown_id' => 'access',
             'dropdown_text' => 'Access',
             'dropdown_items' => [
+                'logs' => [
+                    'auth' => $user->can('space.access.logs') || $space_role == 'owner',
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "logs.index",
+                    'text' => 'Logs',
+                ],
+
                 'roles' => [
                     'auth' => $user->can('space.roles') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
