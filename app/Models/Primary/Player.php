@@ -40,17 +40,55 @@ class Player extends Model
         'name',
         'email',
         'phone_number',
+        
         'address',
+        'country',
+        'province',
+        'regency',
+        'district',
+        'sub_district',
+        'village',
+        'postal_code',
+        'address_detail',
+
+        'shopee_username',
+        'tokopedia_username',
+        'whatsapp_number',
+
         'status',
         'notes',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'address' => 'json',  
+    ];
+
+
+
+    // address
+    public function printAddress()
     {
-        return [ 
-            'address' => 'json',
-        ];
+        return ($this->province ? $this->province . ', ' : '')
+             . ($this->regency ? ', ' .$this->regency : '')
+             . ($this->district ? ', ' .$this->district : '')  
+             . ($this->sub_district ? ', ' .$this->sub_district : '')
+             . ($this->village ? ', ' .$this->village : '')
+             . ($this->address_detail ? ', ' .$this->address_detail : '')
+             . ($this->postal_code ? ', ' .$this->postal_code : '');
     }
+
+
+
+    // marketplace
+    public function printMarketplaceUsername()
+    {
+        return (
+                ($this->shopee_username ? 'Shopee: ' .$this->shopee_username . '<br>' : '')
+             . ($this->tokopedia_username ? 'Tokopedia: ' .$this->tokopedia_username . '<br>' : '')
+             . ($this->whatsapp_number ? 'No Whatsapp: ' .$this->whatsapp_number : '')
+                );
+    }
+
 
 
     // relations

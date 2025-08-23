@@ -11,7 +11,10 @@
     $model_type_option = [];
 
     if($user->can('space.trades.po') && $user->can('space.trades.so') || $space_role == 'owner'){
-        $model_type_option['all'] = 'Semua Kontak';   
+        $model_type_option['all'] = 'Semua Kontak';
+
+        if($model_type_select == null)
+            $model_type_select = 'all';
     }
 
     if($user->can('space.trades.po') || $space_role == 'owner'){

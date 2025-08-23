@@ -24,13 +24,20 @@
 </div>
 
 
+@if($form['mode'] == 'edit')
+                    <x-input.input-address id="address"></x-input.input-address>
+@endif
+
                     <div class="form-group mb-4">
                         <x-input-label for="status">Status</x-input-label>
-                        <x-input-select name="status" class="mt-1 block w-full" id="{{ $form['mode'] ?? '' }}_status" required>
-                            <option value="active">active</option>
-                            <option value="inactive">inactive</option>
-                        </x-input-select>
+                        <x-text-input name="status" id="{{ $form['mode'] ?? '' }}_status" class="w-full" placeholder="Status"></x-text-input>
                     </div>
+
+
+@if($form['mode'] == 'edit')
+                    <x-input.input-marketplace id="edit"></x-input.input-marketplace>
+@endif                    
+
 
                     <div class="form-group mb-4">
                         <x-input-label for="notes">Notes</x-input-label>

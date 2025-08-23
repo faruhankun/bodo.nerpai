@@ -207,7 +207,7 @@
                 title: "Error",
                 text: "{{ session('error') }}",
                 icon: "error",
-                timer: 3000,
+                timer: 5000,
                 customClass: {
                     popup: 'bg-white p-6 rounded-lg shadow-xl dark:bg-gray-900 dark:border dark:border-sky-500 dark:text-white',   // Customize the popup box
                     title: 'text-xl font-semibold text-green-600',
@@ -252,7 +252,7 @@
         $(document).ready(function () {
             if (typeof simpleDatatables !== 'undefined' && typeof simpleDatatables.DataTable !== 'undefined') {
 
-                const tableIds = ["search-table", "search-table1"]; // Add all unique IDs here
+                const tableIds = ["search-table", "search-table1", "search-table2"]; // Add all unique IDs here
                 tableIds.forEach(function (id) {
                     const tableElement = document.getElementById(id);
                     if (tableElement) {

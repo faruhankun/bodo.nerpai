@@ -43,8 +43,21 @@ class PlayerService
                 'code' => 'nullable|string|max:255',
                 'email' => 'nullable|string|email',
                 'phone_number' => 'nullable|string|max:20',
-                'status' => 'nullable|string|max:50',
+                'status' => 'nullable|string',
                 'notes' => 'nullable|string',
+
+                'address' => 'nullable|array',
+                'address.*' => 'nullable|string',
+                'province' => 'nullable|string',
+                'regency' => 'nullable|string',
+                'district' => 'nullable|string',
+                'village' => 'nullable|string',
+                'postal_code' => 'nullable|string',
+                'address_detail' => 'nullable|string',
+
+                'shopee_username' => 'nullable|string',
+                'tokopedia_username' => 'nullable|string',
+                'whatsapp_number' => 'nullable|string',
             ]);
 
             $player = Player::findOrFail($id);
