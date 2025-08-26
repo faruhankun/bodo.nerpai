@@ -309,7 +309,7 @@ class TradeService
         $space_id = get_space_id($request);
 
         $query = Transaction::with('input', 'type', 'details', 'details.detail', 
-                                    'sender', 'receiver')
+                                    'sender', 'handler', 'receiver')
                             ->where('model_type', 'TRD')
                             ->where('space_type', 'SPACE')
                             ->where('space_id', $space_id);

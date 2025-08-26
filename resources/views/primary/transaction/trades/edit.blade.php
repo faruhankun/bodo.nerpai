@@ -24,7 +24,10 @@
                     <h3 class="text-2xl dark:text-white font-bold">Edit Journal: {{ $journal->number }}</h3>
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
-                    <form action="{{ route('trades.update', $journal->id) }}" method="POST" onsubmit="return validateForm()">
+                    <form action="{{ route('trades.update', $journal->id) }}" 
+                        method="POST" 
+                        enctype="multipart/form-data"
+                        onsubmit="return validateForm()">
                         @csrf
                         @method('PUT')
 
@@ -62,6 +65,76 @@
 
                                         
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+
+
+
+                            <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 w-full mb-4">
+                                <div class="form-group">
+                                    <x-div.box-show title="File Terkait">
+                                        <x-input-label for="files">Upload File Terkait (max 2 MB)</x-input-label>
+                                        <input type="file" name="files[]" class="form-control" id="files" multiple >
+
+                                        <!-- List File Lama -->
+                                        <ul id="files-list" class="mt-2">
+                                            @if(!empty($journal->files))
+                                                @foreach($journal->files as $index => $file)
+                                                    <li data-old="{{ $index }}" class="flex items-center gap-2">
+                                                        <a href="{{ asset($file['path']) }}" target="_blank">{{ $file['name'] }}</a>
+                                                        <button type="button" class="remove-old-file text-red-500">Hapus</button>
+                                                        <input type="hidden" name="old_files[{{ $index }}][name]" value="{{ $file['name'] ?? '' }}">
+                                                        <input type="hidden" name="old_files[{{ $index }}][path]" value="{{ $file['path'] ?? '' }}">
+                                                        <input type="hidden" name="old_files[{{ $index }}][size]" value="{{ $file['size'] ?? 0 }}">
+                                                    </li>
+                                                @endforeach
+                                            @endif
+                                        </ul>
+                                    </x-div.box-show>
+
+                                <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    // Hapus file lama
+                                    document.addEventListener("click", function(e) {
+                                        if (e.target.classList.contains("remove-old-file")) {
+                                            e.target.closest("li").remove();
+                                        }
+                                    });
+
+                                    // Hapus file baru
+                                    document.getElementById("files").addEventListener("change", function(e) {
+                                        const list = document.getElementById("files-list");
+                                        list.querySelectorAll(".new-file").forEach(el => el.remove());
+
+                                        Array.from(e.target.files).forEach((file, i) => {
+                                            let li = document.createElement("li");
+                                            li.classList.add("new-file","flex","items-center","gap-2");
+                                            li.textContent = file.name;
+
+                                            let btn = document.createElement("button");
+                                            btn.type = "button";
+                                            btn.className = "remove-new-file text-red-500";
+                                            btn.textContent = "Hapus";
+
+                                            btn.addEventListener("click", () => {
+                                                let dt = new DataTransfer();
+                                                Array.from(e.target.files).forEach((f, idx) => {
+                                                    if (idx !== i) dt.items.add(f);
+                                                });
+                                                e.target.files = dt.files;
+                                                li.remove();
+                                            });
+
+                                            li.appendChild(btn);
+                                            list.appendChild(li);
+                                        });
+                                    });
+                                });
+                                </script>
+                                </div>
+                            </div>
+                            <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+                        
+                        
+                        
                         </div>
 
                         <div class="m-4 flex justify-end space-x-4">
@@ -242,11 +315,14 @@
 </x-dynamic-component>
 
 
+<!-- files upload list -->
+
+
+
 <script>
     $(document).ready(function() {
         $('#edit_receiver_id').select2({
             placeholder: 'Search & Select Kontak',
-            minimumInputLength: 1,
             width: '100%',
             ajax: {
                 url: '/players/data',
@@ -259,6 +335,7 @@
                         space: 'true',
                         space_id: '{{ $space_id }}',
                         page: params.page || 1,
+                        model_type_select: 'all',
                     };
                 },
                 processResults: function(result) {

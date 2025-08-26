@@ -1,7 +1,10 @@
 @php 
     $user = auth()->user();
-    $space_id = get_space_id(request());
-    setPermissionsTeamId($space_id);
+    $space_id = get_space_id(request(), false);
+
+    if($space_id){
+        setPermissionsTeamId($space_id);
+    }
 @endphp
 
 

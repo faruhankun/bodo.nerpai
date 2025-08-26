@@ -93,18 +93,6 @@
             ]
         ],
 
-        'Players' => [
-            'dropdown_id' => 'players',
-            'dropdown_text' => 'Relasi',
-            'dropdown_items' => [
-                'teams' => [
-                    'auth' => $user->can('space.teams') || $space_role == 'owner',
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "teams.index",
-                    'text' => 'Teams',
-                ],
-            ]
-        ],
 
         'Accounting' => [
             'dropdown_id' => 'accounting',
@@ -181,6 +169,13 @@
             'dropdown_id' => 'access',
             'dropdown_text' => 'Access',
             'dropdown_items' => [
+                'teams' => [
+                    'auth' => $user->can('space.teams') || $space_role == 'owner',
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "teams.index",
+                    'text' => 'Teams',
+                ],
+
                 'logs' => [
                     'auth' => $user->can('space.access.logs') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
@@ -222,6 +217,10 @@
     // drop off sidebar
     if(!$settings['supplies']) {
         unset($sidebar['Supplies']);
+    }
+
+    if(!$settings['accounting']) {
+        unset($sidebar['Accounting']);
     }
 @endphp
 

@@ -174,6 +174,9 @@ class TradeController extends Controller
                 'details.*.notes' => 'nullable',
 
                 'status' => 'nullable|string|max:255',
+
+                'old_files.*' => 'nullable|array',
+                'files.*' => 'nullable|file|max:2048',
             ]);
 
             if(!isset($validated['details'])){
@@ -181,6 +184,34 @@ class TradeController extends Controller
             }
 
             $journal = Transaction::with(['details'])->findOrFail($id);
+
+
+
+            // handling files
+            // Ambil file lama yang masih dipertahankan
+            $oldFiles = $request->input('old_files', []); // array path lama
+
+            $finalFiles = [];
+            foreach ($oldFiles as $old_file) {
+                $finalFiles[] = [
+                    'name' => $old_file['name'],
+                    'path' => $old_file['path'],
+                    'size' => $old_file['size'],
+                ];
+            }
+
+            // Upload file baru
+            if ($request->hasFile('files')) {
+
+                foreach ($request->file('files') as $file) {
+                    $path = $file->store('uploads/transactions/' . $journal->number , 'public');
+                    $finalFiles[] = [
+                        'name' => $file->getClientOriginalName(),
+                        'path' => 'storage/'.$path,
+                        'size' => $file->getSize(),
+                    ];
+                }
+            }
 
 
 
@@ -195,6 +226,8 @@ class TradeController extends Controller
                 'handler_id' => $validated['handler_id'],
 
                 'status' => $validated['status'] ?? null,
+
+                'files' => $finalFiles,
             ];
 
             $journal = $this->tradeService->updateJournal($journal, $data, $validated['details']);

@@ -60,6 +60,8 @@ return new class extends Migration
             $table->string('status')->default('TX_REQUEST');
             $table->text('notes')->nullable();
 
+            $table->json('files')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });

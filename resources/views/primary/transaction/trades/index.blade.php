@@ -19,20 +19,29 @@
 
     if($user->can('space.trades.po') && $user->can('space.trades.so') || $space_role == 'owner'){
         $model_type_option['all'] = 'Semua Trades';   
+
+        if($model_type_select == null)
+            $model_type_select = 'all';
     }
 
     if($user->can('space.trades.po') || $space_role == 'owner'){
         $model_type_option['PO'] = 'Purchase Order';
+
+        if($model_type_select == null)
+            $model_type_select = 'PO';
     }
 
     if($user->can('space.trades.so') || $space_role == 'owner'){
         $model_type_option['SO'] = 'Sales Order';
+
+        if($model_type_select == null)
+            $model_type_select = 'SO';
     }
 
 @endphp
 
 <x-crud.index-basic header="Trades" model="trades" table_id="indexTable" 
-                    :thead="['ID', 'Date', 'Number', 'Description', 'SKU', 'Status', 'Total', 'Actions']">
+                    :thead="['Date', 'Number', 'Team', 'Description', 'SKU', 'Status', 'Total', 'Actions']">
     <x-slot name="buttons">
         @include('primary.transaction.trades.create')
 
@@ -74,9 +83,7 @@
                 }
             },
             pageLength: 10,
-            columns: [{
-                    data: 'id'
-                },
+            columns: [
                 {
                     data: 'sent_time',
                     render: function(data) {
@@ -94,6 +101,12 @@
                         return `<a href="trades/${row.id}" target="_blank">${
                                     data
                                 }</a>`;
+                    }
+                },
+                {
+                    data: 'data',
+                    render: function(data, type, row, meta) {
+                        return (row?.handler?.name || '-');
                     }
                 },
                 {

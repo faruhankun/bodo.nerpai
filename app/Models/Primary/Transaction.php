@@ -61,11 +61,17 @@ class Transaction extends Model
         'handler_notes',
 
         'status',
+        'notes',
+
+        'files',
     ];
 
     protected $casts = [
         'sent_time' => 'datetime',
+        'files' => 'json',
     ];
+
+
 
     // function
     public function generateNumber()
