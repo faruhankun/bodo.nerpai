@@ -177,15 +177,16 @@ class TeamController extends Controller
 
         $search = $request->q;
 
-        $items = User::where(function ($query) use ($search) {
+        $users = User::where(function ($query) use ($search) {
             $query->where('name', 'like', "%$search%")
                 ->orWhere('username', 'like', "%$search%")
                 ->orWhere('email', 'like', "%$search%")
                 ->orWhere('id', 'like', "%$search%");
         });
 
+
         if($space_id){
-            $items = $items->whereNotIn('id', function ($sub) use ($space_id) {
+            $users = $users->whereNotIn('player_id', function ($sub) use ($space_id) {
                 $sub->select('model2_id')
                     ->from('relations')
                     ->where('model2_type', 'PLAY')
@@ -193,9 +194,9 @@ class TeamController extends Controller
                     ->where('model1_id', $space_id);
             });
         }
+        
 
-
-        $items = $items
+        $users = $users
             // ->orderBy('id', 'desc')
             ->limit(50) // limit hasil
             ->get()
@@ -206,7 +207,7 @@ class TeamController extends Controller
                 ];
             });
 
-        return response()->json($items);
+        return response()->json($users);
     }
 
 

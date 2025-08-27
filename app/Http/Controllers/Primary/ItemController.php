@@ -128,6 +128,14 @@ class ItemController extends Controller
 
 
 
+    public function show(Request $request, $id)
+    {
+        $data = Item::with('transaction_details')->findOrFail($id);
+
+        return view('primary.items.show', compact('data'));
+    }
+
+
 
     public function store(Request $request)
     {
@@ -286,7 +294,7 @@ class ItemController extends Controller
                 
                 $actions = [
                     'show' => 'modal',
-                    'show_modal' => 'primary.items.show',
+                    'show_modal' => 'primary.items.show_modal',
                     'edit' => 'modal',
                     'delete' => 'button',
                 ];

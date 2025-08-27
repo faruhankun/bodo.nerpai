@@ -1,3 +1,11 @@
+@php 
+    $user = auth()->user();
+    $space_role = session('space_role') ?? null;
+
+    
+    $allow_cost = $user->can('space.supplies.cost', 'web') || $space_role == 'owner';
+@endphp
+
 <x-crud.index-basic header="Items" 
                 model="item" 
                 table_id="indexTable"
@@ -86,7 +94,12 @@
         document.getElementById('edit_name').value = data.name;
 
         $('#edit_price').val(data.price);
-        $('#edit_cost').val(data.cost);
+
+        let allow_cost = "{{ $allow_cost }}" ? true : false;
+        if(allow_cost) 
+            $('#edit_cost').val(data.cost);
+
+
         $('#edit_weight').val(data.weight);
 
         document.getElementById('edit_status').value = data.status === '1' || data.status === 'active' ? 'active' : 'inactive';
@@ -283,53 +296,65 @@
     }
 </script>
 
+
+<!-- datatable index  -->
 <script>
-$(document).ready(function() {
-    let table = $('#indexTable').DataTable({
-        scrollX: true,
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('items.data') }}",
-        columns: [
-            // { data: 'id' },
-            // { data: 'code' },
-            { data: 'sku' },
-            { data: 'name' },
-            { data: 'price', 
-                className: 'text-right',
-                render: function (data, type, row, meta) {
-                    return new Intl.NumberFormat('id-ID', { 
-                        maximumFractionDigits: 2
-                    }).format(data);
-                }
-            },
+    $(document).ready(function() {
+        let table = $('#indexTable').DataTable({
+            scrollX: true,
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('items.data') }}",
+            columns: [
+                // { data: 'id' },
+                // { data: 'code' },
+                {
+                    data: 'sku',
+                    className: 'text-blue-600',
+                    render: function (data, type, row, meta) {
+                        return `<a href="items/${row.id}" target="_blank">${
+                                    data
+                                }</a>`;
+                    }
+                },
+                { data: 'name' },
+                { data: 'price', 
+                    className: 'text-right',
+                    render: function (data, type, row, meta) {
+                        return new Intl.NumberFormat('id-ID', { 
+                            maximumFractionDigits: 2
+                        }).format(data);
+                    }
+                },
 
-            { data: 'supplies', 
-                style: 'width: 400px',
-                render: function(data, type, row, meta) {
-                    return data ?? '';
-                }
-            },
+                { data: 'supplies', 
+                    style: 'width: 400px',
+                    render: function(data, type, row, meta) {
+                        return data ?? '';
+                    }
+                },
 
-            { data: 'status' },
-            { data: 'notes' },
-            { data: 'actions', orderable: false, searchable: false }
-        ]
+                { data: 'status' },
+                { data: 'notes' },
+                { data: 'actions', orderable: false, searchable: false }
+            ]
+        });
+
+
+        // export 
+        $('#exportVisibleBtn').on('click', function(e) {
+            e.preventDefault();
+
+            let params = table.ajax.params();
+            
+            let exportUrl = '{{ route("items.export") }}' + '?params=' + encodeURIComponent(JSON.stringify(params));
+
+            window.location.href = exportUrl;
+        });
     });
-
-
-    // export 
-    $('#exportVisibleBtn').on('click', function(e) {
-        e.preventDefault();
-
-        let params = table.ajax.params();
-        
-        let exportUrl = '{{ route("items.export") }}' + '?params=' + encodeURIComponent(JSON.stringify(params));
-
-        window.location.href = exportUrl;
-    });
-});
 </script>
+
+
 
 <script>
     function show_tx_modal(id, sku, name, acc = {}){

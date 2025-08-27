@@ -21,10 +21,12 @@
         <x-input-input type="number" name="price" id="{{ $form['mode'] ?? '' }}_price" class="w-full" default="0"></x-input-input>
     </div>
 
-    <div class="form-group mb-4">
-        <x-input-label for="cost">Cost</x-input-label>
-        <x-input-input type="number" name="cost" id="{{ $form['mode'] ?? '' }}_cost" class="w-full" placeholder="Cost" default="0"></x-input-input>
-    </div>
+    @if(isset($allow_cost) && $allow_cost == true)
+        <div class="form-group mb-4">
+            <x-input-label for="cost">Cost</x-input-label>
+            <x-input-input type="number" name="cost" id="{{ $form['mode'] ?? '' }}_cost" class="w-full" placeholder="Cost" default="0"></x-input-input>
+        </div>
+    @endif
 
     <div class="form-group mb-4">
         <x-input-label for="weight">Weight</x-input-label>
