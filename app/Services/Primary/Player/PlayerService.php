@@ -20,7 +20,7 @@ class PlayerService
     protected $import_columns = [
         'code', 
         'name',
-        'address (json)',
+        'address_detail',
         'email',
         'phone_number',
         'notes',
@@ -85,7 +85,7 @@ class PlayerService
                 'code' => 'nullable|string|max:255',
                 'email' => 'nullable|string|email',
                 'phone_number' => 'nullable|string|max:20',
-                'status' => 'required|string|max:50',
+                'status' => 'nullable|string|max:50',
                 'notes' => 'nullable|string',
             ]);
 
@@ -214,7 +214,6 @@ class PlayerService
     public function importData(Request $request)
     {
         $space_id = get_space_id($request);
-        $player_id = get_player_id($request);
 
         DB::beginTransaction();
 
@@ -244,14 +243,44 @@ class PlayerService
                     }
 
 
-                    $player_data = [
-                        'code' => $row['code'] && !empty($row['code']) ? $row['code'] : null,
-                        'name' => $row['name'] && !empty($row['name']) ? $row['name'] : null,
-                        'address' => $row['address (json)'] ?? '',
-                        'email' => $row['email'] && !empty($row['email']) ? $row['email'] : null,
-                        'phone_number' => $row['phone_number'] && !empty($row['phone_number']) ? $row['phone_number'] : null,
-                        'notes' => $row['notes'] ?? null,
-                    ];
+                    $player_data = [];
+
+                    if(isset($row['code']) && !empty($row['code'])){
+                        $player_data['code'] = $row['code'] ?? null;
+                    }
+
+                    if(isset($row['name']) && !empty($row['name'])){
+                        $player_data['name'] = $row['name'] ?? null;
+                    }
+
+                    if(isset($row['address']) && !empty($row['address'])){
+                        $player_data['address'] = $row['address'] ?? null;
+                    }
+
+                    if(isset($row['email']) && !empty($row['email'])){
+                        $player_data['email'] = $row['email'] ?? null;
+                    }
+
+                    if(isset($row['phone_number']) && !empty($row['phone_number'])){
+                        $player_data['phone_number'] = $row['phone_number'] ?? null;
+                    }
+
+                    if(isset($row['notes']) && !empty($row['notes'])){
+                        $player_data['notes'] = $row['notes'] ?? null;
+                    }
+
+                    if(isset($row['status']) && !empty($row['status'])){
+                        $player_data['status'] = $row['status'] ?? null;
+                    }
+
+                    if(isset($row['address_detail']) && !empty($row['address_detail'])){
+                        $player_data['address_detail'] = $row['address_detail'] ?? null;
+                    }
+
+                    if(isset($row['created_at']) && !empty($row['created_at'])){
+                        $player_data['created_at'] = $row['created_at'];
+                    }
+
 
 
                     $player_data['space_type'] = 'SPACE';
@@ -264,12 +293,7 @@ class PlayerService
                         'space_id' => $space_id,
                         'code' => $player_data['code'],
                         'name' => $player_data['name'],
-                    ], [
-                        'address' => $player_data['address'],
-                        'email' => $player_data['email'],
-                        'phone_number' => $player_data['phone_number'],
-                        'notes' => $player_data['notes'],
-                    ]);
+                    ], $player_data);
                 } catch (\Throwable $e) {
                     $row['row'] = $i + 2; 
                     $row['error'] = $e->getMessage();

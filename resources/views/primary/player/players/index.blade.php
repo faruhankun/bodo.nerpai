@@ -17,19 +17,29 @@
             $model_type_select = 'all';
     }
 
+    if($user->can('space.trades.so') || $space_role == 'owner'){
+        $model_type_option['ITR'] = 'Interaksi';
+
+        if($model_type_select == null)
+            $model_type_select = 'ITR';
+    }
+
     if($user->can('space.trades.po') || $space_role == 'owner'){
         $model_type_option['PO'] = 'Pembelian';
     }
 
     if($user->can('space.trades.so') || $space_role == 'owner'){
         $model_type_option['SO'] = 'Penjualan';
+
+        if($model_type_select == null)
+            $model_type_select = 'SO';
     }
 @endphp
 
 <x-crud.index-basic header="Kontak" 
                 model="player" 
                 table_id="indexTable"
-                :thead="['ID', 'Name', 'Email', 'Phone', 'Notes', 'Actions']"
+                :thead="['Id', 'Code', 'Name', 'Email', 'Phone', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
         @include('primary.player.players.create')
@@ -236,11 +246,12 @@
                 },
             },
             columns: [
+                { data: 'id' },
                 {
-                    data: 'id',
+                    data: 'code',
                     className: 'text-blue-600',
                     render: function (data, type, row, meta) {
-                        return `<a href="/players/${data}" target="_blank">${
+                        return `<a href="/players/${row.id}" target="_blank">${
                                     data
                                 }</a>`;
                     }

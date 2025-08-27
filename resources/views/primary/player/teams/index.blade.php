@@ -181,6 +181,7 @@
 </script>
 
 
+<!-- add new user  -->
 <script>
     $(document).ready(function() {
         $('#create_user_id').select2({
@@ -195,7 +196,6 @@
                     return {
                         q: params.term,
                         space_id: '{{ $space_id }}',
-                        page: params.page || 1
                     };
                 },
                 processResults: function(data) {
