@@ -11,7 +11,7 @@
 
                     <div class="form-group mb-4">
                         <x-input-label for="value">Value</x-input-label>
-                        <x-text-input name="value" id="{{ $form['mode'] ?? '' }}_value" class="w-full" placeholder="Value" required></x-text-input>
+                        <textarea name="value" id="{{ $form['mode'] ?? '' }}_value" class="w-full" placeholder="Value" required></textarea>
                     </div>
 
                     <div class="form-group mb-4">

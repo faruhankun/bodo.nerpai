@@ -1,8 +1,18 @@
 @php
-    $logoPath = public_path('svg/' . $data->space?->name . '.svg');
-    $logoUrl = file_exists($logoPath) ? asset('svg/' . $data->space?->name . '.svg') : asset('svg/hehe.svg');
+    $logoPath = public_path('svg/' . $data->space?->code . '.svg');
+    $logoUrl = file_exists($logoPath) ? asset('svg/' . $data->space?->code . '.svg') : asset('svg/hehe.svg');
 
     $address = $data->space->address['detail'] ?? 'Blitar, Jawa Timur';
+
+
+    $space_phone_number = $data->space?->phone_number ?? (get_variable('space.trades.invoice.phone_number') ?? 'Phone Number');
+    $payment_note = get_variable('space.trades.invoice.payment_note') ?? null;
+
+
+    
+
+    $other_bill_details = [];
+    $other_bill = 0;
 @endphp
 
 
@@ -14,7 +24,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            font-size: 13px;
+            font-size: 14px;
             color: #000;
             margin: 40px;
         }
@@ -53,7 +63,8 @@
         }
 
         table th {
-            background-color: #f0f0f0;
+            background-color: #073763;
+            color: #fff;
         }
 
         .no-border td {
@@ -86,31 +97,42 @@
         <div class="header">
             <img src="{{ $logoUrl }}" alt="Logo">
             <div class="space-info">
-                <h1>{{ $data->space?->name }}</h1>
+                <h1>{{ strtoupper($data->space?->name ?? 'Space Name') }}</h1>
                 <h3>{{ $address ?? 'Space Address' }}</h3>
-                <h3>{{ $data->space?->phone_number ?? 'Phone Number'}}</h3>
+                <h3>{{ $space_phone_number }}</h3>
             </div>
         </div>
 
-        <!-- Info Transaksi -->
-        <table style="margin-top: 20px; text-align: center;">
+        <table style="text-align: center;">
             <tr>
-                <th><strong>TGL TRANSAKSI</strong></th>
-                <td>{{ $data->sent_time->format('Y-m-d') ?? today()->format('Y-m-d') }}</td>
-                <th><strong>NO INVOICE</strong></th>
+                <th style="text-align: center; font-size: 20px;"><strong>Invoice Order</strong></th>
+            </tr>
+        </table>
+
+
+        <!-- Info Transaksi -->
+        <table style="margin: 20px auto; text-align: center; width: 100%;">
+            <tr>
+                <th>TGL TRANSAKSI</th>
+                <td>{{ ($data->sent_time ?? today())->format('l, j F Y') }}</td>
+                <th>NO INVOICE</th>
                 <td>{{ $data->number ?? 'NO_INVOICE' }}</td>
             </tr>
             <tr>
-                <th><strong>NAMA PEMBELI</strong></th>
+                <th>NAMA PEMBELI</th>
                 <td>{{ $data->receiver?->name ?? 'CUSTOMER NAME' }}</td>
-                <th><strong>TOKO</strong></th>
+                <th>TOKO</th>
                 <td>{{ $data->space?->name ?? '-' }}</td>
             </tr>
             <tr>
-                <th><strong>CATATAN</strong></th>
-                <td colspan="3">{{ $data->receiver_notes ?? '' }}</td>
+                <th>Kasir</th>
+                <td>{{ $data?->handler?->name ?? '' }}</td>
+                <th>CATATAN</th>
+                <td>{{ $data->receiver_notes ?? '' }}</td>
             </tr>
         </table>
+
+
 
         <!-- Produk -->
         <table style="margin-top: 20px;">
@@ -120,8 +142,7 @@
                     <th>QTY</th>
                     <th>BERAT</th>
                     <th>HARGA</th>
-                    <th>DISC</th>
-                    <th>Disc Value</th>
+                    <th>Diskon</th>
                     <th>TOTAL</th>
                 </tr>
             </thead>
@@ -138,6 +159,13 @@
                         @continue
                     @endif
 
+                    @if(str_contains($detail->detail?->sku, 'bill') || str_contains($detail->detail?->sku, 'payment'))
+                        @php
+                            $other_bill_details[] = $detail;
+                        @endphp
+                        @continue
+                    @endif
+
                     @php 
                         $qty = abs($detail->quantity);
                         $price = $detail->price ?? $detail->detail->price;
@@ -147,9 +175,8 @@
                     <td>{{ $detail->detail?->sku }} | {{ $detail->detail?->name }}</td>
                     <td class="text-center">{{ $qty }}</td>
                     <td class="text-right">{{ number_format($detail->detail?->weight) }}</td>
-                    <td class="text-right">{{ number_format($price) }}</td>
-                    <td class="text-right">{{ $detail->discount * 100 }} %</td>
-                    <td class="text-right">{{ number_format($detail->discount * $price) }}</td>
+                    <td class="text-right">Rp. {{ number_format($price) }}</td>
+                    <td class="text-right">( {{ $detail->discount * 100 }}%) {{ number_format($detail->discount * $price) }}</td>
                     <td class="text-right">{{ number_format($qty * $price * (1 - $detail->discount)) }}</td>
                 </tr>
 
@@ -161,9 +188,9 @@
                 @endforeach
                 <!-- Total berat -->
                 <tr>
-                    <td colspan="2"></td>
-                    <td class="text-right"><strong>{{ number_format($total_weight, 2) }}</strong></td>
-                    <td colspan="4" class="text-right"><strong>{{ number_format($total_product - $total_discount, 2) }}</strong></td>
+                    <th colspan="2" class="text-right">Subtotal</th>
+                    <td class="text-right"><strong>{{ number_format($total_weight / 1000, 2) }} Kg</strong></td>
+                    <td colspan="4" class="text-right"><strong>{{ number_format($total_product - $total_discount) }}</strong></td>
                 </tr>
             </tbody>
         </table>
@@ -172,20 +199,31 @@
         <table class="summary">
             <tr>
                 <th><strong>TAGIHAN PRODUK</strong></th>
-                <td class="text-right">{{ number_format($total_product, 2) }}</td>
+                <td class="text-right"><strong>{{ number_format($total_product) }}</strong></td>
             </tr>
             <tr>
                 <th><strong>TOTAL DISKON</strong></th>
-                <td class="text-right">{{ number_format($total_discount, 2) }}</td>
+                <td class="text-right">{{ number_format($total_discount) }}</td>
             </tr>
 
-            <!-- <tr>
-                <th><strong>BIAYA ONGKIR</strong></th>
-                <td class="text-right">{{ number_format($data->shipping_cost) }}</td>
-            </tr> -->
+
+            <!-- other bill -->
+            @if($other_bill_details)
+                @foreach($other_bill_details as $detail)
+                    @php
+                        $subtotal = $detail->quantity * $detail->price * (str_contains($detail->detail?->sku, 'payment') ? -1 : 1);
+                        $other_bill += $subtotal;
+                    @endphp
+
+                    <tr>
+                        <th><strong>{{ $detail->detail->name }}</strong></th>
+                        <td class="text-right"><strong>{{ number_format($subtotal) }}</strong></td>
+                    </tr>
+                @endforeach
+            @endif
 
             @php
-                $grand_total = $total_product - $total_discount;
+                $grand_total = $total_product - $total_discount + $other_bill;
             @endphp
 
             <tr>
@@ -193,6 +231,16 @@
                 <th class="text-right"><strong>{{ number_format($grand_total) }}</strong></th>
             </tr>
         </table>
+
+        <div class="footer">
+            <br><br>
+            <span style="font-size: 16px; font-weight: bold; line-height: 1.5;">
+                @if($payment_note)
+                    *Catatan Pembayaran: <br>
+                    {!! $payment_note !!}
+                @endif
+            </span>
+        </div>
     </div>
 </body>
 </html>

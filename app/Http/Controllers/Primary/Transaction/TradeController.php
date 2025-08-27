@@ -204,7 +204,7 @@ class TradeController extends Controller
             if ($request->hasFile('files')) {
 
                 foreach ($request->file('files') as $file) {
-                    $path = $file->store('uploads/transactions/' . $journal->number , 'public');
+                    $path = $file->store('uploads/transactions/' . $journal->id , 'public');
                     $finalFiles[] = [
                         'name' => $file->getClientOriginalName(),
                         'path' => 'storage/'.$path,

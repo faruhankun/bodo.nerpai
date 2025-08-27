@@ -166,12 +166,6 @@
 
     <h3 class="text-lg font-bold my-3">Actions</h3>
         <x-secondary-button type="button">
-            <a href="{{ route('trades.invoice', $data->id) }}" target="_blank" class="btn btn-primary">
-                Invoice
-            </a>
-        </x-secondary-button> 
-
-        <x-secondary-button type="button">
             <a href="{{ route('trades.invoice', 
                             ['id' => $data->id, 'invoice_type' => 'invoice_formal']) }}" target="_blank" class="btn btn-primary">
                 Invoice Formal
