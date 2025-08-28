@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('model_has_roles', function (Blueprint $table) {
-            $table->unsignedBigInteger('team_id')->nullable()->index();
+            // $table->unsignedBigInteger('team_id')->nullable()->index();
             $table->unique(['model_id', 'model_type', 'role_id', 'team_id'], 'model_role_team_unique');
         });
 
         Schema::table('model_has_permissions', function (Blueprint $table) {
-            $table->unsignedBigInteger('team_id')->nullable()->index();
+            // $table->unsignedBigInteger('team_id')->nullable()->index();
             $table->unique(['model_id', 'model_type', 'permission_id', 'team_id'], 'model_permission_team_unique');
         });
 
