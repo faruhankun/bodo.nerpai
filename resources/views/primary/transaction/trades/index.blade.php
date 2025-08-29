@@ -80,6 +80,7 @@
                     d.return_type = 'DT';
                     d.space_id = {{ $space_id }};
                     d.model_type_select = $('#model-type-select').val() || '';
+                    d.limit = 'all';
                 }
             },
             pageLength: 10,

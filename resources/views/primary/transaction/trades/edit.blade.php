@@ -219,7 +219,6 @@
         function initInventorySelect($element, selectedData = null) {
             $element.select2({
                 placeholder: 'Search & Select Item',
-                minimumInputLength: 1,
                 width: '100%',
                 height: '100%',
                 padding: '20px',
@@ -343,7 +342,7 @@
                     return {
                         results: result.map(item => ({
                             id: item.id,
-                            text: item.id + ' : ' + item.name + ' (' + item.email + ' : ' + item.phone_number + ')',
+                            text: (item.code || item.id) + ' : ' + item.name + ' (' + item.email + ' : ' + item.phone_number + ')',
                         }))
                     }
                 },

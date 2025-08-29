@@ -371,7 +371,7 @@ class PlayerController extends Controller
             ->map(function ($player) {
                 return [
                     'id' => $player->id,
-                    'text' => "{$player->id} - {$player->name} - {$player->size_type} : {$player->size?->number}",
+                    'text' => "{($player->code ?? $player->id)} - {$player->name} - {$player->size_type} : {$player->size?->number}",
                 ];
             });
 

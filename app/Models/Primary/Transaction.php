@@ -36,6 +36,9 @@ class Transaction extends Model
         'relation_type',
         'relation_id',
 
+        'parent_type',
+        'parent_id',
+
         'sender_type',
         'sender_id',
         'receiver_type',
@@ -143,6 +146,20 @@ class Transaction extends Model
     public function relations()
     {
         return $this->hasMany(Transaction::class, 'relation_id')
+            ->where('input_type', 'TX');
+    }
+
+
+    public function parent()
+    {
+        return $this->belongsTo(Transaction::class, 'parent_id')
+            ->where('input_type', 'TX');
+    }
+
+
+    public function children()
+    {
+        return $this->hasMany(Transaction::class, 'parent_id')
             ->where('input_type', 'TX');
     }
 }

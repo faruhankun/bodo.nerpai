@@ -1,5 +1,5 @@
 @php
-    $tx_as_receiver = $data->transactions_as_receiver ?? null;
+    $tx_as_receiver = $data->transactions_as_receiver()->orderBy('sent_time', 'desc')->limit(30)->get() ?? null;
     $txs_details = $tx_as_receiver->map(fn($tx) => $tx->details)->flatten(1) ?? null;
 @endphp
 

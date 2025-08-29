@@ -108,10 +108,16 @@ class Player extends Model
     }
 
 
-    public function transactions_as_receiver()
+    public function transactions_as_receiver($limit = 10)
     {
-        return $this->hasMany(Transaction::class, 'receiver_id', 'id')
+        $query = $this->hasMany(Transaction::class, 'receiver_id', 'id')
                     ->where('receiver_type', 'PLAY');
+
+        if($limit){
+            $query->limit($limit);
+        }           
+
+        return $query;
     }
 
 

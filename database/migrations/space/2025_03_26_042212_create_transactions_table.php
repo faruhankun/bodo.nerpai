@@ -32,6 +32,9 @@ return new class extends Migration
             $table->string('relation_type')->nullable();
             $table->unsignedBigInteger('relation_id')->nullable();
 
+            $table->string('parent_type')->nullable();
+            $table->unsignedBigInteger('parent_id')->nullable();
+
             $table->string('sender_type')->nullable();
             $table->unsignedBigInteger('sender_id')->nullable();
             $table->string('receiver_type')->nullable();

@@ -219,13 +219,20 @@ class TradeService
 
 
 
-        // order by id desc by default
+        // Apply ordering
         $orderby = $request->get('orderby');
         $orderdir = $request->get('orderdir');
-        if($orderby && $orderdir){
+        if (!empty($params['order'][0])) {
+            $colIdx = $params['order'][0]['column'];
+            $dir = $params['order'][0]['dir'];
+
+            // ambil nama kolom dari index
+            $column = $params['columns'][$colIdx]['data'] ?? 'id';
+            $query->orderBy($column, $dir);
+        } else if ($orderby && $orderdir){
             $query->orderBy($orderby, $orderdir);
         } else {
-            $query->orderBy('id', 'desc');
+            $query->orderBy('sent_time', 'desc');
         }
 
 
@@ -275,7 +282,10 @@ class TradeService
                                 ->orWhere('transactions.sent_time', 'like', "%{$search}%")
                                 ->orWhere('transactions.number', 'like', "%{$search}%")
                                 ->orWhere('transactions.sender_notes', 'like', "%{$search}%")
-                                ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
+                                ->orWhere('transactions.handler_notes', 'like', "%{$search}%")
+
+                                ->orWhere('transactions.status', 'like', "%{$search}%")
+                                ;
 
                             $q->orWhereHas('details', function ($q2) use ($search) {
                                 $q2->where('transaction_details.notes', 'like', "%{$search}%")
@@ -286,6 +296,24 @@ class TradeService
                             $q->orWhereHas('details.detail', function ($q2) use ($search) {
                                 $q2->where('name', 'like', "%{$search}%")
                                     ->orWhere('sku', "{$search}")
+                                ;
+                            });
+
+
+                            // handler
+                            $q->orWhereHas('handler', function ($q2) use ($search) {
+                                $q2->where('name', 'like', "%{$search}%");
+                            });
+
+                            // sender
+                            $q->orWhereHas('sender', function ($q2) use ($search) {
+                                $q2->where('name', 'like', "%{$search}%");
+                            });
+
+                            // receiver
+                            $q->orWhereHas('receiver', function ($q2) use ($search) {
+                                $q2->where('name', 'like', "%{$search}%")
+                                    ->orWhere('code', 'like', "%{$search}%")
                                 ;
                             });
                         });
@@ -577,6 +605,7 @@ class TradeService
             ]);
 
             $file = $validated['file'];
+
             $data = collect();
             $failedRows = collect();
             $requiredHeaders = ['date', 'number', 'model_type', 'item_sku', 'quantity'];
@@ -604,38 +633,53 @@ class TradeService
                         'sender_id' => $player_id,
                         'handler_type' => 'PLAY',
                         'handler_id' => $player_id,
+
                         'sent_time' => empty($row_first['date']) ? Date('Y-m-d') : $row_first['date'],
-                        'sender_notes' => $row_first['sender_notes'] ?? null,
 
                         'receiver_type' => 'PLAY',
-                        'receiver_id' => $row_first['receiver_id'] ?? null,
-                        'receiver_notes' => $row_first['receiver_notes'] ?? null
                     ];
+
+
+                    if(isset($row_first['status']) && !empty($row_first['status'])) $header['status'] = $row_first['status'];
+
+                    if(isset($row_first['sender_notes']) && !empty($row_first['sender_notes'])) $header['sender_notes'] = $row_first['sender_notes'];
+
+                    if(isset($row_first['receiver_id']) && !empty($row_first['receiver_id'])) $header['receiver_id'] = $row_first['receiver_id'];
+                    if(isset($row_first['receiver_code']) && !empty($row_first['receiver_code'])) $header['receiver_code'] = $row_first['receiver_code'];
+                    if(isset($row_first['receiver_name']) && !empty($row_first['receiver_name'])) $header['receiver_name'] = $row_first['receiver_name'];
+                    if(isset($row_first['receiver_notes']) && !empty($row_first['receiver_notes'])) $header['receiver_notes'] = $row_first['receiver_notes'];
+
+                    if(isset($row_first['handler_notes']) && !empty($row_first['handler_notes'])) $header['handler_notes'] = $row_first['handler_notes'];
+
 
 
                     $tx_details = collect();
                     $tx_total = 0;
 
 
-
                     $receiver = Player::query();
                     if(isset($row_first['receiver_id']) && !empty($row_first['receiver_id'])){
                         $receiver = $receiver->where('id', $row_first['receiver_id']);
                     } else {
-                        if(isset($row_first['receiver_name']) && !empty($row_first['receiver_name']))
-                            $receiver = $receiver->where('name', 'like', '%' . $row_first['receiver_name'] . '%');
-
-                        if(isset($row_first['receiver_email']) && !empty($row_first['receiver_email']))
-                            $receiver = $receiver->where('email', 'like', '%' . $row_first['receiver_email'] . '%');
-
-                        if(isset($row_first['receiver_phone']) && !empty($row_first['receiver_phone']))
-                            $receiver = $receiver->where('phone', 'like', '%' . $row_first['receiver_phone'] . '%');
+                        if(isset($row_first['receiver_code']) && !empty($row_first['receiver_code'])){
+                            $receiver = $receiver->where('code', $row_first['receiver_code']);
+                        } else {
+                            if(isset($row_first['receiver_name']) && !empty($row_first['receiver_name']))
+                                $receiver = $receiver->where('name', 'like', '%' . $row_first['receiver_name'] . '%');
+    
+                            if(isset($row_first['receiver_email']) && !empty($row_first['receiver_email']))
+                                $receiver = $receiver->where('email', 'like', '%' . $row_first['receiver_email'] . '%');
+    
+                            if(isset($row_first['receiver_phone']) && !empty($row_first['receiver_phone']))
+                                $receiver = $receiver->where('phone', 'like', '%' . $row_first['receiver_phone'] . '%');
+                        }
                     }
                     $receiver = $receiver->first();
 
                     if(!$receiver && isset($row_first['receiver_name']) && !empty($row_first['receiver_name'])){
                         $receiver = Player::create([
                             'name' => $row_first['receiver_name'] ?? 'no name',
+                            'code' => $row_first['receiver_code'] ?? null,
                             'email' => $row_first['receiver_email'] ?? null,
                             'phone' => $row_first['receiver_phone'] ?? null,
                             'address' => $row_first['receiver_address'] ?? null,
@@ -646,6 +690,46 @@ class TradeService
                     }
 
                     $header['receiver_id'] = $receiver->id ?? null;
+
+
+
+                    // kasus khusus
+                    if(isset($row_first['details_json']) && !empty($row_first['details_json'])){
+                        $details_json = json_decode($row_first['details_json'], true) ?? [];
+                        $list_product_data = $details_json['LIST_PRODUCT_DATA'] ?? [];
+                        
+                        $new_rows = collect();
+                        foreach($list_product_data as $list_product){
+                            $new_rows->push([
+                                'item_sku' => $list_product['PRODUCT_SKU'],
+                                'item_name' => $list_product['PRODUCT_NAME'],
+                                'price' => ($list_product['PRICE_BASE'] ?? 0 ) * ($list_product['LIST_PRODUCT_COST'] ?? 1) * 1000,
+                                'cost' => $list_product['SUPPLY_COST'] ?? 0,
+                                'weight' => $list_product['PRODUCT_WEIGHT'] ?? 0,
+                                'notes' => $list_product['LIST_PRODUCT_NOTE'] ?? null,
+                                'quantity' => $list_product['LIST_PRODUCT_QTY'] * (-1)?? 0,
+                                'model_type' => 'SO',
+                            ]);
+                        }
+
+
+                        if(isset($row_first['shipping_cost']) && !empty($row_first['shipping_cost'])){
+                            $new_rows->push([
+                                'item_sku' => 'hb: bill: ongkir',
+                                'item_name' => 'ONGKOS KIRIM',
+                                'price' => $row_first['shipping_cost'] ?? 0,
+                                'cost' => 0,
+                                'weight' => 0,
+                                'notes' => $row_first['shipping_notes'] ?? null,
+                                'quantity' => 1,
+                                'model_type' => 'SO',
+                            ]);
+                        }
+
+
+                        $rows = $new_rows->toArray();
+                    }
+
 
 
                     foreach($rows as $i => $row){
@@ -686,9 +770,9 @@ class TradeService
                                 'detail_id' => $item->id,
                                 'model_type' => $row['model_type'] ?? 'UNDF',
                                 'quantity' => $row['quantity'] ?? 0,
-                                'price' => $row['price'] ?? 0,
+                                'price' => $row['price'] ?? ($item->price ?? 0),
                                 'discount' => $row['discount'] ?? 0,
-                                'weight' => $row['weight'] ?? 0,
+                                'weight' => $row['weight'] ?? ($item->weight ?? 0),
                                 'notes' => $row['notes'] ?? null,
                             ]);
                         } catch (\Throwable $e) {
@@ -697,7 +781,12 @@ class TradeService
                             $failedRows[] = $row;
                         }
                     }
-                    
+
+
+
+                    // dd($tx_details, $header);
+
+
                     // find tx, create if not exist
                     $tx = Transaction::where('number', $txnNumber)
                                         ->where('model_type', 'TRD')

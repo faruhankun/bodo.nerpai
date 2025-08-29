@@ -4,6 +4,9 @@ namespace App\Services\Primary\Basic;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Http\Request;
+
+
 
 class EximService
 {
@@ -19,7 +22,7 @@ class EximService
             // validasi header
             foreach ($requiredHeaders as $header) {
                 if (!in_array($header, $headers)) {
-                    return back()->with('error', 'Invalid CSV file. Missing required header: ' . $header);
+                    throw new \Exception('error', 'Invalid CSV file. Missing required header: ' . $header);
                 }
             }
 
