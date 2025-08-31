@@ -53,6 +53,7 @@ return new class extends Migration
             $table->string('handler_number')->nullable();
 
             $table->decimal('total', 30, 2)->default(0);
+            $table->decimal('total_details', 25, 2)->default(0);
             $table->decimal('fee', 20, 2)->default(0);
             $table->string('fee_rules')->nullable();
 

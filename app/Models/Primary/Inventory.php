@@ -140,13 +140,17 @@ class Inventory extends Model
         // $list_space_id = array_merge($list_space_id, [$this->space->id]);
 
         $query = $this->tx_details()
+            ->where('detail_type', 'IVT')
             ->whereHas('transaction', function ($query) use ($space_type, $space_id, $start_date, $end_date){
                 $query->where('space_type', $space_type)
-                    ->where('space_id', $space_id);
+                    ->where('space_id', $space_id)
+                    ;
 
                 if($start_date && $end_date)
                     $query = $query->whereBetween('sent_time', [$start_date, $end_date]);
             });
+
+            
 
         $debit = (clone $query)->sum('debit');
         $credit = (clone $query)->sum('credit');

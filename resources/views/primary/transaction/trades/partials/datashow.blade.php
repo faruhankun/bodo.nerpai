@@ -6,33 +6,36 @@
 
 
 <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
-        <!-- <x-div-box-show title="Number">{{ $data->number }}</x-div-box-show> -->
-        <x-div-box-show title="Date">{{ optional($data->sent_time)?->format('Y-m-d') ?? '??' }}</x-div-box-show>
-        <!-- <x-div-box-show title="Source">
-            {{ $data->input_type ?? 'N/A' }} : {{ $data->input?->number ?? 'N/A' }}
-        </x-div-box-show> -->
+        @if($data->parent)
+            <x-div-box-show title="Transaksi Induk">
+                space: {{ $data?->parent?->space?->name ?? 'space-name' }} <br>
+                number: {{ $data?->parent?->number ?? 'parent-number' }} <br>
+                date: {{ optional($data?->parent?->sent_time)?->format('Y-m-d') ?? 'parent-date' }}
+            </x-div-box-show>
+        @endif
+        <x-div-box-show title="Details">
+            space: {{ $data?->space?->name ?? 'space-name' }} <br>
+            date: {{ optional($data->sent_time)?->format('Y-m-d') ?? '??' }} <br>
+            status: {{ $data->status ?? 'status?' }}
+        </x-div-box-show>
+        <x-div-box-show title="Total Amount">
+            subtotal: Rp{{ number_format($data->total_details, 2) }} <br>
+            total:Rp{{ number_format($data->total, 2) }}
+        </x-div-box-show>
+
 
         <x-div-box-show title="Contributor">
             Created By: {{ $data->sender?->name ?? 'N/A' }}<br>
             Updated By: {{ $data?->handler?->name ?? 'N/A' }}
         </x-div-box-show>
-        <x-div-box-show title="Notes">
-            Sender: {{ $data->sender_notes ?? '-' }}<br>
-            Handler: {{ $data->handler_notes ?? '-' }}<br>
-            Receiver: {{ $data->receiver_notes ?? '-' }}
-        </x-div-box-show>
-        
-        <!-- <x-div-box-show title="Space Transaksi ini">
-            Space: {{ $data?->space?->name ?? 'N/A' }}
-        </x-div-box-show> -->
-        <x-div-box-show title="Total Amount">Rp{{ number_format($data->total, 2) }}</x-div-box-show>
         <x-div-box-show title="Receiver">
             Receiver: {{ $data?->receiver?->name ?? 'N/A' }} <br>
             Notes: {{ $data?->receiver_notes ?? 'N/A' }}
         </x-div-box-show>
-
-        <x-div-box-show title="Status">
-            {{ $data->status }}
+        <x-div-box-show title="Notes">
+            Sender: {{ $data->sender_notes ?? '-' }}<br>
+            Handler: {{ $data->handler_notes ?? '-' }}<br>
+            Receiver: {{ $data->receiver_notes ?? '-' }}
         </x-div-box-show>
     </div>
     <br>
@@ -81,7 +84,7 @@
 
 
     <h3 class="text-lg font-bold my-3">TX Related</h3>
-    @if($tx_related)
+    @if($tx_related && $tx_related->count() > 0)
     <div class="overflow-x-auto">
         <x-table.table-table id="journal-outputs">
             <x-table.table-thead>
@@ -96,16 +99,26 @@
                 </tr>
             </x-table.table-thead>
             <x-table.table-tbody>
-                @foreach ($data->outputs as $child)
+                @foreach ($tx_related as $child)
                     <x-table.table-tr>
-                        <x-table.table-td>{{ $child->number }}</x-table.table-td>
+                        <x-table.table-td>{{ $child?->sent_time->format('Y-m-d') }}</x-table.table-td>
+                        <x-table.table-td>{{ $child->model_type ?? 'Type' }} : 
+                            <a href="{{ route('trades.show', ['trade' => $child->id]) }}" 
+                                class="text-blue-500 hover:underline"
+                                target="_blank">
+                                {{ $child->number }}
+                            </a>
+                        </x-table.table-td>
                         <x-table.table-td>{{ $child->space?->name ?? 'N/A' }}</x-table.table-td>
-                        <x-table.table-td>{{ $child->sent_time }}</x-table.table-td>
                         <x-table.table-td>{{ $child->sender?->name ?? 'N/A' }} <br> {{ $child->handler?->name ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ number_format($child->total, 2) }}</x-table.table-td>
                         <x-table.table-td>{{ $child->notes ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td class="flex justify-center items-center gap-2">
-                            
+                            @if(!isset($get_page_show) || $get_page_show != 'show')
+                                @if($child->model_type == 'TRD')
+                                    <x-buttons.button-showjs onclick='showjs_tx({{ $child }})'></x-buttons.button-showjs>
+                                @endif
+                            @endif
                         </x-table.table-td>
                     </x-table.table-tr>
                 @endforeach

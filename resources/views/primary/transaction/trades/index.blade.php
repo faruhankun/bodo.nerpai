@@ -14,10 +14,10 @@
 
     $model_type_select = $request->get('model_type_select') ?? null;
     $model_type_option = [
-        'ITR' => 'Interaksi',   
+        'ITR' => 'Interaksi', 
     ];
 
-    if($user->can('space.trades.po') && $user->can('space.trades.so') || $space_role == 'owner'){
+    if(($user->can('space.trades.po') OR $user->can('space.trades.so')) || $space_role == 'owner'){
         $model_type_option['all'] = 'Semua Trades';   
 
         if($model_type_select == null)
@@ -41,7 +41,7 @@
 @endphp
 
 <x-crud.index-basic header="Trades" model="trades" table_id="indexTable" 
-                    :thead="['Date', 'Number', 'Team', 'Description', 'SKU', 'Status', 'Total', 'Actions']">
+                    :thead="['Date', 'Number', 'Team', 'Kontak', 'Description', 'SKU', 'Status', 'Actions']">
     <x-slot name="buttons">
         @include('primary.transaction.trades.create')
 
@@ -107,7 +107,18 @@
                 {
                     data: 'data',
                     render: function(data, type, row, meta) {
-                        return (row?.handler?.name || '-');
+                        return (row?.sender?.name || 'sender') + '<br>' + (row?.handler?.name || 'handler');
+                    }
+                },
+                {
+                    data: 'receiver',
+                    render: function(data, type, row, meta) {
+                        return (row?.receiver?.id ? 
+                                    `<a href="players/${row.receiver.id}" 
+                                        target="_blank"
+                                        class="text-blue-600">${(row?.receiver?.code || 'code')}</a>` 
+                                        : (row?.receiver?.code || 'code'))
+                            + ' : ' + (row?.receiver?.name || 'name');
                     }
                 },
                 {
@@ -128,16 +139,6 @@
                     data: 'status',
                     render: function(data) {
                         return data || 'unknown';
-                    }
-                },
-        
-                {
-                    data: 'total',
-                    className: 'text-right',
-                    render: function(data, type, row, meta) {
-                        return new Intl.NumberFormat('id-ID', {
-                            maximumFractionDigits: 2
-                        }).format(data);
                     }
                 },
                 

@@ -184,7 +184,6 @@
         function initInventorySelect($element, selectedData = null) {
             $element.select2({
                 placeholder: 'Search & Select Account',
-                minimumInputLength: 2,
                 width: '100%',
                 height: '100%',
                 padding: '20px',

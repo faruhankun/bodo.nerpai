@@ -318,6 +318,55 @@
 
 
 
+<!-- edit parent trade -->
+<script>
+    $(document).ready(function() {
+        $('#edit_parent_id').select2({
+            placeholder: 'Search & Select Trade',
+            width: '100%',
+            ajax: {
+                url: '/trades/data',
+                dataType: 'json',
+                paginate: true,
+                delay: 500,
+                data: function(params) {
+                    return {
+                        q: params.term,
+                        return_type: 'json',
+                        space: 'true',
+                        space_id: '{{ $space_id }}',
+                        page: params.page || 1,
+                        model_type_select: 'all',
+                        limit: 10,
+                        orderby: 'sent_time',
+                        orderdir: 'desc',
+                    };
+                },
+                processResults: function(result) {
+                    console.log(result);
+                    return {
+                        results: result.map(item => ({
+                            id: item.id,
+                            text: (item.number || item.id) + ' : ' + item?.receiver?.name + ' (' + item.status + ' : ' + item.sent_time.split('T')[0] + ')',
+                        }))
+                    }
+                },
+                cache: true
+            }
+        });
+
+        $('#edit_parent_id').on('select2:select', function(e) {
+            const selected = e.params.data;
+            console.log(selected);
+            
+            $('#edit_parent_data').html(selected.text);
+        });
+    });
+</script>
+
+
+
+<!-- edit receiver -->
 <script>
     $(document).ready(function() {
         $('#edit_receiver_id').select2({
@@ -360,6 +409,8 @@
 </script>
 
 
+
+<!-- fill data -->
 <script>
         $(document).ready(function() {
             // Journal
@@ -379,6 +430,15 @@
                 $('#edit_receiver_address').html(journal.receiver.email + ': ' + journal.receiver.phone_number + ' <br> ' + journal.receiver.address);
                 $("#edit_receiver_notes").val(journal.receiver_notes);
             }
+
+
+            if(journal.parent){
+                const option = new Option(journal.parent.number + ' : ' + journal.parent?.receiver?.name, journal.parent.id, true, true);
+                $("#edit_parent_id").append(option).trigger('change');
+                $('#edit_parent_data').html(journal.parent.number + ' : ' + journal.parent?.receiver?.name + ' (' + journal.parent.status + ' : ' + journal.parent.sent_time.split('T')[0] + ')');
+            }
+
+
 
             // Details
             let detailIndex = {{ $journal->details->count() }};

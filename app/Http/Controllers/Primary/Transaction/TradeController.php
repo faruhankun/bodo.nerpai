@@ -140,7 +140,9 @@ class TradeController extends Controller
 
     public function edit(String $id)
     {
-        $journal = Transaction::with(['details', 'details.detail', 'input', 'outputs', 'sender', 'receiver'])->findOrFail($id);
+        $journal = Transaction::with(['details', 'details.detail',
+                                        'parent', 
+                                        'input', 'outputs', 'sender', 'receiver'])->findOrFail($id);
         $model_types = $this->tradeService->model_types;
         $status_types = $this->tradeService->status_types;
 
@@ -174,6 +176,8 @@ class TradeController extends Controller
                 'details.*.notes' => 'nullable',
 
                 'status' => 'nullable|string|max:255',
+
+                'parent_id' => 'nullable',
 
                 'old_files.*' => 'nullable|array',
                 'files.*' => 'nullable|file|max:2048',
@@ -230,6 +234,11 @@ class TradeController extends Controller
                 'files' => $finalFiles,
             ];
 
+            if(isset($validated['parent_id'])){ 
+                $data['parent_type'] = 'TX';
+                $data['parent_id'] = $validated['parent_id']; 
+            }
+
             $journal = $this->tradeService->updateJournal($journal, $data, $validated['details']);
 
 
@@ -274,7 +283,9 @@ class TradeController extends Controller
         $tx = null;
 
         try {
-            $tx = Transaction::with(['details', 'details.detail', 'input', 'outputs',
+            $tx = Transaction::with(['details', 'details.detail', 
+                                    'parent', 'children',
+                                    'input', 'outputs',
                                     'sender', 'receiver'])->findOrFail($id);
         } catch (\Throwable $th) {
             if($request_source == 'api'){
@@ -288,16 +299,27 @@ class TradeController extends Controller
 
 
 
+        // tx related
+        $data = $tx;
+        $tx_related = $data->outputs ?? collect();
+        if($data->input){
+            $tx_related->push($data->input);
+        }
+
+        if($data->parent){
+            $tx_related->push($data->parent);
+        }
+
+        if($data->children){
+            $tx_related = $tx_related->merge($data->children);
+        }
+
+
+
         // for page
         $get_page_show = $request->get('page_show') ?? null;
         $page_show = 'null';
         if($get_page_show){
-            $data = $tx;
-            $tx_related = $data->outputs ?? [];
-            if($data->input){
-                $tx_related[] = $data->input;
-            }
-
             $get_page_show = 'show';
             $page_show = view('primary.transaction.trades.partials.datashow', compact('data', 'tx_related', 'get_page_show'))->render();
         }
@@ -313,7 +335,7 @@ class TradeController extends Controller
 
 
 
-        return view('primary.transaction.trades.show', compact('tx'));
+        return view('primary.transaction.trades.show', compact('tx', 'tx_related'));
     }
 
 

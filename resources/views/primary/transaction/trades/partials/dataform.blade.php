@@ -22,10 +22,19 @@
     
     
     @elseif($form['mode'] == 'edit')
-        <x-div.box-show title="Contributor">
+        <!-- <x-div.box-show title="Contributor">
             Created By: {{ $data->sender?->name ?? '-' }} <br>
             Updated By: {{ $data?->handler?->name ?? '-' }}
-        </x-div.box-show>
+        </x-div.box-show> -->
+        <x-div.box-input for="parent_id" title="Transaksi Induk" label="Transaksi Induk">
+            <select name="parent_id" id="{{ $form['mode'] ?? '' }}_parent_id" class="w-full px-4 py-2 border rounded">
+                <option value="">-- Select Trades --</option>
+            </select>
+            <label id="{{ $form['mode'] ?? '' }}_parent_data" class="text-xs text-gray-500"></label>
+        </x-div.box-input>
+
+
+
 
         <x-div.box-input for="receiver_id" title="Kontak" label="Kontak">
             <select name="receiver_id" id="{{ $form['mode'] ?? '' }}_receiver_id" class="w-full px-4 py-2 border rounded">
@@ -33,6 +42,7 @@
             </select>
             <label id="{{ $form['mode'] ?? '' }}_receiver_address" class="text-xs text-gray-500"></label>
         </x-div.box-input>
+
 
 
         <div class="form-group">
@@ -57,11 +67,6 @@
         </div>
 
 
-        <div class="form-group">
-            <x-input-label for="handler_notes">Handler Notes</x-input-label>
-            <x-input-textarea name="handler_notes" class="form-control" id="{{ $form['mode'] ?? '' }}_handler_notes"></x-input-textarea>
-        </div>
-
 
         <x-div.box-input for="status" title="Status" label="Status">
             <x-input-select name="status" class="mt-1 block w-full" id="{{ $form['mode'] ?? '' }}_status" required>
@@ -71,5 +76,12 @@
                 @endforeach
             </x-input-select>
         </x-div.box-input>
+
+
+
+        <div class="form-group">
+            <x-input-label for="handler_notes">Handler Notes</x-input-label>
+            <x-input-textarea name="handler_notes" class="form-control" id="{{ $form['mode'] ?? '' }}_handler_notes"></x-input-textarea>
+        </div>
     @endif
 </div>

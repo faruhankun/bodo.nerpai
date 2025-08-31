@@ -152,14 +152,12 @@ class Transaction extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Transaction::class, 'parent_id')
-            ->where('input_type', 'TX');
+        return $this->morphTo();
     }
 
 
     public function children()
     {
-        return $this->hasMany(Transaction::class, 'parent_id')
-            ->where('input_type', 'TX');
+        return $this->hasMany(Transaction::class, 'parent_id', 'id');
     }
 }

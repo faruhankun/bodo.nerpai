@@ -65,6 +65,8 @@ class TradeService
         ['id' => 'ITR', 'name' => 'Interaksi'],
         ['id' => 'PO', 'name' => 'Purchase'],
         ['id' => 'SO', 'name' => 'Sales'],
+        ['id' => 'BILL', 'name' => 'Tagihan'],
+        ['id' => 'PAY', 'name' => 'Pembayaran'],
         ['id' => 'PRE', 'name' => 'Pre Order'],
         ['id' => 'DMG', 'name' => 'Damage'],
         ['id' => 'RTR', 'name' => 'Return'],
@@ -75,14 +77,12 @@ class TradeService
 
     public $status_types = [
         'TX_DRAFT' => 'DRAFT',
-        'TX_REQUEST' => 'REQUEST',
-        'TX_APPROVED' => 'APPROVED',
-        'TX_CANCELLED' => 'CANCELLED',
-        'TX_COMPLETED' => 'COMPLETED',
-        'TX_REJECTED' => 'REJECTED',
-        'TX_DELETED' => 'DELETED',
-        'TX_CLOSED' => 'CLOSED',
+        'TX_OPEN' => 'OPEN',
+        'TX_PROGRESS' => 'PROGRESS',
+        'TX_PROBLEM' => 'PROBLEM',
         'TX_SHIP' => 'SHIP',
+        'TX_RESOLVED' => 'RESOLVED',
+        'TX_CLOSED' => 'CLOSED',
     ];
 
 
@@ -114,6 +114,8 @@ class TradeService
             'sent_time' => $data['sent_time'] ?? Date('Y-m-d'),
             'sender_notes' => $data['sender_notes'] ?? null,
             'total' => $data['total'] ?? 0,
+
+            'status' => 'TX_DRAFT',
         ]);
 
         $tx->generateNumber();
@@ -134,6 +136,7 @@ class TradeService
         // Create new details
         $journalDetails = [];
         $balance_change = 0;
+        $total_details = 0;
         foreach ($details as $detail) {
             // inventory_id
             $detail['quantity'] = $detail['quantity'] ?? 0;
@@ -166,7 +169,14 @@ class TradeService
                 'weight' => $detail['weight'],
             ];
 
-            $balance_change += $detail['quantity'] * $detail['price'] * (1 - $detail['discount']);
+            $change = $detail['quantity'] * $detail['price'] * (1 - $detail['discount']);
+            $balance_change += $change;
+            
+
+            // jika bukan bill atau bukan payment, maka masukkan
+            if($detail['model_type'] != 'BILL' && $detail['model_type'] != 'PAY'){
+                $total_details += $change;
+            }
         }
 
         $tx->details()->createMany($journalDetails);
@@ -174,6 +184,7 @@ class TradeService
         if(is_null($tx->number))
             $tx->generateNumber();
         $tx->total = $balance_change;
+        $tx->total_details = $total_details;
         $tx->save();
 
         return $tx;
@@ -183,6 +194,8 @@ class TradeService
 
     public function getData(Request $request){
         $space_id = get_space_id($request);
+        $user = auth()->user();
+        $space_role = session('space_role') ?? null;
 
         $query = $this->getQueryData($request);
 
@@ -240,7 +253,7 @@ class TradeService
         $return_type = $request->get('return_type') ?? 'json';
         if($return_type == 'DT'){
             return DataTables::of($query)
-                ->addColumn('actions', function ($data) {
+                ->addColumn('actions', function ($data) use ($user, $space_role) {
                     $route = 'trades';
 
                     $actions = [
@@ -252,6 +265,17 @@ class TradeService
 
                     // jika punya input atau children, maka tidak bisa dihapus
                     if($data->outputs->isNotEmpty() || $data->input){
+                        unset($actions['delete']);
+                    }
+
+
+                    // jika punya children, maka tidak bisa dihapus
+                    if($data->children->isNotEmpty()){
+                        unset($actions['delete']);
+                    }
+
+
+                    if(($data->sender_id != $user->player_id)){
                         unset($actions['delete']);
                     }
 
@@ -322,12 +346,18 @@ class TradeService
 
                 ->rawColumns(['actions', 'all_notes'])
                 ->make(true);
-            }
+        }
 
 
 
-            // return result
-            return DataTables::of($query)->make(true);
+        if($return_type == 'json'){
+            return response()->json($query->get());
+        }
+
+        
+
+        // return result
+        return DataTables::of($query)->make(true);
     } 
 
 
@@ -335,12 +365,14 @@ class TradeService
     // index
     public function getQueryData(Request $request){
         $space_id = get_space_id($request);
+        $user = auth()->user();
 
         $query = Transaction::with('input', 'type', 'details', 'details.detail', 
                                     'sender', 'handler', 'receiver')
                             ->where('model_type', 'TRD')
                             ->where('space_type', 'SPACE')
                             ->where('space_id', $space_id);
+
 
 
         // filter model
@@ -353,6 +385,19 @@ class TradeService
                     $q->where('model_type', $model_type_select);
                 });
             }
+        } else {
+            $can_trades_po = $user->can('space.trades.po') ?? false;
+            $can_trades_so = $user->can('space.trades.so') ?? false;
+
+            $query->whereHas('details', function($q) use ($can_trades_po, $can_trades_so){
+                if(!$can_trades_po){
+                    $q->where('model_type', '!=', 'PO');
+                }
+
+                if(!$can_trades_so){
+                    $q->where('model_type', '!=', 'SO');
+                }
+            });
         }
 
 

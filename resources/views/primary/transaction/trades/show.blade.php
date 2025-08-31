@@ -4,11 +4,6 @@
 
 
     $data = $tx;
-
-    $tx_related = $data->outputs ?? [];
-    if($data->input){
-        $tx_related[] = $data->input;
-    }
 @endphp
 
 <x-dynamic-component :component="'layouts.' . $layout">
@@ -20,6 +15,11 @@
                     <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
                     @include('primary.transaction.trades.partials.datashow')
+
+
+                    @include('primary.transaction.trades.showjs')
+
+                    
 
                     <!-- Action Section -->
                     <div class="flex justify-end space-x-4">
@@ -38,3 +38,33 @@
         </div>
     </div>
 </x-dynamic-component>
+
+
+<!-- show js -->
+<script>
+    function showjs_tx(data) {
+        console.log(data);
+
+        const trigger = 'show_modal_js';
+        const parsed = data;
+
+
+        // ajax get data show
+        $.ajax({
+            url: "/api/trades/" + parsed.id,
+            type: "GET",
+            data: {
+                'page_show': 'show'
+            },
+            success: function(data) {
+                let page_show = data.page_show ?? 'null ??';
+                $('#datashow_'+trigger).html(page_show);
+
+                let modal_edit_link = '/trades/' + parsed.id + '/edit';
+                $('#modal_edit_link').attr('href', modal_edit_link);
+
+                window.dispatchEvent(new CustomEvent('open-' + trigger));
+            }
+        });        
+    }
+</script>
