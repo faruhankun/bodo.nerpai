@@ -3,10 +3,7 @@
     $user = auth()->user();
     $space_role = session('space_role') ?? null;
 
-    $space_id = session('space_id') ?? null;
-    if(is_null($space_id)){
-        abort(403);
-    }
+    $space_id = get_space_id($request);
 
     $player = session('player_id') ? \App\Models\Primary\Player::findOrFail(session('player_id')) : Auth::user()->player;
 

@@ -14,12 +14,13 @@
                     <h1 class="text-2xl font-bold mb-6">Journal: {{ $data->number }} in {{ $data?->space?->name ?? '$space-name' }}</h1>
                     <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
+                    
                     @include('primary.transaction.trades.partials.datashow')
 
 
                     @include('primary.transaction.trades.showjs')
 
-                    
+
 
                     <!-- Action Section -->
                     <div class="flex justify-end space-x-4">
