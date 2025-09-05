@@ -36,6 +36,9 @@ class Item extends Model
 
         'space_type',
         'space_id',
+
+        'description',
+        'files',
     ];
 
 

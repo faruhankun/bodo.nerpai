@@ -23,6 +23,11 @@
 
 
 
+    <x-div-box-show title="Description">{{ $data->description ?? 'description here!' }}</x-div-box-show>
+    <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
+
+
+
     <!-- Supplies -->
     <h3 class="text-lg font-bold my-3">Supplies Details</h3>
     <div class="overflow-x-auto">

@@ -37,10 +37,7 @@
 
     <div class="form-group mb-4">
         <x-input-label for="status">Status</x-input-label>
-        <x-input-select name="status" class="mt-1 block w-full" id="{{ $form['mode'] ?? '' }}_status" required>
-            <option value="active">active</option>
-            <option value="inactive">inactive</option>
-        </x-input-select>
+        <x-text-input name="status" id="{{ $form['mode'] ?? '' }}_status" class="w-full" placeholder="Status" required></x-text-input>
     </div>
 
     <div class="form-group mb-4">
@@ -49,6 +46,17 @@
     </div>
 
 </div>
+
+
+
+<!-- description -->
+<div class="form-group mb-4">
+    <x-input-label for="description">Description</x-input-label>
+    <x-input-textarea name="description" id="{{ $form['mode'] ?? '' }}_description" class="w-full" placeholder="Optional description"></x-input-textarea>
+</div>
+
+
+
 
 <!-- Actions -->
 <div class="flex justify-end space-x-4 mt-4">

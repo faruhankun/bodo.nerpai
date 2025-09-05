@@ -81,6 +81,12 @@
     <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
 
 
+
+    <x-div-box-show title="Description">{!! $data->description ?? 'description here!' !!}</x-div-box-show>
+    <div class="my-6 flex-grow border-t border-gray-500 dark:border-gray-700"></div>
+
+
+
     <!-- Action Section -->
     <h3 class="text-lg font-bold my-3">Actions</h3>
     <div class="flex gap-3 mt-8">

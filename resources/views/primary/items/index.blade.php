@@ -102,9 +102,10 @@
 
         $('#edit_weight').val(data.weight);
 
-        document.getElementById('edit_status').value = data.status === '1' || data.status === 'active' ? 'active' : 'inactive';
+        document.getElementById('edit_status').value = data.status;
 
         document.getElementById('edit_notes').value = data.notes;
+        document.getElementById('edit_description').value = data.description;
 
         let form = document.getElementById('editDataForm');
         form.action = `/items/${data.id}`;

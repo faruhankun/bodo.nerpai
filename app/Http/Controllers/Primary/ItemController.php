@@ -181,6 +181,8 @@ class ItemController extends Controller
                 'cost' => 'nullable|numeric|min:0',
                 'weight' => 'nullable|numeric|min:0',
                 'notes' => 'nullable|string',
+                'description' => 'nullable|string',
+                'status' => 'nullable|string',
             ]);
             
             $item = Item::findOrFail($id);

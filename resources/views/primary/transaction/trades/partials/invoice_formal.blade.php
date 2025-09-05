@@ -211,7 +211,7 @@
             @if($other_bill_details)
                 @foreach($other_bill_details as $detail)
                     @php
-                        $subtotal = $detail->quantity * $detail->price * (str_contains($detail->detail?->sku, 'payment') ? -1 : 1);
+                        $subtotal = $detail->quantity * $detail->price * (-1);// (str_contains($detail->detail?->sku, 'payment') ? -1 : 1);
                         $other_bill += $subtotal;
                     @endphp
 
