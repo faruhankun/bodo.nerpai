@@ -305,7 +305,10 @@
             scrollX: true,
             processing: true,
             serverSide: true,
-            ajax: "{{ route('items.data') }}",
+            ajax: {
+                url: "{{ route('items.data') }}",
+                delay: 1000
+            },
             columns: [
                 // { data: 'id' },
                 // { data: 'code' },

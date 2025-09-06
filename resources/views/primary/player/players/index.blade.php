@@ -10,18 +10,11 @@
     $model_type_select = $request->get('model_type_select') ?? null;
     $model_type_option = [];
 
-    if($user->can('space.trades.po') && $user->can('space.trades.so') || $space_role == 'owner'){
+    if($user->can('space.trades.po') OR $user->can('space.trades.so') || $space_role == 'owner'){
         $model_type_option['all'] = 'Semua Kontak';
 
         if($model_type_select == null)
             $model_type_select = 'all';
-    }
-
-    if($user->can('space.trades.so') || $space_role == 'owner'){
-        $model_type_option['ITR'] = 'Interaksi';
-
-        if($model_type_select == null)
-            $model_type_select = 'ITR';
     }
 
     if($user->can('space.trades.po') || $space_role == 'owner'){
@@ -34,12 +27,20 @@
         if($model_type_select == null)
             $model_type_select = 'SO';
     }
+
+
+    $model_type_option['ITR'] = 'Interaksi';
+
+    if($model_type_select == null)
+        $model_type_select = 'ITR';
+
+
 @endphp
 
 <x-crud.index-basic header="Kontak" 
                 model="player" 
                 table_id="indexTable"
-                :thead="['Id', 'Code', 'Name', 'Email', 'Phone', 'Notes', 'Actions']"
+                :thead="['Id', 'Code', 'Name', 'Trade terakhir', 'Status', 'Notes', 'Actions']"
                 >
     <x-slot name="buttons">
         @include('primary.player.players.create')
@@ -238,6 +239,7 @@
             serverSide: true,
             ajax: {
                 url: "/players/data",
+                delay: 200,
                 data: function(d) {
                     d.return_type = 'DT';
                     d.space = 'this';
@@ -257,8 +259,13 @@
                     }
                 },
                 { data: 'name' },
-                { data: 'email' },
-                { data: 'phone_number' },
+                { data: 'last_transaction',
+                    render: function(data, type, row) {
+                        let last_transaction = data ? JSON.parse(data) : null;
+                        return last_transaction ? ((last_transaction.number ?? 'number') + ' (' + (last_transaction.status ?? 'status') + ')') : 'null';
+                    }
+                },
+                { data: 'status' },
                 { data: 'notes' },
                 { data: 'actions', orderable: false, searchable: false }
             ]

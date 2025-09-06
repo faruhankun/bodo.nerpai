@@ -115,7 +115,9 @@ class Player extends Model
 
         if($limit){
             $query->limit($limit);
-        }           
+        }
+        
+        $query = $query->orderBy('sent_time', 'desc');
 
         return $query;
     }

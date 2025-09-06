@@ -24,7 +24,7 @@
 </div>
 
 
-@if($form['mode'] == 'edit')
+@if($form['mode'] == 'edit' && isset($id_address))
                     <x-input.input-address id="address"></x-input.input-address>
 @endif
 

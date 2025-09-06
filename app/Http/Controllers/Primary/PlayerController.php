@@ -30,6 +30,7 @@ class PlayerController extends Controller
     // get data
     public function getData(Request $request){
         $request_source = get_request_source($request);
+        $user = auth()->user();
 
         $query = Player::with('type', 'size', 
                                 'transactions_as_receiver', 'transactions_as_receiver.details');
@@ -47,16 +48,33 @@ class PlayerController extends Controller
 
 
 
-        // transaction
+        // filter model
         $model_type_select = $request->get('model_type_select') ?? 'null';
         if($model_type_select != 'all'){
-            if($model_type_select == 'null'){
+            if($model_type_select == 'null' || empty($model_type_select)){
                 $query->whereDoesntHave('transactions_as_receiver');
             } else {
                 $query->whereHas('transactions_as_receiver.details', function($q) use ($model_type_select){
                     $q->where('model_type', $model_type_select);
                 });
             }
+        } else {
+            $can_trades_po = $user->can('space.trades.po') ?? false;
+            $can_trades_so = $user->can('space.trades.so') ?? false;
+
+            // $query = $query->whereHas('transactions_as_receiver.details', function($q) use ($can_trades_po, $can_trades_so){
+            //     if(!$can_trades_po){
+            //         $q->where('model_type', '!=', 'PO');
+            //     }
+
+            //     if(!$can_trades_so){
+            //         $q->where('model_type', '!=', 'SO');
+            //     }
+            // });
+
+
+            // // or where has not
+            // $query->orWhereDoesntHave('transactions_as_receiver.details');
         }
 
 
@@ -86,6 +104,7 @@ class PlayerController extends Controller
         }
 
 
+
         // not in the space
         if($request->filled('not_in_space') && $request->not_in_space == true){
             $space_id = get_space_id($request);
@@ -108,7 +127,6 @@ class PlayerController extends Controller
                     $actions = [
                         'show' => 'modaljs',
                         'edit' => 'modal',
-                        'delete' => 'button',
                     ];
 
                     return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
@@ -116,6 +134,10 @@ class PlayerController extends Controller
 
                 ->addColumn('data', function ($data) {
                     return $data;
+                })
+
+                ->addColumn('last_transaction', function ($data) {
+                    return $data->transactions_as_receiver->first() ?? null;
                 })
 
                 ->rawColumns(['actions'])

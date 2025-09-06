@@ -61,6 +61,7 @@
                     <x-table.table-th>Number</x-table.table-th>
                     <x-table.table-th>Space</x-table.table-th>
                     <x-table.table-th>Contributor</x-table.table-th>
+                    <x-table.table-th>Status</x-table.table-th>
                     <x-table.table-th>Total</x-table.table-th>
                     <x-table.table-th>Notes</x-table.table-th>
                     <x-table.table-th>Actions</x-table.table-th>
@@ -77,8 +78,9 @@
                                 {{ $child->number }}
                             </a>
                         </x-table.table-td>
-                        <x-table.table-td>{{ $child->space?->name ?? 'N/A' }}</x-table.table-td>
-                        <x-table.table-td>{{ $child->sender?->name ?? 'N/A' }} <br> {{ $child->handler?->name ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ $child->space?->name ?? 'space-name' }}</x-table.table-td>
+                        <x-table.table-td>{{ $child->sender?->name ?? 'sender' }} <br> {{ $child->handler?->name ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ $child->status ?? 'status' }}</x-table.table-td>
                         <x-table.table-td>{{ number_format($child->total, 2) }}</x-table.table-td>
                         <x-table.table-td>{{ $child->notes ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td class="flex justify-center items-center gap-2">

@@ -382,7 +382,6 @@
                         return_type: 'json',
                         space: 'true',
                         space_id: '{{ $space_id }}',
-                        page: params.page || 1,
                         model_type_select: 'all',
                     };
                 },

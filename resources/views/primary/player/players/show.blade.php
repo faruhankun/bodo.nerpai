@@ -17,7 +17,7 @@
 
                     
 
-                    @include('primary.player.players.edit')
+                    @include('primary.player.players.edit', ['address' => true])
 
 
 
