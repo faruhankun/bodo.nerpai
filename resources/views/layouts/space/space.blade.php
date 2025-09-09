@@ -20,6 +20,8 @@
         'supplies' => get_variable('space.setting.supplies') ?? true,
 
         'accounting' => get_variable('space.setting.accounting') ?? ($space_role == 'admin' ? true : ($space_role == 'owner' ? true : false)),
+
+        'social' => get_variable('space.setting.social') ?? true,
     ];
 
     $sidebar = [
@@ -89,6 +91,17 @@
                     'icon' => 'icon-checklist-paper',
                     'route' => "trades.index",
                     'text' => 'Trades',
+                ],
+
+                'items.summary' => [
+                    'auth' => $user->can('space.items.summary') || $space_role == 'owner',
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "items.summary",
+                    'text' => 'Rangkuman Barang',
+                    'route_params' => [
+                        'summary_type' => 'itemflow',
+                        'start_date' => now()->startOfMonth()->format('Y-m-d'),
+                    ],
                 ],
             ]
         ],
@@ -221,6 +234,10 @@
 
     if(!$settings['accounting']) {
         unset($sidebar['Accounting']);
+    }
+
+    if(!$settings['social']) {
+        unset($sidebar['Social']);
     }
 @endphp
 

@@ -98,7 +98,7 @@
 <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900">
     <x-navbar :navbar_left="$navbar_left ?? []" :navbar_right="$navbar_right ?? []" :navbar_dropdown_user="$navbar_dropdown_user ?? []"/>
     @if(isset($sidebar))
-        <x-sidebar :sidebar="$sidebar ?? []" />
+        <x-layouts.sidebar :sidebar="$sidebar ?? []" />
     @else 
         @yield('sidebar')
     @endif

@@ -715,7 +715,10 @@ class InventoryController extends Controller
                         // tx
                         $per_date_change[$detail->model_type] += $detail->quantity * $detail->cost_per_unit;
 
+
+
                         // item
+                        // if move not included
                         $item = $data->items_list[$detail->detail->item_id] ?? null;
                         if(!isset($items[$item->id])){
                             $items[$item->id] = [
@@ -724,6 +727,8 @@ class InventoryController extends Controller
                                 'out' => 0,
                                 'in_subtotal' => 0,
                                 'out_subtotal' => 0,
+                                'out_so' => 0,
+                                'out_so_subtotal' => 0,
                                 'omzet' => 0,
                                 'margin' => 0,
                             ];
@@ -735,6 +740,11 @@ class InventoryController extends Controller
                         $items[$item->id]['out_subtotal'] += $detail->credit * $detail->cost_per_unit;
                         $items[$item->id]['omzet'] += $detail->credit * $item->price;
                         $items[$item->id]['margin'] += $items[$item->id]['omzet'] - $items[$item->id]['out_subtotal'];
+
+                        if($detail->model_type == 'SO'){
+                            $items[$item->id]['out_so'] += $detail->credit;
+                            $items[$item->id]['out_so_subtotal'] += $detail->credit * $detail->cost_per_unit;
+                        }
                     }
                 }
 

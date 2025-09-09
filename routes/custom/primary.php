@@ -67,7 +67,8 @@ Route::middleware([
 
 
 
-    // Inventory
+    // Items
+    Route::get('items/summary', [ItemController::class, 'summary'])->name('items.summary');
     Route::post('items/import', [ItemController::class, 'importData'])->name('items.import');
     Route::get('items/import', [ItemController::class, 'importTemplate'])->name('items.importtemplate');
     Route::get('items/export', [ItemController::class, 'exportData'])->name('items.export');

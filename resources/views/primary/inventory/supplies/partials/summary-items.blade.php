@@ -11,6 +11,9 @@
                 <x-table.table-th>In</x-table.table-th>
                 <x-table.table-th>In Value</x-table.table-th>
                 <x-table.table-th>Out</x-table.table-th>
+                <x-table.table-th>Out Value</x-table.table-th>
+                <x-table.table-th>Out SO</x-table.table-th>
+                <x-table.table-th>Out SO Value</x-table.table-th>
                 <x-table.table-th>Stok Value</x-table.table-th>
                 <x-table.table-th>Stok</x-table.table-th>
                 <!-- <x-table.table-th>Cost</x-table.table-th>
@@ -28,6 +31,11 @@
                         <x-table.table-td>{{ $value['in'] ?? 0 }}</x-table.table-td>
                         <x-table.table-td>{{ $value['in_subtotal'] ?? 0 }}</x-table.table-td>
                         <x-table.table-td>{{ $value['out'] ?? 0 }}</x-table.table-td>
+                        <x-table.table-td>{{ $value['out_subtotal'] ?? 0 }}</x-table.table-td>
+
+                        <x-table.table-td>{{ $value['out_so'] ?? 0 }}</x-table.table-td>
+                        <x-table.table-td>{{ $value['out_so_subtotal'] ?? 0 }}</x-table.table-td>
+
                         <x-table.table-td>{{ ($value['in_subtotal'] ?? 0) - ($value['out_subtotal'] ?? 0) }}</x-table.table-td>
                         <x-table.table-td>
                             <!-- <a href="javascript:void(0)" onclick='show_tx_modal({{ $value["item"] }})'

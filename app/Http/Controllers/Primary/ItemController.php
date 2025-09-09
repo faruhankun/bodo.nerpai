@@ -12,11 +12,24 @@ use Yajra\DataTables\Facades\DataTables;
 
 use App\Models\Primary\Inventory;
 use App\Models\Primary\Space;
+use App\Models\Primary\Transaction;
+
+use Carbon\Carbon;
+
+use App\Services\Primary\Basic\EximService;
+use App\Services\Primary\Transaction\TradeService;
 
 
 
 class ItemController extends Controller
 {
+    public function __construct(EximService $eximService
+                                , TradeService $tradeService){
+        $this->eximService = $eximService;
+        $this->tradeService = $tradeService;
+    }
+
+
     // get data
     public function getData(Request $request){
         $space_id = get_space_id($request);
@@ -119,6 +132,191 @@ class ItemController extends Controller
             return response()->json(['message' => $th->getMessage(), 'success' => false, 'data' => []], 500);
         }
     }
+
+
+
+    // Summaries
+    public $summary_types = [
+        'itemflow' => 'Arus Barang',
+    ];
+
+    public function summary(Request $request)
+    {
+        $space_id = get_space_id($request);
+        $request_source = get_request_source($request);
+
+        $space = Space::findOrFail($space_id);
+        $spaces = $space->spaceAndChildren();
+
+
+
+        // generate data by date
+        $validated = $request->validate([
+            'summary_type' => 'nullable|string',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+        ]);
+
+        $start_date = $validated['start_date'] ?? null;
+        $end_date = $validated['end_date'] ?? now()->format('Y-m-d');
+
+        $end_time = Carbon::parse($end_date)->endOfDay();
+        
+        $txs = Transaction::with('input', 'type', 'details', 'details.detail') 
+                            ->where('model_type', 'TRD')
+                            ->where('space_type', 'SPACE')
+                            ->whereIn('space_id', $spaces->pluck('id')->toArray())
+                            ->where('sent_time', '<=', $end_time)
+                            ->orderBy('sent_time', 'asc');
+
+        if(!is_null($start_date)){
+            $start_time = Carbon::parse($start_date)->startOfDay();
+            $txs = $txs->where('sent_time', '>=', $start_time);
+        }
+        
+        $txs = $txs->get();
+
+
+
+        // generate data by item
+        $data = collect();
+        $data->summary_types = $this->summary_types;
+        $list_model_types = $this->tradeService->model_types ?? [];
+
+        $data->items_list = Item::all()->keyBy('id');
+        $data = $this->getSummaryData($data, $txs, $spaces, $validated, $space_id);
+
+
+
+        if($request_source == 'api'){
+            $data_summary = [];
+            if(isset($validated['summary_type']) && isset($data->{$validated['summary_type']})){
+                $data_summary = $data->{$validated['summary_type']};
+            }
+
+            $spaces_data = $spaces->toArray();
+
+
+            // itemflow
+            if($validated['summary_type'] == 'itemflow'){
+                $itemflow = $this->getSummaryItemflow($txs);
+                $data_summary = $itemflow->toArray();
+            }
+
+
+            return response()->json([
+                'data' => $data_summary,
+                'summary_types' => $this->summary_types,
+                'spaces' => $spaces_data,
+                'input' => $validated,
+                'list_model_types' => $list_model_types,
+                'success' => true,
+            ]);
+        }
+
+        return view('primary.items.summary', compact('data', 'txs', 'spaces', 'list_model_types'));
+    }
+
+    
+
+    public function getSummaryItemflow($txs){
+        $itemflow = collect();
+
+        $txs_per_date = $txs->groupBy('sent_time');
+
+        $space_supply = 0;
+        
+        
+        $per_date_change_initial = [];
+        $list_model_types = $this->tradeService->model_types ?? [];
+        foreach($list_model_types as $model_type){
+            $per_date_change_initial[$model_type['id']] = 0;
+        }
+
+
+
+        foreach($txs_per_date as $end_date => $txs){
+            $per_date_change = $per_date_change_initial;
+            
+            $per_date = [
+                'date' => $end_date,
+                'change' => 0,
+                'balance' => $space_supply,
+            ];
+
+            foreach($txs as $tx){
+                foreach($tx->details as $detail){
+                    // tx
+                    $per_date_change[$detail->model_type] += $detail->quantity * $detail->price * (1 - $detail->discount);
+                }
+            }
+
+            $per_date['change'] += array_sum($per_date_change);
+            $per_date['balance'] += $per_date['change'];
+            $space_supply = $per_date['balance'];
+
+            $per_date = array_merge($per_date, $per_date_change);
+            $itemflow->push($per_date);
+        }
+
+        return $itemflow;
+    }
+
+
+    public function getSummaryData($data, $txs, $spaces, $validated, $space_id = null){
+        $summary_type = $validated['summary_type'] ?? null;
+        if(is_null($summary_type)){
+            return $data;
+        }
+
+        // Transaction;
+        $spaces_per_id = $spaces->groupBy('id');
+        $txs_per_space = $txs->groupBy('space_id');                
+        $items_data = collect();
+        $items_data_all = [];
+
+        $item_data_initial = [];
+        $list_model_types = $this->tradeService->model_types ?? [];
+        foreach($list_model_types as $model_type){
+            $item_data_initial[$model_type['id']]['quantity'] = 0;
+            $item_data_initial[$model_type['id']]['subtotal'] = 0;
+        }
+
+
+
+        foreach($txs_per_space as $id => $txs){
+            $txs_per_date = $txs->groupBy('sent_time');
+
+            $items_per_space = collect();
+            $items = [];
+
+            foreach($txs_per_date as $end_date => $txs){
+                foreach($txs as $tx){
+                    foreach($tx->details as $detail){
+                        // item
+                        // if move not included
+                        $item = $data->items_list[$detail->detail_id] ?? null;
+                        if(!isset($items[$item->id])){
+                            $items[$item->id] = $item_data_initial;
+                            $items[$item->id]['item'] = $item;
+                        }
+
+                        $items[$item->id][$detail->model_type]['quantity'] += $detail->quantity;
+                        $items[$item->id][$detail->model_type]['subtotal'] += $detail->quantity * $detail->price * (1 - $detail->discount);
+                    }
+                }
+            }
+
+            $items_data->put($id, $items);
+            $items_data_all = array_merge($items_data_all, $items);
+        }
+
+        $data->itemflow = collect([$space_id => $items_data_all]);
+
+        return $data;
+    }
+
+
 
 
     public function index()
