@@ -4,6 +4,7 @@
 
 
     $data = $tx;
+    //    dd($data);
 @endphp
 
 <x-dynamic-component :component="'layouts.' . $layout">

@@ -65,6 +65,8 @@ return new class extends Migration
             $table->text('notes')->nullable();
 
             $table->json('files')->nullable();
+            $table->json('tags')->nullable();
+            $table->json('links')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

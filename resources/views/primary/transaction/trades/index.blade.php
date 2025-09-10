@@ -52,9 +52,11 @@
 
     <x-slot name="filters">
         <!-- export import  -->
+        @if($user->can('space.trades.exim') || $space_role == 'owner')
         <x-crud.exim-csv route_import="{{ route('trades.exim', ['query' => 'import']) }}" route_template="{{ route('trades.exim', ['query' => 'importTemplate']) }}">
             <h1 class="text-2xl dark:text-white font-bold">Under Construction</h1>
         </x-crud.exim-csv>
+        @endif
     </x-slot>
 
 

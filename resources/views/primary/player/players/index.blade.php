@@ -57,8 +57,10 @@
 
     <x-slot name="filters">
         <!-- export import  -->
+        @if($user->can('space.players.exim') || $space_role == 'owner')
         <x-crud.exim-csv route_import="{{ route('players.exim') . '?query=import' }}" route_template="{{ route('players.exim') . '?query=importTemplate' }}">
         </x-crud.exim-csv>
+        @endif
     </x-slot>
 
 

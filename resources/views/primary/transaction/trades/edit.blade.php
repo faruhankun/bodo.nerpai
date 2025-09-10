@@ -137,6 +137,27 @@
                         
                         </div>
 
+
+
+                        <!-- detail tambahan -->
+                        <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
+                            <div class="form-group mb-4">
+                                <x-input-label for="tags">Tags</x-input-label>
+                                <x-input-textarea name="tags" id="edit_tags" class="w-full" placeholder="Optional Tags"></x-input-textarea>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <x-input-label for="links">Links</x-input-label>
+                                <x-input-textarea name="links" id="edit_links" class="w-full" placeholder="Optional Links"></x-input-textarea>
+                            </div>
+
+                            <!-- <div class="form-group mb-4">
+                                <x-input-label for="notes">Notes</x-input-label>
+                                <x-input-textarea name="notes" id="{{ $form['mode'] ?? '' }}_notes" class="w-full" placeholder="Optional notes"></x-input-textarea>
+                            </div> -->
+                        </div>
+
+
                         <div class="m-4 flex justify-end space-x-4">
                             <a href="{{ route('trades.index') }}">
                                 <x-secondary-button type="button">Cancel</x-secondary-button>
@@ -411,42 +432,45 @@
 
 <!-- fill data -->
 <script>
-        $(document).ready(function() {
-            // Journal
-            let journal = {!! json_encode($journal) !!};
-            let journal_details = {!! json_encode($journal->details) !!};
+    $(document).ready(function() {
+        // Journal
+        let journal = {!! json_encode($journal) !!};
+        let journal_details = {!! json_encode($journal->details) !!};
 
-            let sentTime = '{{ $journal->sent_time->format('Y-m-d') }}';
-            $("#edit_sent_time").val(sentTime);
-            $("#edit_sender_notes").val(journal.sender_notes);
+        let sentTime = '{{ $journal->sent_time->format('Y-m-d') }}';
+        $("#edit_sent_time").val(sentTime);
+        $("#edit_sender_notes").val(journal.sender_notes);
 
-            $("#edit_handler_notes").val(journal.handler_notes);
-
-
-            if(journal.receiver){
-                const option = new Option(journal.receiver.name, journal.receiver.id, true, true);
-                $("#edit_receiver_id").append(option).trigger('change');
-                $('#edit_receiver_address').html(journal.receiver.email + ': ' + journal.receiver.phone_number + ' <br> ' + journal.receiver.address);
-                $("#edit_receiver_notes").val(journal.receiver_notes);
-            }
+        $("#edit_handler_notes").val(journal.handler_notes);
 
 
-            if(journal.parent){
-                const option = new Option(journal.parent.number + ' : ' + journal.parent?.receiver?.name, journal.parent.id, true, true);
-                $("#edit_parent_id").append(option).trigger('change');
-                $('#edit_parent_data').html(journal.parent.number + ' : ' + journal.parent?.receiver?.name + ' (' + journal.parent.status + ' : ' + journal.parent.sent_time.split('T')[0] + ')');
-            }
+        if(journal.receiver){
+            const option = new Option(journal.receiver.name, journal.receiver.id, true, true);
+            $("#edit_receiver_id").append(option).trigger('change');
+            $('#edit_receiver_address').html(journal.receiver.email + ': ' + journal.receiver.phone_number + ' <br> ' + journal.receiver.address);
+            $("#edit_receiver_notes").val(journal.receiver_notes);
+        }
 
 
+        if(journal.parent){
+            const option = new Option(journal.parent.number + ' : ' + journal.parent?.receiver?.name, journal.parent.id, true, true);
+            $("#edit_parent_id").append(option).trigger('change');
+            $('#edit_parent_data').html(journal.parent.number + ' : ' + journal.parent?.receiver?.name + ' (' + journal.parent.status + ' : ' + journal.parent.sent_time.split('T')[0] + ')');
+        }
 
-            // Details
-            let detailIndex = {{ $journal->details->count() }};
-            journal_details.forEach(appendDetailRow);
-            
-            // setTimeout(() => {
-            //     $('.inventory-select').each(function() {
-            //         initInventorySelect($(this));
-            //     });
-            // }, 0);
-        });
-    </script>
+
+        document.getElementById('edit_tags').value = journal.tags ? JSON.stringify(journal.tags) : '[]';
+        document.getElementById('edit_links').value = journal.links ? JSON.stringify(journal.links) : '[]';
+
+
+        // Details
+        let detailIndex = {{ $journal->details->count() }};
+        journal_details.forEach(appendDetailRow);
+        
+        // setTimeout(() => {
+        //     $('.inventory-select').each(function() {
+        //         initInventorySelect($(this));
+        //     });
+        // }, 0);
+    });
+</script>

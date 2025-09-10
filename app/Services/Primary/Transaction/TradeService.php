@@ -662,11 +662,13 @@ class TradeService
             // Group by transaction number
             $data_by_number = collect($data)->groupBy('number');
 
-            // dd($data_by_number);
+            // dd($data_by_number->take(10));
 
             foreach($data_by_number as $txnNumber => $rows){
                 try {
                     $row_first = $rows[0];
+
+                    // dd($row_first);
 
                     // header transaction
                     $header = [
@@ -696,10 +698,23 @@ class TradeService
 
                     if(isset($row_first['handler_notes']) && !empty($row_first['handler_notes'])) $header['handler_notes'] = $row_first['handler_notes'];
 
+                    if(isset($row_first['received_date']) && !empty($row_first['received_date'])) $header['received_time'] = $row_first['received_date'];
+
+
+                    if(isset($row_first['tags']) && !empty($row_first['tags'])){
+                        $tags = json_decode($row_first['tags'], true) ?? [];
+                        $header['tags'] = $tags;
+                    }
+
+                    if(isset($row_first['links']) && !empty($row_first['links'])){
+                        $links = json_decode($row_first['links'], true) ?? [];
+                        $header['links'] = $links;
+                    }
 
 
                     $tx_details = collect();
                     $tx_total = 0;
+                    $detail_model_type = !empty($row_first['model_type']) ? $row_first['model_type'] : 'SO';
 
 
                     $receiver = Player::query();
@@ -748,12 +763,12 @@ class TradeService
                             $new_rows->push([
                                 'item_sku' => $list_product['PRODUCT_SKU'],
                                 'item_name' => $list_product['PRODUCT_NAME'],
-                                'price' => ($list_product['PRICE_BASE'] ?? 0 ) * ($list_product['LIST_PRODUCT_COST'] ?? 1) * 1000,
+                                'price' => ($list_product['LIST_PRODUCT_COST'] ?? 1) * 1000,
                                 'cost' => $list_product['SUPPLY_COST'] ?? 0,
                                 'weight' => $list_product['PRODUCT_WEIGHT'] ?? 0,
                                 'notes' => $list_product['LIST_PRODUCT_NOTE'] ?? null,
-                                'quantity' => $list_product['LIST_PRODUCT_QTY'] * (-1)?? 0,
-                                'model_type' => 'SO',
+                                'quantity' => $list_product['LIST_PRODUCT_QTY'] * (1) ?? 0,
+                                'model_type' => $detail_model_type,
                             ]);
                         }
 
@@ -767,7 +782,7 @@ class TradeService
                                 'weight' => 0,
                                 'notes' => $row_first['shipping_notes'] ?? null,
                                 'quantity' => 1,
-                                'model_type' => 'SO',
+                                'model_type' => $detail_model_type,
                             ]);
                         }
 
@@ -816,6 +831,7 @@ class TradeService
                                 'model_type' => $row['model_type'] ?? 'UNDF',
                                 'quantity' => $row['quantity'] ?? 0,
                                 'price' => $row['price'] ?? ($item->price ?? 0),
+                                'cost' => $row['cost'] ?? ($item->cost ?? 0),
                                 'discount' => $row['discount'] ?? 0,
                                 'weight' => $row['weight'] ?? ($item->weight ?? 0),
                                 'notes' => $row['notes'] ?? null,
@@ -829,7 +845,7 @@ class TradeService
 
 
 
-                    // dd($tx_details, $header);
+                    dd($tx_details, $header);
 
 
                     // find tx, create if not exist

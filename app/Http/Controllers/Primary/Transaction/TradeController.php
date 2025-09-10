@@ -181,7 +181,13 @@ class TradeController extends Controller
 
                 'old_files.*' => 'nullable|array',
                 'files.*' => 'nullable|file|max:2048',
+
+                'tags' => 'nullable|string',
+                'links' => 'nullable|string',
             ]);
+
+            $validated['tags'] = json_decode($validated['tags'], true) ?: [];
+            $validated['links'] = json_decode($validated['links'], true) ?: [];
 
             if(!isset($validated['details'])){
                 $validated['details'] = [];
@@ -232,6 +238,8 @@ class TradeController extends Controller
                 'status' => $validated['status'] ?? null,
 
                 'files' => $finalFiles,
+                'tags' => $validated['tags'],
+                'links' => $validated['links'],
             ];
 
             if(isset($validated['parent_id'])){ 

@@ -6,37 +6,40 @@
 
 
 <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
-        @if($data->parent)
-            <x-div-box-show title="Transaksi Induk">
+        <x-div.box-show title="Transaksi Induk">
+            @if($data->parent)
                 space: {{ $data?->parent?->space?->name ?? 'space-name' }} <br>
                 number: {{ $data?->parent?->number ?? 'parent-number' }} <br>
                 date: {{ optional($data?->parent?->sent_time)?->format('Y-m-d') ?? 'parent-date' }}
-            </x-div-box-show>
-        @endif
-        <x-div-box-show title="Details">
+            @endif
+        </x-div.box-show>
+        <x-div.box-show title="Details">
             space: {{ $data?->space?->name ?? 'space-name' }} <br>
             date: {{ optional($data->sent_time)?->format('Y-m-d') ?? '??' }} <br>
             status: {{ $data->status ?? 'status?' }}
-        </x-div-box-show>
-        <x-div-box-show title="Total Amount">
+        </x-div.box-show>
+        <x-div.box-show title="Total Amount">
             subtotal: Rp{{ number_format($data->total_details, 2) }} <br>
             total:Rp{{ number_format($data->total, 2) }}
-        </x-div-box-show>
+        </x-div.box-show>
 
 
-        <x-div-box-show title="Contributor">
+        <x-div.box-show title="Contributor">
             Created By: {{ $data->sender?->name ?? 'N/A' }}<br>
             Updated By: {{ $data?->handler?->name ?? 'N/A' }}
-        </x-div-box-show>
-        <x-div-box-show title="Receiver">
+        </x-div.box-show>
+        <x-div.box-show title="Receiver">
             Receiver: {{ $data?->receiver?->name ?? 'N/A' }} <br>
             Notes: {{ $data?->receiver_notes ?? 'N/A' }}
-        </x-div-box-show>
-        <x-div-box-show title="Notes">
+        </x-div.box-show>
+        <x-div.box-show title="Notes">
             Sender: {{ $data->sender_notes ?? '-' }}<br>
             Handler: {{ $data->handler_notes ?? '-' }}<br>
             Receiver: {{ $data->receiver_notes ?? '-' }}
-        </x-div-box-show>
+        </x-div.box-show>
+
+
+        <!-- <x-div.box-show title="Number">{{ $data->number }}</x-div.box-show> -->
     </div>
     <br>
     <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
@@ -171,6 +174,25 @@
             @else
                 <p class="text-gray-500">Tidak ada file terkait.</p>
             @endif
+        </x-div.box-show>
+    </div>
+    <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+
+
+
+    <h3 class="text-lg font-bold my-3">Detail Lain</h3>
+    <div class="grid grid-cols-3 sm:grid-cols-3 gap-6 w-full mb-4">
+        <x-div.box-show title="Tags">
+            {{ implode(', ', $data->tags ?? []) ?? 'tags' }}
+        </x-div.box-show>
+
+        <x-div.box-show title="Links">
+            {!! collect($data->links ?? [])
+                    ->map(fn($item) => json_encode($item, JSON_UNESCAPED_UNICODE))
+                    ->implode('<br>') !!}
+        </x-div.box-show>
+
+        <x-div.box-show title="Files">
         </x-div.box-show>
     </div>
     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>

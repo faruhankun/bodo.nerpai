@@ -67,11 +67,15 @@ class Transaction extends Model
         'notes',
 
         'files',
+        'tags',
+        'links',
     ];
 
     protected $casts = [
         'sent_time' => 'datetime',
         'files' => 'json',
+        'tags' => 'json',
+        'links' => 'json',
     ];
 
 
