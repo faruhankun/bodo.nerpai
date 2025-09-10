@@ -74,6 +74,9 @@
 
         document.getElementById('edit_notes').value = data.notes;
 
+        document.getElementById('edit_tags').value = data.tags ? JSON.stringify(data.tags) : '[]';
+        document.getElementById('edit_links').value = data.links ? JSON.stringify(data.links) : '[]';
+
         let form = document.getElementById('editDataForm');
         form.action = `/players/${data.id}`;
 

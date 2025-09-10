@@ -39,9 +39,21 @@
 @endif                    
 
 
-                    <div class="form-group mb-4">
-                        <x-input-label for="notes">Notes</x-input-label>
-                        <x-input-textarea name="notes" id="{{ $form['mode'] ?? '' }}_notes" class="w-full" placeholder="Optional notes"></x-input-textarea>
+                    <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
+                        <div class="form-group mb-4">
+                            <x-input-label for="tags">Tags</x-input-label>
+                            <x-input-textarea name="tags" id="{{ $form['mode'] ?? '' }}_tags" class="w-full" placeholder="Optional Tags"></x-input-textarea>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <x-input-label for="links">Links</x-input-label>
+                            <x-input-textarea name="links" id="{{ $form['mode'] ?? '' }}_links" class="w-full" placeholder="Optional Links"></x-input-textarea>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <x-input-label for="notes">Notes</x-input-label>
+                            <x-input-textarea name="notes" id="{{ $form['mode'] ?? '' }}_notes" class="w-full" placeholder="Optional notes"></x-input-textarea>
+                        </div>
                     </div>
 
                     <!-- Actions -->

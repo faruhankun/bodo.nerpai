@@ -57,10 +57,17 @@ class Player extends Model
 
         'status',
         'notes',
+
+        'files',
+        'tags',
+        'links',
     ];
 
     protected $casts = [
         'address' => 'json',  
+        'files' => 'json',
+        'tags' => 'json',
+        'links' => 'json',
     ];
 
 

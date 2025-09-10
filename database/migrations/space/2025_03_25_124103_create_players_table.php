@@ -52,6 +52,10 @@ return new class extends Migration
             $table->string('status')->default('active');
             $table->text('notes')->nullable();
 
+            $table->json('files')->nullable();
+            $table->json('tags')->nullable();
+            $table->json('links')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });

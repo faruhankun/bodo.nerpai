@@ -59,23 +59,23 @@ class PlayerController extends Controller
                 });
             }
         } else {
-            $can_trades_po = $user->can('space.trades.po') ?? false;
-            $can_trades_so = $user->can('space.trades.so') ?? false;
-
-            // $query = $query->whereHas('transactions_as_receiver.details', function($q) use ($can_trades_po, $can_trades_so){
-            //     if(!$can_trades_po){
-            //         $q->where('model_type', '!=', 'PO');
-            //     }
-
-            //     if(!$can_trades_so){
-            //         $q->where('model_type', '!=', 'SO');
-            //     }
-            // });
-
-
-            // // or where has not
-            // $query->orWhereDoesntHave('transactions_as_receiver.details');
+        
         }
+
+        $can_trades_po = $user->can('space.trades.po') ?? false;
+        $can_trades_so = $user->can('space.trades.so') ?? false;
+
+        $query = $query->where(function($q) use ($can_trades_po, $can_trades_so){
+            if(!$can_trades_po){
+                $q->whereNull('tags')
+                    ->orWhere('tags', 'not like', '%PO%');
+            }
+
+            if(!$can_trades_so){
+                $q->whereNull('tags')
+                    ->orwhere('tags', 'not like', '%SO%');
+            }
+        });
 
 
 

@@ -58,7 +58,14 @@ class PlayerService
                 'shopee_username' => 'nullable|string',
                 'tokopedia_username' => 'nullable|string',
                 'whatsapp_number' => 'nullable|string',
+
+                'tags' => 'nullable|string',
+                'links' => 'nullable|string',
             ]);
+
+            $validated['tags'] = json_decode($validated['tags'], true) ?: [];
+            $validated['links'] = json_decode($validated['links'], true) ?: [];
+
 
             $player = Player::findOrFail($id);
             $player->update($validated);
@@ -233,6 +240,7 @@ class PlayerService
             // Read the CSV into an array of associative rows
             $data = $this->eximService->convertCSVtoArray($file, ['requiredHeaders' => $requiredHeaders]);
 
+            // dd($data);
             
             // process data
             foreach($data as $i => $row){
@@ -279,6 +287,16 @@ class PlayerService
 
                     if(isset($row['created_at']) && !empty($row['created_at'])){
                         $player_data['created_at'] = $row['created_at'];
+                    }
+
+                    if(isset($row['tags']) && !empty($row['tags'])){
+                        $tags = json_decode($row['tags'], true) ?? [];
+                        $player_data['tags'] = $tags;
+                    }
+
+                    if(isset($row['links']) && !empty($row['links'])){
+                        $links = json_decode($row['links'], true) ?? [];
+                        $player_data['links'] = $links;
                     }
 
 

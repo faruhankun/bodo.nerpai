@@ -43,7 +43,17 @@
         </x-div-box-show>
 
 
-        
+        <!-- <x-div-box-show title="Number">{{ $data->number }}</x-div-box-show> -->
+        <x-div-box-show title="Tags">
+            {{ implode(', ', $data->tags ?? []) ?? 'tags' }}
+        </x-div-box-show>
+
+        <x-div-box-show title="Links">
+            {!! implode('<br>', $data->links ?? []) ?? 'links' !!}
+        </x-div-box-show>
+
+        <x-div-box-show title="Files">
+        </x-div-box-show>
     </div>
 
     <br>
