@@ -10,6 +10,25 @@
 
 
     
+    $list_items = $data->details;
+    $list_tx_data = [
+        $data->id => [
+            'number' => $data->number,
+            'date' => optional($data->sent_time)->format('Y-m-d'),
+        ],
+    ];
+
+    // cek children
+    $children = $data->children->sortBy('sent_time');
+    foreach($children as $child){
+        $list_tx_data[$child->id] = [
+            'number' => $child->number,
+            'date' => optional($child->sent_time)->format('Y-m-d'),
+        ];
+
+        $list_items = $list_items->merge($child->details);
+    }
+
 
     $other_bill_details = [];
     $other_bill = 0;
@@ -81,7 +100,7 @@
         }
 
         .summary {
-            width: 40%;
+            width: 50%;
             float: right;
             margin-top: 10px;
         }
@@ -125,8 +144,8 @@
                 <td>{{ $data->space?->name ?? '-' }}</td>
             </tr>
             <tr>
-                <th>Kasir</th>
-                <td>{{ $data?->handler?->name ?? '' }}</td>
+                <th>HANDLER</th>
+                <td>{{ $data?->sender?->name ?? '' }}, {{ $data?->handler?->name ?? '' }}</td>
                 <th>CATATAN</th>
                 <td>{{ $data->receiver_notes ?? '' }}</td>
             </tr>
@@ -138,6 +157,8 @@
         <table style="margin-top: 20px;">
             <thead>
                 <tr>
+                    <th>Invoice</th>
+                    <th>Tanggal</th>
                     <th>SKU | NAMA PRODUK</th>
                     <th>QTY</th>
                     <th>BERAT</th>
@@ -154,7 +175,7 @@
                     $total_subtotal = 0;
                     $total_product = 0;
                 @endphp
-                @foreach($data->details as $detail)
+                @foreach($list_items as $detail)
                     @if($detail->model_type == 'ITR')
                         @continue
                     @endif
@@ -172,6 +193,8 @@
                     @endphp
 
                 <tr>
+                    <td>{{ $list_tx_data[$detail->transaction_id]['number'] }}</td>
+                    <td>{{ $list_tx_data[$detail->transaction_id]['date'] }}</td>
                     <td>{{ $detail->detail?->sku }} | {{ $detail->detail?->name }}</td>
                     <td class="text-center">{{ $qty }}</td>
                     <td class="text-right">{{ number_format($detail->detail?->weight) }}</td>
@@ -188,7 +211,7 @@
                 @endforeach
                 <!-- Total berat -->
                 <tr>
-                    <th colspan="2" class="text-right">Subtotal</th>
+                    <th colspan="4" class="text-right">Subtotal</th>
                     <td class="text-right"><strong>{{ number_format($total_weight / 1000, 2) }} Kg</strong></td>
                     <td colspan="4" class="text-right"><strong>{{ number_format($total_product - $total_discount) }}</strong></td>
                 </tr>
@@ -198,11 +221,11 @@
         <!-- Summary -->
         <table class="summary">
             <tr>
-                <th><strong>TAGIHAN PRODUK</strong></th>
+                <th colspan="3"><strong>TAGIHAN PRODUK</strong></th>
                 <td class="text-right"><strong>{{ number_format($total_product) }}</strong></td>
             </tr>
             <tr>
-                <th><strong>TOTAL DISKON</strong></th>
+                <th colspan="3"><strong>TOTAL DISKON</strong></th>
                 <td class="text-right">{{ number_format($total_discount) }}</td>
             </tr>
 
@@ -216,6 +239,8 @@
                     @endphp
 
                     <tr>
+                        <td>{{ $list_tx_data[$detail->transaction_id]['number'] }}</td>
+                        <td>{{ $list_tx_data[$detail->transaction_id]['date'] }}</td>
                         <th><strong>{{ $detail->detail->name }}</strong></th>
                         <td class="text-right"><strong>{{ number_format($subtotal) }}</strong></td>
                     </tr>
@@ -227,7 +252,7 @@
             @endphp
 
             <tr>
-                <th><strong>TOTAL TAGIHAN</strong></th>
+                <th colspan="3"><strong>TOTAL TAGIHAN</strong></th>
                 <th class="text-right"><strong>{{ number_format($grand_total) }}</strong></th>
             </tr>
         </table>

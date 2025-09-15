@@ -1,6 +1,15 @@
 @php
-    $tx_as_receiver = $data->transactions_as_receiver()->orderBy('sent_time', 'desc')->limit(30)->get() ?? null;
+    $tx_as_receiver = $data->transactions_as_receiver()
+                        ->orderBy('sent_time', 'desc')->limit(30)->get() ?? null;
     $txs_details = $tx_as_receiver->map(fn($tx) => $tx->details)->flatten(1) ?? null;
+
+    $deal_as_receiver = $data->transactions_as_receiver()
+                        ->whereHas('children', function ($q) {
+                            // kalau mau filter children berdasarkan kondisi, bisa taruh di sini
+                        }, '>=', 1) // minimal punya 1 children
+                        ->orderBy('sent_time', 'desc')
+                        ->limit(30)
+                        ->get();
 @endphp
 
 
@@ -61,8 +70,8 @@
 
 
 
-    <h3 class="text-lg font-bold my-3">Transactions as Receiver</h3>
-    @if($tx_as_receiver)
+    <h3 class="text-lg font-bold my-3">Project Terkait (Transaksi Induk)</h3>
+    @if($deal_as_receiver)
     <div class="overflow-x-auto">
         <x-table.table-table id="search-table">
             <x-table.table-thead>
@@ -78,7 +87,7 @@
                 </tr>
             </x-table.table-thead>
             <x-table.table-tbody>
-                @foreach ($tx_as_receiver as $child)
+                @foreach ($deal_as_receiver as $child)
                     <x-table.table-tr>
                         <x-table.table-td>{{ $child?->sent_time->format('Y-m-d') }}</x-table.table-td>
                         <x-table.table-td>{{ $child->model_type ?? 'Type' }} : 

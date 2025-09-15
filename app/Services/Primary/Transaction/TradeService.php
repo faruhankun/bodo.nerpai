@@ -63,14 +63,14 @@ class TradeService
 
     public $model_types = [
         ['id' => 'ITR', 'name' => 'Interaksi'],
-        ['id' => 'PO', 'name' => 'Purchase'],
         ['id' => 'SO', 'name' => 'Sales'],
         ['id' => 'BILL', 'name' => 'Tagihan'],
         ['id' => 'PAY', 'name' => 'Pembayaran'],
+        ['id' => 'PO', 'name' => 'Purchase'],
         ['id' => 'PRE', 'name' => 'Pre Order'],
         ['id' => 'DMG', 'name' => 'Damage'],
         ['id' => 'RTR', 'name' => 'Return'],
-        ['id' => 'MV', 'name' => 'Move'],
+        ['id' => 'TAX', 'name' => 'Pajak'],
         ['id' => 'UNDF', 'name' => 'Undefined'],
     ];
 
@@ -763,11 +763,11 @@ class TradeService
                             $new_rows->push([
                                 'item_sku' => $list_product['PRODUCT_SKU'],
                                 'item_name' => $list_product['PRODUCT_NAME'],
-                                'price' => ($list_product['LIST_PRODUCT_COST'] ?? 1) * 1000,
-                                'cost' => $list_product['SUPPLY_COST'] ?? 0,
+                                'price' => $list_product['PRICE_BASE'] * ($list_product['LIST_PRODUCT_COST'] ?? 1) * 1000,
+                                'cost' => ($list_product['SUPPLY_COST'] ?? 0) * 1000,
                                 'weight' => $list_product['PRODUCT_WEIGHT'] ?? 0,
                                 'notes' => $list_product['LIST_PRODUCT_NOTE'] ?? null,
-                                'quantity' => $list_product['LIST_PRODUCT_QTY'] * (1) ?? 0,
+                                'quantity' => $list_product['LIST_PRODUCT_QTY'] * (-1) ?? 0,
                                 'model_type' => $detail_model_type,
                             ]);
                         }
@@ -790,6 +790,7 @@ class TradeService
                         $rows = $new_rows->toArray();
                     }
 
+                    // dd($rows);
 
 
                     foreach($rows as $i => $row){
@@ -845,7 +846,7 @@ class TradeService
 
 
 
-                    dd($tx_details, $header);
+                    // dd($tx_details, $header);
 
 
                     // find tx, create if not exist

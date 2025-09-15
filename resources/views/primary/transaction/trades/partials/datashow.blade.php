@@ -1,3 +1,34 @@
+@php
+    $list_files = $data->files ?? [];
+    foreach($list_files as $index => $file){
+        $list_files[$index]['number'] = $data->number ?? 'number?';
+    }
+    
+    $list_tx_data = [
+        $data->id => [
+            'number' => $data->number,
+            'date' => optional($data->sent_time)->format('Y-m-d'),
+        ],
+    ];
+
+    // cek children
+    $children = $data->children->sortBy('sent_time');
+    foreach($children as $child){
+        $list_tx_data[$child->id] = [
+            'number' => $child->number,
+            'date' => optional($child->sent_time)->format('Y-m-d'),
+        ];
+
+        $child_files = $child->files ?? [];
+        foreach($child_files as $index => $file){
+            $child_files[$index]['number'] = $child->number ?? 'number?';
+        }
+
+        $list_files = array_merge($list_files, $child_files);
+    }
+@endphp
+
+
 @if(isset($get_page_show) && $get_page_show == 'show')
     <h1 class="text-2xl font-bold mb-6">Journal: {{ $data->number }} in {{ $data?->space?->name ?? '$space-name' }}</h1>
         <div class="mb-3 mt-1 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
@@ -86,16 +117,17 @@
 
 
 
-    <h3 class="text-lg font-bold my-3">TX Related</h3>
+    <h3 class="text-lg font-bold my-3">TX Terkait</h3>
     @if($tx_related && $tx_related->count() > 0)
     <div class="overflow-x-auto">
         <x-table.table-table id="journal-outputs">
             <x-table.table-thead>
                 <tr>
-                    <x-table.table-th>Number</x-table.table-th>
-                    <x-table.table-th>Space</x-table.table-th>
                     <x-table.table-th>Date</x-table.table-th>
+                    <x-table.table-th>Space</x-table.table-th>
+                    <x-table.table-th>Number</x-table.table-th>
                     <x-table.table-th>Contributor</x-table.table-th>
+                    <x-table.table-th>Status</x-table.table-th>
                     <x-table.table-th>Total</x-table.table-th>
                     <x-table.table-th>Notes</x-table.table-th>
                     <x-table.table-th>Actions</x-table.table-th>
@@ -105,6 +137,7 @@
                 @foreach ($tx_related as $child)
                     <x-table.table-tr>
                         <x-table.table-td>{{ $child?->sent_time->format('Y-m-d') }}</x-table.table-td>
+                        <x-table.table-td>{{ $child->space?->name ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ $child->model_type ?? 'Type' }} : 
                             <a href="{{ route('trades.show', ['trade' => $child->id]) }}" 
                                 class="text-blue-500 hover:underline"
@@ -112,10 +145,10 @@
                                 {{ $child->number }}
                             </a>
                         </x-table.table-td>
-                        <x-table.table-td>{{ $child->space?->name ?? 'N/A' }}</x-table.table-td>
-                        <x-table.table-td>{{ $child->sender?->name ?? 'N/A' }} <br> {{ $child->handler?->name ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ $child->sender?->name ?? 'sender' }} <br> {{ $child->handler?->name ?? 'handler' }}</x-table.table-td>
+                        <x-table.table-td>{{ $child->status ?? 'status' }}</x-table.table-td>
                         <x-table.table-td>{{ number_format($child->total, 2) }}</x-table.table-td>
-                        <x-table.table-td>{{ $child->notes ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ $child->notes ?? 'notes' }}</x-table.table-td>
                         <x-table.table-td class="flex justify-center items-center gap-2">
                             @if(!isset($get_page_show) || $get_page_show != 'show')
                                 @if($child->model_type == 'TRD')
@@ -136,20 +169,22 @@
     <h3 class="text-lg font-bold my-3">Documents</h3>
     <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 w-full mb-4">
         <x-div.box-show title="File Terkait">
-            @if(!empty($data->files))
+            @if(!empty($list_files))
                 <table class="min-w-full border border-gray-300 text-sm">
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="border px-2 py-1 text-left">#</th>
+                            <th class="border px-2 py-1 text-left">TX Number</th>
                             <th class="border px-2 py-1 text-left">Nama File</th>
                             <th class="border px-2 py-1 text-left">Ukuran</th>
                             <th class="border px-2 py-1 text-left">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($data->files as $index => $file)
+                        @foreach($list_files as $index => $file)
                             <tr>
                                 <td class="border px-2 py-1">{{ $index + 1 }}</td>
+                                <td class="border px-2 py-1">{{ $file['number'] ?? 'number?' }}</td>
                                 <td class="border px-2 py-1">
                                     <a href="{{ asset($file['path']) }}" target="_blank" class="text-blue-600 hover:underline">
                                         {{ $file['name'] }}
@@ -206,4 +241,13 @@
                 Invoice Formal
             </a>
         </x-secondary-button>
+
+        @if($data->children->isNotEmpty())
+            <x-secondary-button type="button">
+                <a href="{{ route('trades.invoice', 
+                                ['id' => $data->id, 'invoice_type' => 'invoice_induk']) }}" target="_blank" class="btn btn-primary">
+                    Invoice Induk
+                </a>
+            </x-secondary-button>
+        @endif
     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>

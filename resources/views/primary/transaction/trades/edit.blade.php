@@ -13,6 +13,9 @@
 
     $spaces_origin = $player?->spaces->where('id', '!=', $space_id) ?? [];
     $input_journal = $journal?->input;
+
+
+    $list_files = $journal->files ?? [];
 @endphp
 
 
@@ -130,6 +133,49 @@
                                 });
                                 </script>
                                 </div>
+
+                                <x-div.box-show title="File Terkait">
+                                @if(!empty($list_files))
+                                    <table class="min-w-full border border-gray-300 text-sm">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="border px-2 py-1 text-left">#</th>
+                                                <th class="border px-2 py-1 text-left">TX Number</th>
+                                                <th class="border px-2 py-1 text-left">Nama File</th>
+                                                <th class="border px-2 py-1 text-left">Ukuran</th>
+                                                <th class="border px-2 py-1 text-left">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($list_files as $index => $file)
+                                                <tr>
+                                                    <td class="border px-2 py-1">{{ $index + 1 }}</td>
+                                                    <td>Number</td>
+                                                    <td class="border px-2 py-1">
+                                                        <a href="{{ asset($file['path']) }}" target="_blank" class="text-blue-600 hover:underline">
+                                                            {{ $file['name'] }}
+                                                        </a>
+                                                    </td>
+                                                    <td class="border px-2 py-1">
+                                                        @if(!empty($file['size']))
+                                                            {{ number_format($file['size'] / 1024, 2) }} KB
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td class="border px-2 py-1">
+                                                        <a href="{{ asset($file['path']) }}" download class="text-green-600 hover:underline">
+                                                            Download
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <p class="text-gray-500">Tidak ada file terkait.</p>
+                                @endif
+                            </x-div.box-show>
                             </div>
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                         
