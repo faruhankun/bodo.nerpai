@@ -255,5 +255,6 @@
 
 @section('main-content')
     {{ $slot }}
+    
     @include('layouts.footer')
 @endsection

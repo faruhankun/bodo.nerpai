@@ -108,7 +108,7 @@
     <!-- bagian main content -->
     <!-- class sm:ml-64 sm:mt-12 untuk mengatur jarak antara sidebar dan main content ketika sidebar dalam keadaan collapsed -->
     <!-- class transition-all duration-300 untuk mengatur transisi animasi ketika sidebar di klik -->
-    <main id="main-content" class="sm:ml-64 sm:mt-12 transition-all duration-300">
+    <main id="main-content" class="sm:ml-12 sm:mt-12 transition-all duration-300">
         <!-- yield untuk mengisi konten main content -->
         @yield('main-content')
     </main>
@@ -126,27 +126,40 @@
             document.getElementById("toggleSidebar").addEventListener("click", function () {
                 document.body.classList.toggle("sidebar-collapsed");
 
-                if (sidebar.classList.contains("w-64")) {
-                    sidebar.classList.replace("w-64", "w-16");
-                    mainContent.classList.replace("sm:ml-64", "sm:ml-16");
-                    toggleIcon.classList.add("rotate-180");
-
-                    textElements.forEach(el => el.classList.add("hidden"));
-                    localStorage.setItem("sidebarState", "collapsed");
-                } else {
-                    sidebar.classList.replace("w-16", "w-64");
-                    mainContent.classList.replace("sm:ml-16", "sm:ml-64");
+                if (sidebar.classList.contains("-translate-x-full")) {
+                    sidebar.classList.remove("-translate-x-full");
+                    // mainContent.classList.replace("sm:ml-64", "sm:ml-12");
                     toggleIcon.classList.remove("rotate-180");
 
-                    textElements.forEach(el => el.classList.remove("hidden"));
+                    textElements.forEach(el => el.classList.add("hidden"));
                     localStorage.setItem("sidebarState", "expanded");
+                } else {
+                    sidebar.classList.add("-translate-x-full");
+                    // mainContent.classList.replace("sm:ml-12", "sm:ml-64");
+                    toggleIcon.classList.add("rotate-180");
+                    
+                    textElements.forEach(el => el.classList.remove("hidden"));
+                    localStorage.setItem("sidebarState", "collapsed");
                 }
+                
+                console.log(localStorage.getItem("sidebarState"));
             });
 
             if (sidebarState == "collapsed") {
+                sidebar.classList.add("-translate-x-full");
+                toggleIcon.classList.add("rotate-180");
+                
                 // click toggle button
-                document.getElementById("toggleSidebar").click();
+                // document.getElementById("toggleSidebar").click();
             } 
+
+            // apply state awal
+            if (sidebarState === "expanded") {
+                sidebar.classList.remove("-translate-x-full");
+                mainContent.classList.replace("sm:ml-12", "sm:ml-64");
+            }
+
+            console.log(sidebarState);
         });
 
         function toggleSidebar(state = 'collapsed') {
