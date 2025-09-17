@@ -16,8 +16,8 @@
         </div>
 
         <div class="form-group">
-            <x-input-label for="sender_notes">Sender Notes</x-input-label>
-            <x-input-textarea name="sender_notes" class="form-control" id="{{ $form['mode'] ?? '' }}_sender_notes"></x-input-textarea>
+            <x-input-label for="number">Number (optional)</x-input-label>
+            <x-input.input-basic name="number" class="form-control" id="{{ $form['mode'] ?? '' }}_number"></x-input.input-basic>
         </div>
     
     

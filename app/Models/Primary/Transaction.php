@@ -85,7 +85,7 @@ class Transaction extends Model
     // function
     public function generateNumber()
     {
-        $this->number = $this->type_type ?? 'TX' . '_' . $this->id;
+        $this->number = ($this->type_type ?? 'TX') . '_' . $this->id;
         return $this->number;
     }
 

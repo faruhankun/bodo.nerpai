@@ -94,23 +94,31 @@ class TradeController extends Controller
     {
         $request_source = get_request_source($request);
         $space_id = get_space_id($request);
+        DB::beginTransaction();
 
+        
         try {
             $validated = $request->validate([
                 'sender_id' => 'required',
                 'sent_time' => 'nullable',
                 'sender_notes' => 'nullable|string|max:255',
+                'number' => 'nullable|string|max:255',
             ]);
 
             $data = [
+                'number' => $validated['number'] ?? null,
+                'space_type' => 'SPACE',
                 'space_id' => $space_id,
                 'sender_id' => $validated['sender_id'],
                 'sent_time' => $validated['sent_time'] ?? now(),
-                'sender_notes' => $validated['sender_notes'],
+                'sender_notes' => $validated['sender_notes'] ?? null,
             ];
 
             $journal = $this->tradeService->addJournal($data, $request);
 
+
+
+            DB::commit();
 
             if($request_source == 'api'){
                 return response()->json([
@@ -124,6 +132,8 @@ class TradeController extends Controller
             return redirect()->route('trades.edit', $journal->id)
                             ->with('success', "Journal {$journal->id} Created Successfully!");
         } catch (\Throwable $th) {
+            DB::rollBack();
+            
             if($request_source == 'api'){
                 return response()->json([
                     'data' => [],
@@ -148,6 +158,79 @@ class TradeController extends Controller
 
         return view('primary.transaction.trades.edit', compact('journal', 'model_types', 'status_types'));
     }
+
+
+
+    public function duplicate(String $id, Request $request)
+    {
+        $request_source = get_request_source($request);
+        $player_id = get_player_id($request, false);
+
+        DB::beginTransaction();
+
+        try {
+            // ambil transaction lama beserta relasinya
+            $transaction = Transaction::with([
+                'details',
+                'details.detail',
+                'parent', 
+                'input', 'outputs',
+                'sender', 'receiver'
+            ])->findOrFail($id);
+
+            // clone data utama
+            $newData = $transaction->replicate(); // clone tanpa id, created_at, updated_at
+            $newData->status = 'TX_DRAFT'; // misal reset status ke draft
+            if($player_id){
+                $newData->sender_id = $player_id;
+            }
+            $newData->created_at = now();
+            $newData->updated_at = now();
+            $newData->handler_notes = "[DUPLICATE] " . $transaction->handler_notes;
+            $newData->save();
+            $newData->generateNumber();
+            $newData->save();
+
+            // clone details
+            foreach ($transaction->details as $detail) {
+                $newDetail = $detail->replicate();
+                $newDetail->transaction_id = $newData->id;
+                $newDetail->push();
+            }
+
+            // kalau ada files, ikutkan juga
+            // if ($transaction->files && is_array($transaction->files)) {
+            //     $copiedFiles = [];
+            //     foreach ($transaction->files as $file) {
+            //         $copiedFiles[] = [
+            //             'name' => $file['name'],
+            //             'path' => $file['path'], // NOTE: kalau mau copy file fisiknya, perlu pakai Storage::copy
+            //             'size' => $file['size'],
+            //         ];
+            //     }
+            //     $newData->files = $copiedFiles;
+            //     $newData->save();
+            // }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            if($request_source == 'api'){
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'message' => $th->getMessage(),
+                ], 400);
+            }
+
+            return back()->with('error', 'Something went wrong. error:' . $th->getMessage());
+        } 
+
+
+        DB::commit();
+
+        return redirect()->route('trades.show', $newData->id);
+    }
+
 
 
 

@@ -236,19 +236,27 @@
 
 
     <h3 class="text-lg font-bold my-3">Actions</h3>
-        <x-secondary-button type="button">
-            <a href="{{ route('trades.invoice', 
-                            ['id' => $data->id, 'invoice_type' => 'invoice_formal']) }}" target="_blank" class="btn btn-primary">
-                Invoice Formal
-            </a>
-        </x-secondary-button>
+        <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 w-full mb-4">
+            <div class="flex gap-3 mt-8">
+                <x-secondary-button type="button">
+                    <a href="{{ route('trades.invoice', 
+                                    ['id' => $data->id, 'invoice_type' => 'invoice_formal']) }}" target="_blank" class="btn btn-primary">
+                        Invoice Formal
+                    </a>
+                </x-secondary-button>
 
-        @if($data->children->isNotEmpty())
-            <x-secondary-button type="button">
-                <a href="{{ route('trades.invoice', 
-                                ['id' => $data->id, 'invoice_type' => 'invoice_induk']) }}" target="_blank" class="btn btn-primary">
-                    Invoice Induk
-                </a>
-            </x-secondary-button>
-        @endif
+                @if($data->children->isNotEmpty())
+                    <x-secondary-button type="button">
+                        <a href="{{ route('trades.invoice', 
+                                        ['id' => $data->id, 'invoice_type' => 'invoice_induk']) }}" target="_blank" class="btn btn-primary">
+                            Invoice Induk
+                        </a>
+                    </x-secondary-button>
+                @endif
+            </div>
+
+            <div class="flex gap-3 justify-end mt-8">
+                <x-buttons.button-duplicate :route="route('trades.duplicate', $data->id)">Duplicate</x-buttons.button-duplicate>
+            </div>
+        </div>
     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>

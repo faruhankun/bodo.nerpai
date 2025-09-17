@@ -104,6 +104,7 @@ class TradeService
         $space_id = $data['space_id'] ?? (get_space_id($request) ?? null);
 
         $tx = Transaction::create([
+            'number' => $data['number'] ?? null,
             'space_type' => 'SPACE',
             'space_id' => $data['space_id'] ?? $space_id,
             'model_type' => 'TRD',
@@ -118,7 +119,8 @@ class TradeService
             'status' => 'TX_DRAFT',
         ]);
 
-        $tx->generateNumber();
+        if(is_null($tx->number))
+            $tx->generateNumber();
         $tx->save();
 
         return $tx;
