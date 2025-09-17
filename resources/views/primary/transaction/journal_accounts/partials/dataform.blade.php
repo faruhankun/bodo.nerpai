@@ -27,10 +27,6 @@
 
     @if ($form['mode'] == 'edit')
     <input type="hidden" name="handler_id" id="{{ $form['mode'] ?? '' }}_handler_id" value="{{ $player->id }}">
-        <x-div.box-input for="handler_name" title="Handler" label="Handler">
-            <x-input.input-basic class="w-full" placeholder="Handler" value="{{ $player->name }}" required readonly></x-input.input-basic>
-        </x-div.box-input>
-
         <div class="form-group">
             <x-input-label for="sent_time">Transaction Date</x-input-label>
             <input type="date" name="sent_time"

@@ -4,9 +4,13 @@
     $txs_details = $tx_as_receiver->map(fn($tx) => $tx->details)->flatten(1) ?? null;
 
     $deal_as_receiver = $data->transactions_as_receiver()
-                        ->whereHas('children', function ($q) {
-                            // kalau mau filter children berdasarkan kondisi, bisa taruh di sini
-                        }, '>=', 1) // minimal punya 1 children
+                        ->where(function ($q) {
+                            $q->whereHas('children', function ($q2) {
+                            
+                            }, '>=', 1);
+
+                            $q->orWhereNull('parent_id');
+                        })
                         ->orderBy('sent_time', 'desc')
                         ->limit(30)
                         ->get();

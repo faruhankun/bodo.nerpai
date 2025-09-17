@@ -43,6 +43,40 @@ class AccountController extends Controller
     ];
 
 
+
+    public function __construct(EximService $eximService)
+    {
+        $this->eximService = $eximService;
+    }
+
+
+    public function tree(Request $request)
+    {
+        $query = $this->getQueryData($request);
+
+        $accounts = $query->get();
+
+        $treeData = $accounts->map(function ($acc) {
+            return [
+                "id" => $acc->id,
+                "parent" => $acc->parent_id ? $acc->parent_id : "#",
+                "text" => "{$acc->code} - {$acc->name}",
+                "data" => $acc, // biar bisa dipakai di jsTree event
+            ];
+        });
+
+        return response()->json($treeData);
+    }
+
+
+
+    public function jstree(){
+        return view('primary.inventory.accounts.jstree');
+    }
+
+
+
+
     public function search(Request $request){
         $space_id = get_space_id($request);
         $return = $request->get('return') ?? 'DT';  // DT atau JSON
@@ -156,13 +190,6 @@ class AccountController extends Controller
             'data' => array($account),
             'recordsFiltered' => 1,
         ]);
-    }
-
-
-
-    public function __construct(EximService $eximService)
-    {
-        $this->eximService = $eximService;
     }
 
 

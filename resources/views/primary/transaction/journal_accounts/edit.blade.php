@@ -4,6 +4,7 @@
     $journal = $journal_entry;
     $space_id = $journal?->space_id ?? (session('space_id') ?? null);
 
+    $list_files = $journal->files ?? [];
 @endphp
 <x-dynamic-component :component="'layouts.' . $layout">
     <div class="py-12">
@@ -13,7 +14,10 @@
                     <h3 class="text-2xl dark:text-white font-bold">Edit Journal Entry: {{ $journal_entry->number }}</h3>
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
-                    <form action="{{ route('journal_accounts.update', $journal_entry->id) }}" method="POST" onsubmit="return validateForm()">
+                    <form action="{{ route('journal_accounts.update', $journal_entry->id) }}" 
+                        method="POST" 
+                        enctype="multipart/form-data"
+                        onsubmit="return validateForm()">
                         @csrf
                         @method('PUT')
 
@@ -58,51 +62,6 @@
                                     </tr>
                                 </x-table.table-thead>
                                 <x-table.table-tbody id="journal-detail-list">
-                                    <!-- @foreach ($journal_entry->details as $index => $detail)
-                                        <tr class="detail-row">
-                                            <x-table.table-td class="mb-2">{{ $index + 1 }}</x-table.table-td>
-                                            <x-table.table-td>
-                                                <x-input-select
-                                                    name="details[{{ $index }}][detail_id]"
-                                                    class="account-select my-3" required>
-                                                    <option value="">Select Account</option>
-                                                    @foreach ($accountsp as $account)
-                                                        <option value="{{ $account->id }}"
-                                                            {{ $detail->detail_id == $account->id ? 'selected' : '' }}>
-                                                            {{ $account->code }} - {{ $account->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </x-input-select>
-                                            </x-table.table-td>
-                                            <x-table.table-td>
-                                                <x-input-input type="number"
-                                                    name="details[{{ $index }}][debit]"
-                                                    class="debit-input"
-                                                    value="{{ old('details.' . $index . '.debit', $detail->debit) }}"
-                                                    required min="0">
-                                                </x-input-input>
-                                            </x-table.table-td>
-                                            <x-table.table-td>
-                                                <x-input-input type="number"
-                                                    name="details[{{ $index }}][credit]"
-                                                    class="credit-input"
-                                                    value="{{ old('details.' . $index . '.credit', $detail->credit) }}"
-                                                    required min="0">
-                                                </x-input-input>
-                                            </x-table.table-td>
-                                            <x-table.table-td>
-                                                <x-input-input type="text"
-                                                    name="details[{{ $index }}][notes]"
-                                                    class="notes-input"
-                                                    value="{{ old('details.' . $index . '.notes', $detail->notes) }}">
-                                                </x-input-input>
-                                            </x-table.table-td>
-                                            <x-table.table-td>
-                                                <button type="button"
-                                                    class="bg-red-500 text-sm text-white px-4 py-1 rounded-md hover:bg-red-700 remove-detail">Remove</button>
-                                            </x-table.table-td>
-                                        </tr>
-                                    @endforeach -->
                                 </x-table.table-tbody>
                             </x-table.table-table>
 
@@ -124,6 +83,136 @@
 
                                         
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+
+
+
+                            <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 w-full mb-4">
+                                <div class="form-group">
+                                    <x-div.box-show title="File Terkait">
+                                        <x-input-label for="files">Upload File Terkait (max 2 MB)</x-input-label>
+                                        <input type="file" name="files[]" class="form-control" id="files" multiple >
+
+                                        <!-- List File Lama -->
+                                        <ul id="files-list" class="mt-2">
+                                            @if(!empty($journal->files))
+                                                @foreach($journal->files as $index => $file)
+                                                    <li data-old="{{ $index }}" class="flex items-center gap-2">
+                                                        <a href="{{ asset($file['path']) }}" target="_blank">{{ $file['name'] }}</a>
+                                                        <button type="button" class="remove-old-file text-red-500">Hapus</button>
+                                                        <input type="hidden" name="old_files[{{ $index }}][name]" value="{{ $file['name'] ?? '' }}">
+                                                        <input type="hidden" name="old_files[{{ $index }}][path]" value="{{ $file['path'] ?? '' }}">
+                                                        <input type="hidden" name="old_files[{{ $index }}][size]" value="{{ $file['size'] ?? 0 }}">
+                                                    </li>
+                                                @endforeach
+                                            @endif
+                                        </ul>
+                                    </x-div.box-show>
+
+                                <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    // Hapus file lama
+                                    document.addEventListener("click", function(e) {
+                                        if (e.target.classList.contains("remove-old-file")) {
+                                            e.target.closest("li").remove();
+                                        }
+                                    });
+
+                                    // Hapus file baru
+                                    document.getElementById("files").addEventListener("change", function(e) {
+                                        const list = document.getElementById("files-list");
+                                        list.querySelectorAll(".new-file").forEach(el => el.remove());
+
+                                        Array.from(e.target.files).forEach((file, i) => {
+                                            let li = document.createElement("li");
+                                            li.classList.add("new-file","flex","items-center","gap-2");
+                                            li.textContent = file.name;
+
+                                            let btn = document.createElement("button");
+                                            btn.type = "button";
+                                            btn.className = "remove-new-file text-red-500";
+                                            btn.textContent = "Hapus";
+
+                                            btn.addEventListener("click", () => {
+                                                let dt = new DataTransfer();
+                                                Array.from(e.target.files).forEach((f, idx) => {
+                                                    if (idx !== i) dt.items.add(f);
+                                                });
+                                                e.target.files = dt.files;
+                                                li.remove();
+                                            });
+
+                                            li.appendChild(btn);
+                                            list.appendChild(li);
+                                        });
+                                    });
+                                });
+                                </script>
+                                </div>
+
+                                <x-div.box-show title="File Terkait">
+                                @if(!empty($list_files))
+                                    <table class="min-w-full border border-gray-300 text-sm">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="border px-2 py-1 text-left">#</th>
+                                                <th class="border px-2 py-1 text-left">TX Number</th>
+                                                <th class="border px-2 py-1 text-left">Nama File</th>
+                                                <th class="border px-2 py-1 text-left">Ukuran</th>
+                                                <th class="border px-2 py-1 text-left">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($list_files as $index => $file)
+                                                <tr>
+                                                    <td class="border px-2 py-1">{{ $index + 1 }}</td>
+                                                    <td>Number</td>
+                                                    <td class="border px-2 py-1">
+                                                        <a href="{{ asset($file['path']) }}" target="_blank" class="text-blue-600 hover:underline">
+                                                            {{ $file['name'] }}
+                                                        </a>
+                                                    </td>
+                                                    <td class="border px-2 py-1">
+                                                        @if(!empty($file['size']))
+                                                            {{ number_format($file['size'] / 1024, 2) }} KB
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td class="border px-2 py-1">
+                                                        <a href="{{ asset($file['path']) }}" download class="text-green-600 hover:underline">
+                                                            Download
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <p class="text-gray-500">Tidak ada file terkait.</p>
+                                @endif
+                            </x-div.box-show>
+                            </div>
+                            <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+
+
+
+                            <!-- detail tambahan -->
+                            <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
+                                <div class="form-group mb-4">
+                                    <x-input-label for="tags">Tags</x-input-label>
+                                    <x-input-textarea name="tags" id="edit_tags" class="w-full" placeholder="Optional Tags"></x-input-textarea>
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <x-input-label for="links">Links</x-input-label>
+                                    <x-input-textarea name="links" id="edit_links" class="w-full" placeholder="Optional Links"></x-input-textarea>
+                                </div>
+
+                                <!-- <div class="form-group mb-4">
+                                    <x-input-label for="notes">Notes</x-input-label>
+                                    <x-input-textarea name="notes" id="{{ $form['mode'] ?? '' }}_notes" class="w-full" placeholder="Optional notes"></x-input-textarea>
+                                </div> -->
+                            </div>
                         </div>
 
 

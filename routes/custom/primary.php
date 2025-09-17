@@ -62,7 +62,7 @@ Route::middleware([
     Route::get('journal_accounts/export', [JournalAccountController::class, 'exportData'])->name('journal_accounts.export');
     Route::get('journal_accounts/import', [JournalAccountController::class, 'importTemplate'])->name('journal_accounts.import_template');
     Route::post('journal_accounts/import', [JournalAccountController::class, 'importData'])->name('journal_accounts.import');
-    Route::get('journal_accounts/data', [JournalAccountController::class, 'getJournalAccountsData'])->name('journal_accounts.data');
+    Route::get('journal_accounts/data', [JournalAccountController::class, 'getData'])->name('journal_accounts.data');
     Route::resource('journal_accounts', JournalAccountController::class);
 
 
@@ -92,6 +92,8 @@ Route::middleware([
 
 
     // Accounts
+    Route::get('accounts/tree', [AccountController::class, 'tree'])->name('accounts.tree');
+    Route::get('accounts/jstree', [AccountController::class, 'jstree'])->name('accounts.jstree');
     Route::get('accountsp/account_transactions', [AccountController::class, 'getAccountTransactions'])->name('accountsp.account_transactions');
 
     Route::post('accountsp/import', [AccountController::class, 'importData'])->name('accountsp.import');

@@ -76,15 +76,36 @@ class JournalAccountController extends Controller
             return back()->with('error', 'Journal Entry not found.');
         }
 
-        if($request_source == 'api'){
+
+
+        // for page
+        $get_page_show = $request->get('page_show') ?? null;
+        $page_show = 'null';
+        if($get_page_show){
+            $get_page_show = 'show';
+            $page_show = view('primary.transaction.journal_accounts.partials.datashow', compact('data', 'get_page_show'))->render();
+
+
             return response()->json([
                 'data' => array($data),
+                'page_show' => $page_show,
                 'recordFiltered' => 1,
                 'success' => true,
             ]);
         }
 
-        return view('primary.transaction.journal_accounts.before.show', compact('data'));
+
+
+        if($request_source == 'api'){
+            return response()->json([
+                'data' => array($data),
+                'recordFiltered' => 1,
+                'page_show' => $page_show,
+                'success' => true,
+            ]);
+        }
+
+        return view('primary.transaction.journal_accounts.show', compact('data'));
     }
 
 
@@ -166,7 +187,18 @@ class JournalAccountController extends Controller
                 'details.*.debit' => 'required|numeric|min:0',
                 'details.*.credit' => 'required|numeric|min:0',
                 'details.*.notes' => 'nullable|string|max:255',
+
+                'old_files.*' => 'nullable|array',
+                'files.*' => 'nullable|file|max:2048',
+
+                'tags' => 'nullable|string',
+                'links' => 'nullable|string',
             ]);
+
+            $validated['tags'] = json_decode($validated['tags'], true) ?: [];
+            $validated['links'] = json_decode($validated['links'], true) ?: [];
+
+            // dd($validated);
 
             $journal_entry = Transaction::with(['details'])->findOrFail($id);
 
@@ -178,6 +210,35 @@ class JournalAccountController extends Controller
             }
 
 
+
+            // handling files
+            // Ambil file lama yang masih dipertahankan
+            $oldFiles = $request->input('old_files', []); // array path lama
+
+            $finalFiles = [];
+            foreach ($oldFiles as $old_file) {
+                $finalFiles[] = [
+                    'name' => $old_file['name'],
+                    'path' => $old_file['path'],
+                    'size' => $old_file['size'],
+                ];
+            }
+
+            // Upload file baru
+            if ($request->hasFile('files')) {
+
+                foreach ($request->file('files') as $file) {
+                    $path = $file->store('uploads/transactions/' . $journal_entry->id , 'public');
+                    $finalFiles[] = [
+                        'name' => $file->getClientOriginalName(),
+                        'path' => 'storage/'.$path,
+                        'size' => $file->getSize(),
+                    ];
+                }
+            }
+
+
+
             $player = Auth::user()->player;
             $data = [
                 'sent_time' => $validated['sent_time'],
@@ -185,6 +246,10 @@ class JournalAccountController extends Controller
                 'handler_type' => 'PLAY',
                 'handler_id' => $player->id,
                 'total' => $totalDebit,
+
+                'files' => $finalFiles,
+                'tags' => $validated['tags'],
+                'links' => $validated['links'],
             ];
 
             $this->journalEntryAccount->updateJournalEntry($journal_entry, $data, $validated['details']);
@@ -197,7 +262,7 @@ class JournalAccountController extends Controller
                 ]);
             }
 
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return back()->with('error', 'Something went wrong. Please try again. ' . $th->getMessage());
         }
 
         if($request_source == 'api'){
@@ -261,11 +326,12 @@ class JournalAccountController extends Controller
     }
 
 
-    public function getJournalAccountsData(Request $request)
+    public function getData(Request $request)
     {
         $space_id = session('space_id') ?? null;
+        $user = auth()->user();
 
-        $journal_accounts = Transaction::with('input', 'type', 'details', 'details.detail')
+        $journal_accounts = Transaction::with('input', 'type', 'sender', 'handler', 'receiver', 'details', 'details.detail')
                     ->where('model_type', 'JE')
                     ->orderBy('sent_time', 'desc');
 
@@ -286,18 +352,30 @@ class JournalAccountController extends Controller
 
 
         return DataTables::of($journal_accounts)
-            ->addColumn('actions', function ($data) {
+            ->addColumn('actions', function ($data) use ($user) {
                 $route = 'journal_accounts';
 
                 $actions = [
-                    'show' => 'modal',
-                    'show_modal' => 'primary.transaction.journal_accounts.show-modal',
+                    'show' => 'modaljs',
                     'edit' => 'button',
                     'delete' => 'button',
                 ];
 
+
+                // jika punya children, maka tidak bisa dihapus
+                if($data->children->isNotEmpty()){
+                    unset($actions['delete']);
+                }
+
+
+                if(($data->sender_id != $user->player_id)){
+                    unset($actions['delete']);
+                }
+
+
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
+
             ->filter(function ($query) use ($request) {
                 $search = $request->search['value'] ?? $request->q;
 
@@ -320,6 +398,11 @@ class JournalAccountController extends Controller
                     });
                 });
             })
+
+            ->addColumn('data', function ($data) {
+                return $data;
+            })
+
             ->rawColumns(['actions'])
             ->make(true);
     }

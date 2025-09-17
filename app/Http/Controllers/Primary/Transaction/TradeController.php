@@ -160,10 +160,10 @@ class TradeController extends Controller
                 'sent_time' => 'nullable',
                 
                 'handler_id' => 'required',
-                'handler_notes' => 'nullable|string|max:255',
+                'handler_notes' => 'nullable|string',
                 
                 'receiver_id' => 'nullable',
-                'receiver_notes' => 'nullable|string|max:255',
+                'receiver_notes' => 'nullable|string',
 
                 'space_origin' => 'nullable',
 
