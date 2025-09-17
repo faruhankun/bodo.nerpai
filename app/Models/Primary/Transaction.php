@@ -52,6 +52,7 @@ class Transaction extends Model
         'sent_time',
         'sent_date',
         'received_date',
+        'received_time',
         'handler_number',
         
         'total',
@@ -73,6 +74,7 @@ class Transaction extends Model
 
     protected $casts = [
         'sent_time' => 'datetime',
+        'received_time' => 'datetime',
         'files' => 'json',
         'tags' => 'json',
         'links' => 'json',

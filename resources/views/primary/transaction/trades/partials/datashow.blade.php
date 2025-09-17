@@ -60,6 +60,7 @@
             Updated By: {{ $data?->handler?->name ?? 'N/A' }}
         </x-div.box-show>
         <x-div.box-show title="Receiver">
+            Received Date: {{ optional($data->received_time)?->format('Y-m-d') ?? 'not yet' }} <br>
             Receiver: {{ $data?->receiver?->name ?? 'N/A' }} <br>
             Notes: {{ $data?->receiver_notes ?? 'N/A' }}
         </x-div.box-show>

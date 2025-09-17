@@ -164,6 +164,7 @@ class TradeController extends Controller
                 
                 'receiver_id' => 'nullable',
                 'receiver_notes' => 'nullable|string',
+                'received_time' => 'nullable',
 
                 'space_origin' => 'nullable',
 
@@ -230,6 +231,7 @@ class TradeController extends Controller
                 'receiver_type' => 'PLAY',
                 'receiver_id' => $validated['receiver_id'] ?? null,
                 'receiver_notes' => $validated['receiver_notes'] ?? null,
+                'received_time' => $validated['received_time'] ?? null,
 
                 'handler_notes' => $validated['handler_notes'] ?? null,
                 'handler_type' => 'PLAY',

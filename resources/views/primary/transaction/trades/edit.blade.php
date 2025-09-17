@@ -187,6 +187,13 @@
 
                         <!-- detail tambahan -->
                         <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
+                            <div class="form-group">
+                                <x-input-label for="received_time">Tanggal Diterima</x-input-label>
+                                <input type="date" name="received_time"
+                                    class="bg-gray-100 w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white"
+                                    id="edit_received_time">
+                            </div>
+
                             <div class="form-group mb-4">
                                 <x-input-label for="tags">Tags</x-input-label>
                                 <x-input-textarea name="tags" id="edit_tags" class="w-full" placeholder="Optional Tags"></x-input-textarea>
@@ -504,6 +511,10 @@
             $('#edit_parent_data').html(journal.parent.number + ' : ' + journal.parent?.receiver?.name + ' (' + journal.parent.status + ' : ' + journal.parent.sent_time.split('T')[0] + ')');
         }
 
+
+        let receivedTime = '{{ optional($journal->received_time)->format("Y-m-d") ?? '' }}';
+        $("#edit_received_time").val(receivedTime);
+        console.log(receivedTime);
 
         document.getElementById('edit_tags').value = journal.tags ? JSON.stringify(journal.tags) : '[]';
         document.getElementById('edit_links').value = journal.links ? JSON.stringify(journal.links) : '[]';
