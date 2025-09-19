@@ -18,6 +18,7 @@ use App\Http\Controllers\Primary\ItemController;
 use App\Http\Controllers\Primary\Inventory\InventoryController;
 use App\Http\Controllers\Primary\Inventory\AccountController;
 
+use App\Http\Controllers\Primary\Transaction\QuoteController;
 use App\Http\Controllers\Primary\Transaction\TradeController;
 use App\Http\Controllers\Primary\Transaction\JournalSupplyController;
 use App\Http\Controllers\Primary\Transaction\JournalAccountController;
@@ -45,6 +46,15 @@ Route::middleware([
 
 
     // Transactions
+    Route::post('quotes/duplicate/{id}', [QuoteController::class, 'duplicate'])->name('quotes.duplicate');
+    Route::get('quotes/{id}/invoice', [QuoteController::class, 'invoice'])->name('quotes.invoice');
+
+    Route::post('quotes/exim', [QuoteController::class, 'eximData'])->name('quotes.exim');
+    Route::get('quotes/exim', [QuoteController::class, 'eximData'])->name('quotes.exim');
+    Route::get('quotes/data', [QuoteController::class, 'getData'])->name('quotes.data');
+    Route::resource('quotes', QuoteController::class);
+
+
     Route::post('trades/duplicate/{id}', [TradeController::class, 'duplicate'])->name('trades.duplicate');
     Route::get('trades/{id}/invoice', [TradeController::class, 'invoice'])->name('trades.invoice');
 

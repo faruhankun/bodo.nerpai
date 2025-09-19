@@ -24,7 +24,7 @@ use Carbon\Carbon;
 
 
 
-class TradeService
+class QuoteService
 {
     protected $eximService;
     protected $spaceService;
@@ -53,7 +53,7 @@ class TradeService
     ];
     
 
-    protected $routerName = 'trades';
+    protected $routerName = 'quotes';
 
     public $summary_types = [
         'geography' => 'Geografi - Lokasi',
@@ -65,11 +65,7 @@ class TradeService
         ['id' => 'ITR', 'name' => 'Interaksi'],
         ['id' => 'SO', 'name' => 'Sales'],
         ['id' => 'BILL', 'name' => 'Tagihan'],
-        ['id' => 'PAY', 'name' => 'Pembayaran'],
         ['id' => 'PO', 'name' => 'Purchase'],
-        ['id' => 'PRE', 'name' => 'Pre Order'],
-        ['id' => 'DMG', 'name' => 'Damage'],
-        ['id' => 'RTR', 'name' => 'Return'],
         ['id' => 'TAX', 'name' => 'Pajak'],
         ['id' => 'UNDF', 'name' => 'Undefined'],
     ];
@@ -77,12 +73,14 @@ class TradeService
 
     public $status_types = [
         'TX_DRAFT' => 'DRAFT',
-        'TX_OPEN' => 'OPEN',
-        'TX_PROGRESS' => 'PROGRESS',
-        'TX_PROBLEM' => 'PROBLEM',
-        'TX_SHIP' => 'SHIP',
-        'TX_RESOLVED' => 'RESOLVED',
-        'TX_CLOSED' => 'CLOSED',
+        'TX_REQUEST' => 'REQUEST (PENGAJUAN)',
+        'TX_APPROVED' => 'APPROVED (DISETUJUI)',
+        'TX_SENT' => 'TERKIRIM KE PENERIMA',
+        'TX_ACCEPTED' => 'DITERIMA PENERIMA',
+        'TX_REJECTED' => 'DITOLAK PENERIMA',
+        'TX_EXPIRED' => 'EXPIRED (WAKTU PENAWARAN HABIS)',
+        'TX_CANCELED' => 'BATAL (PENAWARAN DIBATALKAN)',
+        'TX_CLOSED' => 'CLOSED (PENAWARAN SELESAI)',
     ];
 
 
@@ -107,7 +105,7 @@ class TradeService
             'number' => $data['number'] ?? null,
             'space_type' => 'SPACE',
             'space_id' => $data['space_id'] ?? $space_id,
-            'model_type' => 'TRD',
+            'model_type' => 'QUO',
             'sender_type' => $data['sender_type'] ?? 'PLAY',
             'sender_id' => $data['sender_id'] ?? $player_id,
             'input_type' => $data['input_type'] ?? null,
@@ -256,7 +254,7 @@ class TradeService
         if($return_type == 'DT'){
             return DataTables::of($query)
                 ->addColumn('actions', function ($data) use ($user, $space_role) {
-                    $route = 'trades';
+                    $route = 'quotes';
 
                     $actions = [
                         'show' => 'modaljs',
@@ -371,7 +369,7 @@ class TradeService
 
         $query = Transaction::with('input', 'type', 'details', 'details.detail', 
                                     'sender', 'handler', 'receiver')
-                            ->where('model_type', 'TRD')
+                            ->where('model_type', 'QUO')
                             ->where('space_type', 'SPACE')
                             ->where('space_id', $space_id);
 
@@ -388,16 +386,16 @@ class TradeService
                 });
             }
         } else {
-            $can_trades_po = $user->can('space.trades.po') ?? false;
-            $can_trades_so = $user->can('space.trades.so') ?? false;
+            $can_quotes_po = $user->can('space.quotes.po') ?? false;
+            $can_quotes_so = $user->can('space.quotes.so') ?? false;
 
-            $query = $query->where(function($q) use ($can_trades_po, $can_trades_so){
-                $q->whereHas('details', function($q2) use ($can_trades_po, $can_trades_so){
-                    if(!$can_trades_po){
+            $query = $query->where(function($q) use ($can_quotes_po, $can_quotes_so){
+                $q->whereHas('details', function($q2) use ($can_quotes_po, $can_quotes_so){
+                    if(!$can_quotes_po){
                         $q2->where('model_type', '!=', 'PO');
                     }
     
-                    if(!$can_trades_so){
+                    if(!$can_quotes_so){
                         $q2->where('model_type', '!=', 'SO');
                     }
                 });
@@ -413,18 +411,18 @@ class TradeService
 
 
     public function getIndexData(Request $request){
-        $trades = $this->getQueryData($request);
+        $quotes = $this->getQueryData($request);
 
-        return DataTables::of($trades)
+        return DataTables::of($quotes)
             ->addColumn('size_display', function ($data) {
                 return ($data->size_type ?? '?') . ' : ' . ($data->size?->number ?? '?');
             })
             ->addColumn('actions', function ($data) {
-                $route = 'trades';
+                $route = 'quotes';
                 
                 $actions = [
                     'show' => 'modaljs',
-                    // 'show_modal' => 'space.trades.show',
+                    // 'show_modal' => 'space.quotes.show',
                     // 'edit' => 'modal',
                     'delete' => 'button',
                 ];
@@ -517,14 +515,14 @@ class TradeService
             }
         }
 
-        $trades = (clone $query)->skip($offset)->take($per_page)->get();
+        $quotes = (clone $query)->skip($offset)->take($per_page)->get();
 
 
         $response = [
             'page' => $page,
             'per_page' => $per_page,
             'total' => $query->count(),
-            'data' => $trades,
+            'data' => $quotes,
             'request' => $request->all(),
         ];
 
@@ -681,7 +679,7 @@ class TradeService
                         'number' => $txnNumber,
                         'space_type' => 'SPACE',
                         'space_id' => $space_id,
-                        'model_type' => 'TRD',
+                        'model_type' => 'QUO',
                         'sender_type' => 'PLAY',
                         'sender_id' => $player_id,
                         'handler_type' => 'PLAY',
@@ -857,7 +855,7 @@ class TradeService
 
                     // find tx, create if not exist
                     $tx = Transaction::where('number', $txnNumber)
-                                        ->where('model_type', 'TRD')
+                                        ->where('model_type', 'QUO')
                                         ->where('space_type', 'SPACE')
                                         ->where('space_id', $space_id)
                                         ->first();
@@ -897,6 +895,6 @@ class TradeService
         
         DB::commit();
         if($request_source == 'api'){ return response()->json(['message' => 'CSV uploaded and processed Successfully!', 'success' => true, 'data' => []], 200); }
-        return redirect()->route('trades.index')->with('success', 'CSV uploaded and processed Successfully!');
+        return redirect()->route('quotes.index')->with('success', 'CSV uploaded and processed Successfully!');
     }
 }

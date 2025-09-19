@@ -113,6 +113,13 @@
                     'text' => 'Kontak',
                 ],
 
+                'quote' => [
+                    'auth' => $user->can('space.quotes.po') || $user->can('space.quotes.so') || $space_role == 'owner',
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "quotes.index",
+                    'text' => 'Penawaran (beta)',
+                ],
+
                 'players.summary' => [
                     'auth' => $user->can('space.players.summary') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
