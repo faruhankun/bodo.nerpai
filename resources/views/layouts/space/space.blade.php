@@ -75,17 +75,12 @@
         ],
 
 
-        'Sosial' => [
-            'dropdown_id' => 'social',
-            'dropdown_text' => 'Sosial',
+
+
+        'Pesanan' => [
+            'dropdown_id' => 'orders',
+            'dropdown_text' => 'Pesanan',
             'dropdown_items' => [
-                'players' => [
-                    'auth' => $user->can('space.players') || $space_role == 'owner',
-                    'icon' => 'icon-checklist-paper',
-                    'route' => "players.index",
-                    'text' => 'Kontak',
-                ],
-                
                 'trade' => [
                     'auth' => $user->can('space.trades.po') || $user->can('space.trades.so') || $space_role == 'owner',
                     'icon' => 'icon-checklist-paper',
@@ -103,7 +98,32 @@
                         'start_date' => now()->startOfMonth()->format('Y-m-d'),
                     ],
                 ],
-            ]
+            ],
+        ],
+
+
+        'Sosial' => [
+            'dropdown_id' => 'social',
+            'dropdown_text' => 'Sosial',
+            'dropdown_items' => [
+                'players' => [
+                    'auth' => $user->can('space.players') || $space_role == 'owner',
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "players.index",
+                    'text' => 'Kontak',
+                ],
+
+                'players.summary' => [
+                    'auth' => $user->can('space.players.summary') || $space_role == 'owner',
+                    'icon' => 'icon-checklist-paper',
+                    'route' => "players.summary",
+                    'text' => 'Rangkuman Kontak (beta)',
+                    'route_params' => [
+                        'summary_type' => 'tradeflow',
+                        'start_date' => now()->startOfMonth()->format('Y-m-d'),
+                    ],
+                ],
+            ],
         ],
 
 

@@ -39,6 +39,8 @@ class Item extends Model
 
         'description',
         'files',
+
+        'expected_lifetime',
     ];
 
 

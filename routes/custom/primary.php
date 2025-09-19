@@ -123,6 +123,7 @@ Route::middleware([
 
     
     // Players
+    Route::get('players/summary', [PlayerController::class, 'summary'])->name('players.summary');
     Route::post('players/exim', [PlayerController::class, 'eximData'])->name('players.exim');
     Route::get('players/exim', [PlayerController::class, 'eximData'])->name('players.exim');
 

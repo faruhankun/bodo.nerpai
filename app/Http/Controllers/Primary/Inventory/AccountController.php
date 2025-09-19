@@ -872,6 +872,7 @@ class AccountController extends Controller
         $baseQuery = TransactionDetail::with(['transaction', 'detail'])
             ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->where('detail_id', $validated['account_id'])
+            ->where('transactions.model_type', 'JE')
             // ->whereBetween('sent_time', [
             //     Carbon::parse($validated['start_date'])->startOfDay(),
             //     Carbon::parse($validated['end_date'])->endOfDay()

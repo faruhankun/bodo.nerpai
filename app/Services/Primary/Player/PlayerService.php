@@ -35,6 +35,107 @@ class PlayerService
     }
 
 
+    
+
+    public function getSummaryItemflow($txs){
+        $itemflow = collect();
+
+        $txs_per_date = $txs->groupBy('sent_time');
+
+        $space_supply = 0;
+        
+        
+        $per_date_change_initial = [];
+        $list_model_types = $this->tradeService->model_types ?? [];
+        foreach($list_model_types as $model_type){
+            $per_date_change_initial[$model_type['id']] = 0;
+        }
+
+
+
+        foreach($txs_per_date as $end_date => $txs){
+            $per_date_change = $per_date_change_initial;
+            
+            $per_date = [
+                'date' => $end_date,
+                'change' => 0,
+                'balance' => $space_supply,
+            ];
+
+            foreach($txs as $tx){
+                foreach($tx->details as $detail){
+                    // tx
+                    $per_date_change[$detail->model_type] += $detail->quantity * $detail->price * (1 - $detail->discount);
+                }
+            }
+
+            $per_date['change'] += array_sum($per_date_change);
+            $per_date['balance'] += $per_date['change'];
+            $space_supply = $per_date['balance'];
+
+            $per_date = array_merge($per_date, $per_date_change);
+            $itemflow->push($per_date);
+        }
+
+        return $itemflow;
+    }
+
+
+    public function getSummaryData($data, $txs, $spaces, $validated, $space_id = null){
+        $summary_type = $validated['summary_type'] ?? null;
+        if(is_null($summary_type)){
+            return $data;
+        }
+
+        // Transaction;
+        $spaces_per_id = $spaces->groupBy('id');
+        $txs_per_space = $txs->groupBy('space_id');                
+        $items_data = collect();
+        $items_data_all = [];
+
+        $item_data_initial = [];
+        $list_model_types = $this->tradeService->model_types ?? [];
+        foreach($list_model_types as $model_type){
+            $item_data_initial[$model_type['id']]['quantity'] = 0;
+            $item_data_initial[$model_type['id']]['subtotal'] = 0;
+        }
+
+
+
+        foreach($txs_per_space as $id => $txs){
+            $txs_per_date = $txs->groupBy('sent_time');
+
+            $items_per_space = collect();
+            $items = [];
+
+            foreach($txs_per_date as $end_date => $txs){
+                foreach($txs as $tx){
+                    foreach($tx->details as $detail){
+                        // item
+                        // if move not included
+                        $item = $data->items_list[$detail->detail_id] ?? null;
+                        if(!isset($items[$item->id])){
+                            $items[$item->id] = $item_data_initial;
+                            $items[$item->id]['item'] = $item;
+                        }
+
+                        $items[$item->id][$detail->model_type]['quantity'] += $detail->quantity;
+                        $items[$item->id][$detail->model_type]['subtotal'] += $detail->quantity * $detail->price * (1 - $detail->discount);
+                    }
+                }
+            }
+
+            $items_data->put($id, $items);
+            $items_data_all = array_merge($items_data_all, $items);
+        }
+
+        $data->itemflow = collect([$space_id => $items_data_all]);
+
+        return $data;
+    }
+
+
+
 
     public function update(Request $request, $id){
         try {

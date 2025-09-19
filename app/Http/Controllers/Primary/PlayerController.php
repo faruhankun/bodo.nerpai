@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Primary\Player;
 use App\Models\Primary\Space;
 use App\Models\Primary\Relation;
+use App\Models\Primary\Transaction;
+use App\Models\Primary\Item;
 
 use App\Services\Primary\Basic\EximService;
 use App\Services\Primary\Player\PlayerService;
@@ -14,6 +16,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 use Yajra\DataTables\Facades\DataTables;
+
+use Carbon\Carbon;
+
+
 
 class PlayerController extends Controller
 {
@@ -25,6 +31,93 @@ class PlayerController extends Controller
         $this->eximService = $eximService;
         $this->playerService = $playerService;
     }
+
+
+
+    // summary
+    // Summaries
+    public $summary_types = [
+        'itemflow' => 'Arus Barang',
+    ];
+
+    public function summary(Request $request)
+    {
+        $space_id = get_space_id($request);
+        $request_source = get_request_source($request);
+
+        $space = Space::findOrFail($space_id);
+        $spaces = $space->spaceAndChildren();
+
+
+
+        // generate data by date
+        $validated = $request->validate([
+            'summary_type' => 'nullable|string',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+        ]);
+
+        $start_date = $validated['start_date'] ?? null;
+        $end_date = $validated['end_date'] ?? now()->format('Y-m-d');
+
+        $end_time = Carbon::parse($end_date)->endOfDay();
+        
+        $txs = Transaction::with('input', 'type', 'details', 'details.detail') 
+                            ->where('model_type', 'TRD')
+                            ->where('space_type', 'SPACE')
+                            ->whereIn('space_id', $spaces->pluck('id')->toArray())
+                            ->where('sent_time', '<=', $end_time)
+                            ->orderBy('sent_time', 'asc');
+
+        if(!is_null($start_date)){
+            $start_time = Carbon::parse($start_date)->startOfDay();
+            $txs = $txs->where('sent_time', '>=', $start_time);
+        }
+        
+        $txs = $txs->get();
+
+
+
+        // generate data by item
+        $data = collect();
+        $data->summary_types = $this->summary_types;
+        $list_model_types = $this->tradeService->model_types ?? [];
+
+        $data->items_list = Item::all()->keyBy('id');
+        $data = $this->playerService->getSummaryData($data, $txs, $spaces, $validated, $space_id);
+
+
+
+        if($request_source == 'api'){
+            $data_summary = [];
+            if(isset($validated['summary_type']) && isset($data->{$validated['summary_type']})){
+                $data_summary = $data->{$validated['summary_type']};
+            }
+
+            $spaces_data = $spaces->toArray();
+
+
+            // itemflow
+            if($validated['summary_type'] == 'itemflow'){
+                $itemflow = $this->playerService->getSummaryItemflow($txs);
+                $data_summary = $itemflow->toArray();
+            }
+
+
+            return response()->json([
+                'data' => $data_summary,
+                'summary_types' => $this->summary_types,
+                'spaces' => $spaces_data,
+                'input' => $validated,
+                'list_model_types' => $list_model_types,
+                'success' => true,
+            ]);
+        }
+
+        return view('primary.players.summary', compact('data', 'txs', 'spaces', 'list_model_types'));
+    }
+
+
 
 
     // get data
