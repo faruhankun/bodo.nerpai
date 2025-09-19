@@ -5,6 +5,7 @@
         'edit' => '',
         'edit_modal' => '',
         'delete' => '',
+        'delete_id' => null,
     ]
 ])
 
@@ -13,6 +14,7 @@
     $actions['show_modal'] = $actions['show_modal'] ?? '';
     $actions['edit'] = $actions['edit'] ?? '';
     $actions['delete'] = $actions['delete'] ?? '';
+    $actions['delete_id'] = $actions['delete_id'] ?? $data->id;
 
     $space_role = session('space_role') ?? null;
 @endphp
@@ -38,7 +40,7 @@
 
 
         @if($actions['delete'] == 'button')
-            <x-button-delete :route="route($route . '.destroy', $data->id)" />
+            <x-button-delete :route="route($route . '.destroy', $actions['delete_id'])" />
         @endif
     @endif
 </div>

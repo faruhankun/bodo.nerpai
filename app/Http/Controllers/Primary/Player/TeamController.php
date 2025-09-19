@@ -111,6 +111,7 @@ class TeamController extends Controller
                     $actions = [
                         'edit' => 'modal',
                         'delete' => 'button',
+                        'delete_id' => $data->player_id ?? '',
                     ];
 
                     return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
