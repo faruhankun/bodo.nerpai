@@ -67,7 +67,7 @@ Route::middleware([
     Route::get('journal_supplies/import', [JournalSupplyController::class, 'importTemplate'])->name('journal_supplies.import_template');
     Route::post('journal_supplies/import', [JournalSupplyController::class, 'importData'])->name('journal_supplies.import');
     Route::get('journal_supplies/export', [JournalSupplyController::class, 'exportData'])->name('journal_supplies.export');
-    Route::get('journal_supplies/data', [JournalSupplyController::class, 'getJournalSuppliesData'])->name('journal_supplies.data');
+    Route::get('journal_supplies/data', [JournalSupplyController::class, 'getData'])->name('journal_supplies.data');
     Route::resource('journal_supplies', JournalSupplyController::class);
 
     Route::get('journal_accounts/export', [JournalAccountController::class, 'exportData'])->name('journal_accounts.export');

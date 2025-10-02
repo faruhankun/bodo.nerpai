@@ -5,6 +5,13 @@
 
     $data = $tx;
     //    dd($data);
+
+
+    
+    $request = request();
+    $space_id = get_space_id($request);
+    $space_role = session('space_role') ?? null;
+    $allow_update = ($data->space_id == $space_id) ? ($space_role == 'admin' || $space_role == 'owner') : false;
 @endphp
 
 <x-dynamic-component :component="'layouts.' . $layout">
@@ -29,7 +36,7 @@
                             <a href="{{ route('trades.index') }}">Back to List</a>
                         </x-secondary-button>
 
-                        @if($space_role == 'admin' || $space_role == 'owner')
+                        @if(($space_role == 'admin' || $space_role == 'owner') && $allow_update)
                             <a href="{{ route('trades.edit', $data->id) }}">
                                 <x-primary-button type="button">Edit Journal</x-primary-button>
                             </a>
@@ -50,10 +57,20 @@
         const trigger = 'show_modal_js';
         const parsed = data;
 
+        let route = 'trades';
+        switch(parsed.model_type) {
+            case 'TRD':
+                route = 'trades';
+                break;
+            case 'JS':
+                route = 'journal_supplies';
+                break;
+            default: ;
+        }
 
         // ajax get data show
         $.ajax({
-            url: "/api/trades/" + parsed.id,
+            url: "/api/" + route + "/" + parsed.id,
             type: "GET",
             data: {
                 'page_show': 'show'
@@ -62,7 +79,7 @@
                 let page_show = data.page_show ?? 'null ??';
                 $('#datashow_'+trigger).html(page_show);
 
-                let modal_edit_link = '/trades/' + parsed.id + '/edit';
+                let modal_edit_link = '/' + route + '/' + parsed.id + '/edit';
                 $('#modal_edit_link').attr('href', modal_edit_link);
 
                 window.dispatchEvent(new CustomEvent('open-' + trigger));

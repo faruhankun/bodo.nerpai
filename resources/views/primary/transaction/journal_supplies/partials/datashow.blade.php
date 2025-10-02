@@ -1,3 +1,10 @@
+@php
+    $tx_relations = $data->relations ?? collect();
+    $tx_relation = $data->relation ?? collect();
+    $tx_relations = $tx_relations->push($tx_relation);
+@endphp
+
+
 <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
         <!-- <x-div-box-show title="Number">{{ $data->number }}</x-div-box-show> -->
         <x-div-box-show title="Date">{{ optional($data->sent_time)?->format('Y-m-d') ?? '??' }}</x-div-box-show>
@@ -90,6 +97,55 @@
                         <x-table.table-td>{{ $child->notes ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td class="flex justify-center items-center gap-2">
                             
+                        </x-table.table-td>
+                    </x-table.table-tr>
+                @endforeach
+            </x-table.table-tbody>
+        </x-table.table-table>
+    </div>
+    @endif
+    <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+
+
+
+    <h3 class="text-lg font-bold my-3">TX Terkait</h3>
+    @if(isset($tx_relations) && $tx_relations->count() > 0)
+    <div class="overflow-x-auto">
+        <x-table.table-table id="journal-outputs">
+            <x-table.table-thead>
+                <tr>
+                    <x-table.table-th>Date</x-table.table-th>
+                    <x-table.table-th>Space</x-table.table-th>
+                    <x-table.table-th>Number</x-table.table-th>
+                    <x-table.table-th>Contributor</x-table.table-th>
+                    <x-table.table-th>Status</x-table.table-th>
+                    <x-table.table-th>Total</x-table.table-th>
+                    <x-table.table-th>Notes</x-table.table-th>
+                    <x-table.table-th>Actions</x-table.table-th>
+                </tr>
+            </x-table.table-thead>
+            <x-table.table-tbody>
+                @foreach ($tx_relations as $relation)
+                    <x-table.table-tr>
+                        <x-table.table-td>{{ $relation?->sent_time->format('Y-m-d') }}</x-table.table-td>
+                        <x-table.table-td>{{ $relation->space?->name ?? 'N/A' }}</x-table.table-td>
+                        <x-table.table-td>{{ $relation->model_type ?? 'Type' }} : 
+                            <a href="{{ route('trades.show', ['trade' => $relation->id]) }}" 
+                                class="text-blue-500 hover:underline"
+                                target="_blank">
+                                {{ $relation->number }}
+                            </a>
+                        </x-table.table-td>
+                        <x-table.table-td>{{ $relation->sender?->name ?? 'sender' }} <br> {{ $relation->handler?->name ?? 'handler' }}</x-table.table-td>
+                        <x-table.table-td>{{ $relation->status ?? 'status' }}</x-table.table-td>
+                        <x-table.table-td>{{ number_format($relation->total, 2) }}</x-table.table-td>
+                        <x-table.table-td>{{ $relation->notes ?? 'notes' }}</x-table.table-td>
+                        <x-table.table-td class="flex justify-center items-center gap-2">
+                            @if(!isset($get_page_show) || $get_page_show != 'show')
+                                @if($relation->model_type == 'TRD')
+                                    <x-buttons.button-showjs onclick='showjs_tx({{ $relation }})'></x-buttons.button-showjs>
+                                @endif
+                            @endif
                         </x-table.table-td>
                     </x-table.table-tr>
                 @endforeach

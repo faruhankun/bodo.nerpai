@@ -144,15 +144,14 @@ class Transaction extends Model
 
     public function relation()
     {
-        return $this->belongsTo(Transaction::class, 'relation_id')
-            ->where('input_type', 'TX');
+        return $this->morphTo();
     }
 
 
     public function relations()
     {
-        return $this->hasMany(Transaction::class, 'relation_id')
-            ->where('input_type', 'TX');
+        return $this->hasMany(Transaction::class, 'relation_id', 'id')
+            ->where('relation_type', 'TX');
     }
 
 

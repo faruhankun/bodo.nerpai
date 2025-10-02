@@ -2,6 +2,7 @@
     $layout = session('layout');
 
     $space_id = session('space_id') ?? null;
+    $space_parent_id = session('space_parent_id') ?? null;
     if(is_null($space_id)){
         abort(403);
     }
@@ -61,6 +62,35 @@
                                         
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
                         </div>
+
+
+
+                        <!-- detail tambahan -->
+                        <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
+                            <x-div.box-input for="relation_id" title="Transaksi Terkait" label="Transaksi Terkait">
+                                <select name="relation_id" id="edit_relation_id" class="w-full px-4 py-2 border rounded">
+                                    <option value="">-- Select Trades --</option>
+                                </select>
+                                <label id="edit_relation_data" class="text-xs text-gray-500"></label>
+                            </x-div.box-input>
+
+                            <div class="form-group mb-4">
+                                <x-input-label for="tags">Tags</x-input-label>
+                                <x-input-textarea name="tags" id="edit_tags" class="w-full" placeholder="Optional Tags"></x-input-textarea>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <x-input-label for="links">Links</x-input-label>
+                                <x-input-textarea name="links" id="edit_links" class="w-full" placeholder="Optional Links"></x-input-textarea>
+                            </div>
+
+                            <!-- <div class="form-group mb-4">
+                                <x-input-label for="notes">Notes</x-input-label>
+                                <x-input-textarea name="notes" id="edit_notes" class="w-full" placeholder="Optional notes"></x-input-textarea>
+                            </div> -->
+                        </div>
+
+
 
                         <div class="m-4 flex justify-end space-x-4">
                             <a href="{{ route('journal_supplies.index') }}">
@@ -260,3 +290,69 @@
     </script>
 
 </x-dynamic-component>
+
+
+
+<!-- fill data -->
+<script>
+    $(document).ready(function() {
+        let journal = {!! json_encode($journal) !!};
+
+        if(journal.relation){
+            const option = new Option(journal.relation.number + ' : ' + journal.relation?.receiver?.name, journal.relation.id, true, true);
+            $("#edit_relation_id").append(option).trigger('change');
+            $('#edit_relation_data').html(journal.relation.number + ' : ' + journal.relation?.receiver?.name + ' (' + journal.relation.status + ' : ' + journal.relation.sent_time.split('T')[0] + ')');
+        }
+    });
+</script>
+
+
+
+<!-- edit relation trade -->
+<script>
+    $(document).ready(function() {
+        let space_parent_id = '{{ $space_parent_id }}';
+
+        $('#edit_relation_id').select2({
+            placeholder: 'Search & Select Trade',
+            width: '100%',
+            ajax: {
+                url: '/trades/data',
+                dataType: 'json',
+                paginate: true,
+                delay: 500,
+                data: function(params) {
+                    return {
+                        q: params.term,
+                        return_type: 'json',
+                        space: 'true',
+                        space_id: '{{ $space_id }}',
+                        page: params.page || 1,
+                        model_type_select: 'search',
+                        limit: 10,
+                        orderby: 'sent_time',
+                        orderdir: 'desc',
+                        space_parent_id: space_parent_id,
+                    };
+                },
+                processResults: function(result) {
+                    console.log(result);
+                    return {
+                        results: result.map(item => ({
+                            id: item.id,
+                            text: (item.number || item.id) + ' : ' + item?.receiver?.name + ' (' + item.status + ' : ' + item.sent_time.split('T')[0] + ')',
+                        }))
+                    }
+                },
+                cache: true
+            }
+        });
+
+        $('#edit_relation_id').on('select2:select', function(e) {
+            const selected = e.params.data;
+            console.log(selected);
+            
+            $('#edit_relation_data').html(selected.text);
+        });
+    });
+</script>

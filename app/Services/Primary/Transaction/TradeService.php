@@ -67,7 +67,6 @@ class TradeService
         ['id' => 'BILL', 'name' => 'Tagihan'],
         ['id' => 'PAY', 'name' => 'Pembayaran'],
         ['id' => 'PO', 'name' => 'Purchase'],
-        ['id' => 'PRE', 'name' => 'Pre Order'],
         ['id' => 'DMG', 'name' => 'Damage'],
         ['id' => 'RTR', 'name' => 'Return'],
         ['id' => 'TAX', 'name' => 'Pajak'],
@@ -77,11 +76,12 @@ class TradeService
 
     public $status_types = [
         'TX_DRAFT' => 'DRAFT',
-        'TX_OPEN' => 'OPEN',
-        'TX_PROGRESS' => 'PROGRESS',
-        'TX_PROBLEM' => 'PROBLEM',
-        'TX_SHIP' => 'SHIP',
-        'TX_RESOLVED' => 'RESOLVED',
+        'TX_READY' => 'PERLU DIKIRIM',
+        'TX_SENT' => 'DIKIRIM SELLER',
+        'TX_RECEIVED' => 'DITERIMA PENERIMA',
+        'TX_COMPLETED' => 'PESANAN SELESAI',
+        'TX_CANCELED' => 'BATAL',
+        'TX_RETURN' => 'RETURN',
         'TX_CLOSED' => 'CLOSED',
     ];
 
@@ -282,6 +282,11 @@ class TradeService
                     }
 
 
+                    if($data->status == 'TX_CLOSED'){
+                        unset($actions['edit']);
+                    }
+
+
                     return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
                 })
 
@@ -369,17 +374,24 @@ class TradeService
         $space_id = get_space_id($request);
         $user = auth()->user();
 
+        $space_ids = array($space_id);
+        if($request->filled('space_parent_id'))
+            array_push($space_ids, $request->space_parent_id);
+
         $query = Transaction::with('input', 'type', 'details', 'details.detail', 
-                                    'sender', 'handler', 'receiver')
+                                    'sender', 'handler', 'receiver',
+                                    'relations')
                             ->where('model_type', 'TRD')
                             ->where('space_type', 'SPACE')
-                            ->where('space_id', $space_id);
+                            ->whereIn('space_id', $space_ids);
 
 
 
         // filter model
-        $model_type_select = $request->get('model_type_select') ?? 'null';
-        if($model_type_select != 'all'){
+        $model_type_select = $request->get('model_type_select') ?? 'all';
+        if($model_type_select == 'search'){
+            
+        } else if($model_type_select != 'all'){
             if($model_type_select == 'null' || empty($model_type_select)){
                 $query->whereDoesntHave('details');
             } else {
@@ -391,19 +403,24 @@ class TradeService
             $can_trades_po = $user->can('space.trades.po') ?? false;
             $can_trades_so = $user->can('space.trades.so') ?? false;
 
-            $query = $query->where(function($q) use ($can_trades_po, $can_trades_so){
-                $q->whereHas('details', function($q2) use ($can_trades_po, $can_trades_so){
-                    if(!$can_trades_po){
-                        $q2->where('model_type', '!=', 'PO');
-                    }
+            if(!$can_trades_po && !$can_trades_so){
+                $query->whereDoesntHave('details');
+            } else {
+                $query = $query->where(function($q) use ($can_trades_po, $can_trades_so){
+                    $q->whereHas('details', function($q2) use ($can_trades_po, $can_trades_so){
+                        if(!$can_trades_po){
+                            $q2->where('model_type', '!=', 'PO');
+                        }
+        
+                        if(!$can_trades_so){
+                            $q2->where('model_type', '!=', 'SO');
+                        }
+                    });
     
-                    if(!$can_trades_so){
-                        $q2->where('model_type', '!=', 'SO');
-                    }
+                    $q->orWhereDoesntHave('details');
                 });
+            }
 
-                $q->orWhereDoesntHave('details');
-            });
         }
 
 

@@ -134,7 +134,9 @@ class JournalSupplyController extends Controller
         $request_source = get_request_source($request);
         
         try {
-            $journal = Transaction::with(['details', 'details.detail', 'details.detail.item'])->findOrFail($id);
+            $journal = Transaction::with(['details', 'details.detail', 'details.detail.item',
+                    'relations', 'relation'
+                ])->findOrFail($id);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage(), 'success' => false], 404);
         }
@@ -157,7 +159,7 @@ class JournalSupplyController extends Controller
         $inventories = $this->get_inventories();
         $inventories = Item::with('type', 'parent')
                             ->where('model_type', 'PRD')->get();
-        $journal = Transaction::with(['details', 'details.detail'])->findOrFail($id);
+        $journal = Transaction::with(['details', 'details.detail', 'relation'])->findOrFail($id);
         $model_types = $this->model_types;
 
         return view('primary.transaction.journal_supplies.edit', compact('journal', 'inventories', 'model_types'));
@@ -184,6 +186,8 @@ class JournalSupplyController extends Controller
                 'details.*.model_type' => 'required|string',
                 'details.*.cost_per_unit' => 'required|min:0',
                 'details.*.notes' => 'nullable|string|max:255',
+
+                'relation_id' => 'nullable',
             ]);
 
             if(!isset($validated['details'])){
@@ -193,7 +197,7 @@ class JournalSupplyController extends Controller
             $journal = Transaction::with(['details', 'outputs'])->findOrFail($id);
 
 
-
+            
             $data = [
                 'sent_time' => $validated['sent_time'] ?? now(),
                 'handler_notes' => $validated['handler_notes'] ?? null,
@@ -201,8 +205,12 @@ class JournalSupplyController extends Controller
                 'handler_id' => $validated['handler_id'],
             ];
 
-            $journal = $this->journalSupply->updateJournal($journal, $data, $validated['details']);
+            if(isset($validated['relation_id'])){ 
+                $data['relation_type'] = 'TX';
+                $data['relation_id'] = $validated['relation_id']; 
+            }
 
+            $journal = $this->journalSupply->updateJournal($journal, $data, $validated['details']);
 
 
             // mirror journal from space origin
@@ -277,7 +285,7 @@ class JournalSupplyController extends Controller
 
 
 
-    public function getJournalSuppliesData(Request $request)
+    public function getData(Request $request)
     {
         $query = $this->getQueryData($request);       
 
@@ -353,12 +361,18 @@ class JournalSupplyController extends Controller
     public function getQueryData(Request $request){
         $space_id = get_space_id($request);
 
+        $space = Space::findOrFail($space_id);
+        // $space_ids = $space->spaceAndChildren()->pluck('id')->toArray() ?? [];
+        $space_ids = array_merge([], [$space_id]);
+
         $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
             ->where('model_type', 'JS')
             ->orderBy('sent_time', 'desc');
 
         $query = $query->where('transactions.space_type', 'SPACE')
-                        ->where('transactions.space_id', $space_id);
+                        ->whereIn('transactions.space_id', $space_ids);
+
+
 
         return $query;
     }
