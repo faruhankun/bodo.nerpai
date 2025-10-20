@@ -46,6 +46,7 @@ Route::middleware([
 
 
     // Transactions
+    Route::post('quotes/make_trade/{id}', [QuoteController::class, 'makeTrade'])->name('quotes.make_trade');
     Route::post('quotes/duplicate/{id}', [QuoteController::class, 'duplicate'])->name('quotes.duplicate');
     Route::get('quotes/{id}/invoice', [QuoteController::class, 'invoice'])->name('quotes.invoice');
 

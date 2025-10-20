@@ -257,6 +257,9 @@
 
             <div class="flex gap-3 justify-end mt-8">
                 <x-buttons.button-duplicate :route="route('quotes.duplicate', $data->id)">Duplicate</x-buttons.button-duplicate>
+
+                <!-- to make quote to be trade -->
+                <x-buttons.button-pass :route="route('quotes.make_trade', $data->id)">Jadikan Trades</x-buttons.button-pass>
             </div>
         </div>
     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>

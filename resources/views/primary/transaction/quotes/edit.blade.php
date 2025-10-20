@@ -66,6 +66,16 @@
                                     Detail</x-button2>
                             </div>
 
+                            <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+                            <div class="flex justify-end space-x-4">
+                                <p class="text-lg font-semibold text-end"><strong>Total Tagihan:</strong> Rp <span
+                                        id="total-debit">0</span></p>
+                                <p class="text-lg font-semibold text-end"><strong>Total Pembayaran:</strong> Rp <span
+                                        id="total-credit">0</span></p>
+                            </div>
+                            <p class="text-lg font-semibold text-end text-red-600"><span
+                                        id="debit-credit"></span></p>
+
                                         
                             <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
@@ -370,11 +380,6 @@
 
                 initInventorySelect($row.find('.inventory-select'));
             });
-
-            // Remove Journal Detail row
-            $(document).on("click", ".remove-detail", function() {
-                $(this).closest("tr").remove();
-            });
         });
 
         function validateForm() {
@@ -529,5 +534,60 @@
         //         initInventorySelect($(this));
         //     });
         // }, 0);
+
+        
+        
+
+        // Remove Journal Detail row
+        $(document).on("click", ".remove-detail", function() {
+            $(this).closest("tr").remove();
+            updateTotals();
+        });
+
+
+        // if quantity, price, or discount is changed, update the total
+        $(document).on("input", ".quantity-input, .price-input, .discount-input", function() {
+            updateTotals();
+        });
+
+
+        function updateTotals() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+
+
+            // Update the total Debit and Credit
+            // subtotal = quantity * price * (1-discount)
+            // if quantity < 0 add subtotal to debit, if quantity > 0 add subtotal to credit
+            $('.quantity-input').each(function() {
+                const quantity = parseFloat($(this).val()) || 0;
+                const price = parseFloat($(this).closest('tr').find('.price-input').val()) || 0;
+                const discount = parseFloat($(this).closest('tr').find('.discount-input').val()) || 0;
+                const subtotal = quantity * price * (1 - discount);
+                if (quantity < 0) {
+                    totalDebit += subtotal;
+                } else {
+                    totalCredit += subtotal;
+                }
+
+                console.log(subtotal, quantity, price, discount);
+            });
+
+            $("#total-debit").text(totalDebit.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+            $("#total-credit").text(totalCredit.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+
+            if(totalDebit != totalCredit){
+                $("#debit-credit").text("Selisih Tagihan dan Pembayaran, diff: " + (totalDebit + totalCredit).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,"));
+            } else {
+                $("#debit-credit").text("");
+            }
+
+            console.log(totalDebit);
+            console.log(totalCredit);
+        }
+
+
+        // Initialize totals with existing values
+        updateTotals();
     });
 </script>
