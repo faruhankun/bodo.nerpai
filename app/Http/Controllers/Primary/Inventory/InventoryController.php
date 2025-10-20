@@ -373,7 +373,13 @@ class InventoryController extends Controller
                     // 'show' => 'modal',
                     // 'show_modal' => 'primary.inventory.supplies.show',
                     'edit' => 'modal',
+                    'delete' => 'button',
                 ];
+
+
+                if($data->tx_details->isNotEmpty()){
+                    unset($actions['delete']);
+                }
 
                 return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
             })
@@ -438,6 +444,34 @@ class InventoryController extends Controller
             });
 
         return response()->json($ivts);
+    }
+
+
+    public function destroy(Request $request, String $id)
+    {
+        $account = Inventory::with('tx_details')->findOrFail($id);
+
+        // check apakah ada transaksi
+        if ($account->tx_details->count() > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account has related transaction. Cannot delete.',
+            ], 500);
+        }
+
+
+        $account->delete();
+
+        $request_source = $request->input('request_source') ?? 'api';
+        if($request_source == 'api'){
+            return response()->json([
+                'success' => true,
+                'message' => "Accounts {$account->name} deleted successfully.",
+                'data' => $account,
+            ]);
+        }
+
+        return redirect()->route('supplies.index')->with('success', "Accounts {$account->name} deleted successfully.");
     }
 
 

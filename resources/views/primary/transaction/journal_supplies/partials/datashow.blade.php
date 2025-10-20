@@ -1,13 +1,15 @@
 @php
     $tx_relations = $data->relations ?? collect();
-    $tx_relation = $data->relation ?? collect();
-    $tx_relations = $tx_relations->push($tx_relation);
+    $tx_relation = $data->relation ?? null;
+    if($tx_relation){
+        $tx_relations = $tx_relations->push($tx_relation);
+    }
 @endphp
 
 
 <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
         <!-- <x-div-box-show title="Number">{{ $data->number }}</x-div-box-show> -->
-        <x-div-box-show title="Date">{{ optional($data->sent_time)?->format('Y-m-d') ?? '??' }}</x-div-box-show>
+        <!-- <x-div-box-show title="Date">{{ optional($data?->sent_time)?->format('Y-m-d') ?? '??' }}</x-div-box-show> -->
         <!-- <x-div-box-show title="Source">
             {{ $data->input_type ?? 'N/A' }} : {{ $data->input?->number ?? 'N/A' }}
         </x-div-box-show> -->
@@ -91,7 +93,7 @@
                     <x-table.table-tr>
                         <x-table.table-td>{{ $child->number }}</x-table.table-td>
                         <x-table.table-td>{{ $child->space?->name ?? 'N/A' }}</x-table.table-td>
-                        <x-table.table-td>{{ $child->sent_time }}</x-table.table-td>
+                        <x-table.table-td>{{ $child?->sent_time }}</x-table.table-td>
                         <x-table.table-td>{{ $child->sender?->name ?? 'N/A' }} <br> {{ $child->handler?->name ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ number_format($child->total, 2) }}</x-table.table-td>
                         <x-table.table-td>{{ $child->notes ?? 'N/A' }}</x-table.table-td>
@@ -127,7 +129,7 @@
             <x-table.table-tbody>
                 @foreach ($tx_relations as $relation)
                     <x-table.table-tr>
-                        <x-table.table-td>{{ $relation?->sent_time->format('Y-m-d') }}</x-table.table-td>
+                        <x-table.table-td>{{ $relation?->sent_time?->format('Y-m-d') }}</x-table.table-td>
                         <x-table.table-td>{{ $relation->space?->name ?? 'N/A' }}</x-table.table-td>
                         <x-table.table-td>{{ $relation->model_type ?? 'Type' }} : 
                             <a href="{{ route('trades.show', ['trade' => $relation->id]) }}" 

@@ -374,6 +374,18 @@ class JournalSupplyController extends Controller
 
 
 
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(50);
+        }                
+
+
+
         return $query;
     }
 

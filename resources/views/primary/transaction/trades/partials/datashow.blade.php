@@ -33,7 +33,7 @@
 
 
     $request = request();
-    $space_id = get_space_id($request);
+    $space_id = get_space_id($request, false);
     $space_role = session('space_role') ?? null;
     $allow_update = ($data->space_id == $space_id) ? ($space_role == 'admin' || $space_role == 'owner') : false;
     $allow_duplicate = $allow_update ?? false;
