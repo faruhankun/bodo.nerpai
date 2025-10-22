@@ -1,16 +1,66 @@
 @php
+    $request = request();
+
+
     $space_id = session('space_id') ?? null;
     if(is_null($space_id)){
         abort(403);
     }
-
+    $space_children = $space->children;
     $player = session('player_id') ? \App\Models\Primary\Player::findOrFail(session('player_id')) : Auth::user()->player;
+
+
+    // pilih space yang tidak punya variable space.settings.supplies yang bernilai 0
+    $space_with_supplies = $space_children->filter(function ($space) {
+        $var = $space->variables->where('key', 'space.setting.supplies')->first();
+        if($var){
+            if($var->value == 0){
+                return false;
+            }
+        }
+
+        return true;
+    });
+    $space_select = $request->get('space_select') ?? null;
+    $space_select_options = [$space_id => $space->name];    // this space
+    foreach($space_with_supplies as $space){
+        $space_select_options[$space->id] = $space->name;
+    }
+    $space_select_options['all'] = 'SEMUA SPACE';
+    if($space_select == null)
+        $space_select = $space_id;
+
+
+
+
+    $status_select = $request->get('status_select') ?? null;
+    $status_select_options = $status_select_options ?? [];
+    $status_select_options['all'] = 'Semua Status';
+    $status_select_options['exc'] = 'Status Tidak Diketahui';
+    if($status_select == null)
+        $status_select = 'TX_READY';
 @endphp
 
 <x-crud.index-basic header="Journal Supplies" model="journal supplies" table_id="indexTable" 
-                    :thead="['ID', 'Date', 'Number', 'Description', 'SKU','Total', 'Actions']">
+                    :thead="['Date', 'Number', 'Description', 'SKU', 'Status', 'Actions']">
     <x-slot name="buttons">
         @include('primary.transaction.journal_supplies.create')
+
+
+        <x-input-select name="space_select" id="space-select" class="filter-select">
+            <option value="">-- Filter Status --</option>
+            @foreach ($space_select_options as $key => $value)
+                <option value="{{ $key }}" {{ $space_select == $key ? 'selected' : '' }}>{{ $value }}</option>
+            @endforeach
+        </x-input-select>
+
+
+        <x-input-select name="status_select" id="status-select" class="filter-select">
+            <option value="">-- Filter Status --</option>
+            @foreach ($status_select_options as $key => $value)
+                <option value="{{ $key }}" {{ $status_select == $key ? 'selected' : '' }}>{{ $value }}</option>
+            @endforeach
+        </x-input-select>
     </x-slot>
 
     <x-slot name="filters">
@@ -46,12 +96,20 @@
     $(document).ready(function() {
         let indexTable = $('#indexTable').DataTable({
             processing: true,
-            serverSide: true,
-            ajax: "{{ route('journal_supplies.data') }}",   
+            serverSide: true,  
+            ajax: {
+                url: "{{ route('journal_supplies.data') }}",
+                data: function (d) {
+                    d.return_type = 'DT';
+                    d.space_id = {{ $space_id }};
+                    d.model_type_select = $('#model-type-select').val() || '';
+                    d.status_select = $('#status-select').val() || '';
+                    d.space_select = $('#space-select').val() || '';
+                    d.limit = 'all';
+                }
+            },
             pageLength: 10,
-            columns: [{
-                    data: 'id'
-                },
+            columns: [
                 {
                     data: 'sent_time',
                     render: function(data) {
@@ -62,15 +120,17 @@
                         return `${year}-${month}-${day}`;
                     }
                 },
+                
                 {
                     data: 'number',
                     className: 'text-blue-600',
                     render: function (data, type, row, meta) {
-                        return `<a href="javascript:void(0)" onclick='showjs(${JSON.stringify(row.data)})'>${
+                        return `<a href="journal_supplies/${row.id}" target="_blank">${
                                     data
                                 }</a>`;
                     }
                 },
+
                 {
                     data: 'all_notes',
                     render: function(data) {
@@ -84,28 +144,23 @@
                         return data || '-';
                     }
                 },
-                // {
-                //     data: 'details',
-                //     render: function(data) {
-                //         if (!Array.isArray(data)) return '-';
-                        
-                //         const list_sku = data.map(d => {
-                //             const item = d.detail?.item;
-                //             return item ? `${item.sku} - ${item.name}` : null;
-                //         }).filter(Boolean);
 
-                //         return list_sku.join('<br>');
+                // {
+                //     data: 'total',
+                //     className: 'text-right',
+                //     render: function(data, type, row, meta) {
+                //         return new Intl.NumberFormat('id-ID', {
+                //             maximumFractionDigits: 2
+                //         }).format(data);
                 //     }
                 // },
                 {
-                    data: 'total',
-                    className: 'text-right',
-                    render: function(data, type, row, meta) {
-                        return new Intl.NumberFormat('id-ID', {
-                            maximumFractionDigits: 2
-                        }).format(data);
+                    data: 'status',
+                    render: function(data) {
+                        return data || 'unknown';
                     }
                 },
+
                 {
                     data: 'actions',
                     orderable: false,
@@ -113,6 +168,14 @@
                 }
             ]
         });
+
+
+
+        // filter
+        $('.filter-select').on('change', function(e) {
+            indexTable.ajax.reload();
+        });
+
 
 
         // setup create

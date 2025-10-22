@@ -74,9 +74,15 @@ class JournalSupplyController extends Controller
     }
 
 
-    public function index()
-    {
-        return view('primary.transaction.journal_supplies.index');
+    public function index(Request $request){ 
+        $status_select_options = $this->journalSupply->status_types;
+
+
+        $space_id = get_space_id($request);
+        $space = Space::with('children', 'children.variables')
+                        ->findOrFail($space_id);
+
+        return view('primary.transaction.journal_supplies.index', compact('status_select_options', 'space')); 
     }
 
 
@@ -285,108 +291,8 @@ class JournalSupplyController extends Controller
 
 
 
-    public function getData(Request $request)
-    {
-        $query = $this->getQueryData($request);       
-
-        $query = $query->orderBy('transactions.id', 'desc');
-
-
-        return DataTables::of($query)
-            ->addColumn('actions', function ($data) {
-                $route = 'journal_supplies';
-
-                $actions = [
-                    'show' => 'modal',
-                    'show_modal' => 'primary.transaction.journal_supplies.show_modal',
-                    'edit' => 'button',
-                    'delete' => 'button',
-                ];
-
-
-                // jika punya input atau outputs, maka tidak bisa dihapus
-                if($data->outputs->isNotEmpty() || $data->input){
-                    unset($actions['delete']);
-                }
-
-
-                return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
-            })
-
-            ->addColumn('sku', function ($data){
-                return $data->details->map(function ($detail){
-                    return $detail->detail->sku;
-                })->implode(', ');
-            })
-
-            ->addColumn('all_notes', function ($data){
-                return $data->sender_notes . '<br>' . $data->handler_notes;
-            })
-
-            ->addColumn('data', function ($data) {
-                return $data;
-            })
-
-            ->filter(function ($query) use ($request) {                                  
-                if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
-                    $search = $request->search['value'] ?? $request->q;
-
-                    $query = $query->where(function ($q) use ($search) {
-                        $q->where('transactions.id', 'like', "%{$search}%")
-                            ->orWhere('transactions.sent_time', 'like', "%{$search}%")
-                            ->orWhere('transactions.number', 'like', "%{$search}%")
-                            ->orWhere('transactions.sender_notes', 'like', "%{$search}%")
-                            ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
-
-                        $q->orWhereHas('details', function ($q2) use ($search) {
-                            $q2->where('transaction_details.notes', 'like', "%{$search}%")
-                                ->orWhere('transaction_details.model_type', 'like', "%{$search}%")
-                            ;
-                        });
-
-                        $q->orWhereHas('details.detail', function ($q3) use ($search) {
-                            $q3->where('name', 'like', "%{$search}%")
-                                ->orWhere('sku', "{$search}")
-                            ;
-                        });
-                    });
-                }    
-            })
-
-            ->rawColumns(['actions', 'all_notes'])
-            ->make(true);
-    }
-
-    
-    public function getQueryData(Request $request){
-        $space_id = get_space_id($request);
-
-        $space = Space::findOrFail($space_id);
-        // $space_ids = $space->spaceAndChildren()->pluck('id')->toArray() ?? [];
-        $space_ids = array_merge([], [$space_id]);
-
-        $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
-            ->where('model_type', 'JS')
-            ->orderBy('sent_time', 'desc');
-
-        $query = $query->where('transactions.space_type', 'SPACE')
-                        ->whereIn('transactions.space_id', $space_ids);
-
-
-
-        // Limit
-        $limit = $request->get('limit');
-        if($limit){
-            if($limit != 'all'){
-                $query->limit($limit);
-            } 
-        } else {
-            $query->limit(50);
-        }                
-
-
-
-        return $query;
+    public function getData(Request $request){
+        return $this->journalSupply->getData($request);
     }
 
 

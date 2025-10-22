@@ -3,13 +3,28 @@
 namespace App\Services\Primary\Transaction;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+
+use Yajra\DataTables\Facades\DataTables;
 
 use App\Models\Primary\Transaction;
 use App\Models\Primary\Player;
 use App\Models\Primary\Inventory;
+use App\Models\Primary\TransactionDetail;
+use App\Models\Primary\Space;
+
+
 
 class JournalSupplyService
 {
+    public $status_types = [
+        'TX_READY' => 'PERLU DIKIRIM',
+        'TX_COMPLETED' => 'PESANAN SELESAI',
+    ];
+
+
+
     public function addJournal($data, $details = [])
     {
         $player_id = $data['sender_id'] ?? auth()->user()->player->id;
@@ -26,6 +41,8 @@ class JournalSupplyService
             'sent_time' => $data['sent_time'] ?? Date('Y-m-d'),
             'sender_notes' => $data['sender_notes'] ?? null,
             'total' => $data['total'] ?? 0,
+
+            'status' => 'TX_COMPLETED',
         ]);
 
         $journal_details = [];
@@ -202,5 +219,143 @@ class JournalSupplyService
             $supply = Inventory::find($detail_id);
             $supply->updateSupplyBalance();
         }
+    }
+
+
+
+    public function getData(Request $request)
+    {
+        $query = $this->getQueryData($request);       
+
+        $query = $query->orderBy('transactions.id', 'desc');
+
+
+        return DataTables::of($query)
+            ->addColumn('actions', function ($data) {
+                $route = 'journal_supplies';
+
+                $actions = [
+                    'show' => 'modal',
+                    'show_modal' => 'primary.transaction.journal_supplies.show_modal',
+                    'edit' => 'button',
+                    'delete' => 'button',
+                ];
+
+
+                // jika punya input atau outputs, maka tidak bisa dihapus
+                if($data->outputs->isNotEmpty() || $data->input){
+                    unset($actions['delete']);
+                }
+
+
+                // jika statusnya TX_COMPLETED, maka tidak bisa dihapus
+                if($data->status == 'TX_COMPLETED'){
+                    // unset($actions['edit']);
+                    unset($actions['delete']);
+                }
+
+
+                return view('components.crud.partials.actions', compact('data', 'route', 'actions'))->render();
+            })
+
+            ->addColumn('sku', function ($data){
+                return $data->details->map(function ($detail){
+                    return $detail->detail->sku;
+                })->implode(', ');
+            })
+
+            ->addColumn('all_notes', function ($data){
+                return $data->sender_notes . '<br>' . $data->handler_notes;
+            })
+
+            ->addColumn('data', function ($data) {
+                return $data;
+            })
+
+            ->filter(function ($query) use ($request) {                                  
+                if ($request->has('search') && $request->search['value'] || $request->filled('q')) {
+                    $search = $request->search['value'] ?? $request->q;
+
+                    $query = $query->where(function ($q) use ($search) {
+                        $q->where('transactions.id', 'like', "%{$search}%")
+                            ->orWhere('transactions.sent_time', 'like', "%{$search}%")
+                            ->orWhere('transactions.number', 'like', "%{$search}%")
+                            ->orWhere('transactions.sender_notes', 'like', "%{$search}%")
+                            ->orWhere('transactions.handler_notes', 'like', "%{$search}%");
+
+                        $q->orWhereHas('details', function ($q2) use ($search) {
+                            $q2->where('transaction_details.notes', 'like', "%{$search}%")
+                                ->orWhere('transaction_details.model_type', 'like', "%{$search}%")
+                            ;
+                        });
+
+                        $q->orWhereHas('details.detail', function ($q3) use ($search) {
+                            $q3->where('name', 'like', "%{$search}%")
+                                ->orWhere('sku', "{$search}")
+                            ;
+                        });
+                    });
+                }    
+            })
+
+            ->rawColumns(['actions', 'all_notes'])
+            ->make(true);
+    }
+
+    
+    public function getQueryData(Request $request){
+        $space_id = get_space_id($request);
+
+        $space = Space::findOrFail($space_id);
+        $space_ids = $space->spaceAndChildren()->pluck('id')->toArray() ?? [];
+        $space_ids = array_merge($space_ids, [$space_id]);
+
+        $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
+            ->where('model_type', 'JS')
+            ->orderBy('sent_time', 'desc');
+
+        $query = $query->where('transactions.space_type', 'SPACE');
+
+
+
+        // filter space
+        $space_select = $request->get('space_select') ?? 'all';
+        if($space_select == 'exc'){
+            $space_select_options = $this->status_types;
+
+            $query->whereNotIn('status', collect($space_select_options)->keys()->toArray());
+        } else if($space_select != 'all'){
+            $query->where('transactions.space_id', $space_select);
+        } else if($space_select == 'all'){
+            $query->whereIn('transactions.space_id', $space_ids);
+        }
+
+
+
+        // Limit
+        $limit = $request->get('limit');
+        if($limit){
+            if($limit != 'all'){
+                $query->limit($limit);
+            } 
+        } else {
+            $query->limit(50);
+        }                
+
+
+
+        // filter status
+        $status_select = $request->get('status_select') ?? 'all';
+        if($status_select == 'exc'){
+            $status_select_options = $this->status_types;
+
+            $query->whereNotIn('status', collect($status_select_options)->keys()->toArray());
+        } else if($status_select != 'all'){
+            $query->where('status', $status_select);
+        }
+        
+
+
+        return $query;
     }
 }
