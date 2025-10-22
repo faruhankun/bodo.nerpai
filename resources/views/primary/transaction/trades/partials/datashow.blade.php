@@ -28,7 +28,12 @@
     }
 
 
-    $tx_relations = $data->relations ?? [];
+
+    $tx_relations = $data->relations ?? collect();
+    $tx_relation = $data->relation ?? null;
+    if($tx_relation){
+        $tx_relations = $tx_relations->push($tx_relation);
+    }
 
 
 
@@ -51,7 +56,13 @@
         <x-div.box-show title="Transaksi Induk">
             @if($data->parent)
                 space: {{ $data?->parent?->space?->name ?? 'space-name' }} <br>
-                number: {{ $data?->parent?->number ?? 'parent-number' }} <br>
+                number: {{ $data->parent?->model_type ?? 'Type' }} : 
+                    <a href="{{ route('trades.show', ['trade' => $data->parent->id]) }}" 
+                        class="text-blue-500 hover:underline"
+                        target="_blank">
+                        {{ $data->parent?->number ?? 'parent-number?' }}
+                    </a>
+                    <br>
                 date: {{ optional($data?->parent?->sent_time)?->format('Y-m-d') ?? 'parent-date' }}
             @endif
         </x-div.box-show>
@@ -208,7 +219,7 @@
                         <x-table.table-td>{{ $relation->notes ?? 'notes' }}</x-table.table-td>
                         <x-table.table-td class="flex justify-center items-center gap-2">
                             @if(!isset($get_page_show) || $get_page_show != 'show')
-                                <x-buttons.button-showjs onclick='showjs_tx({{ $relation }})'></x-buttons.button-showjs>
+                                <!-- <x-buttons.button-showjs onclick='showjs_tx({{ $relation }})'></x-buttons.button-showjs> -->
                             @endif
                         </x-table.table-td>
                     </x-table.table-tr>
@@ -299,10 +310,14 @@
                     </a>
                 </x-secondary-button>
 
-                @if($data->children->isNotEmpty())
+                <!-- jika punya children atau dia punya induk, tampilkan ini -->
+                @if($data->children->isNotEmpty() || $data->parent_id != null)
+                    @php
+                        $parent_id = $data->parent_id ?? $data->id;
+                    @endphp
                     <x-secondary-button type="button">
                         <a href="{{ route('trades.invoice', 
-                                        ['id' => $data->id, 'invoice_type' => 'invoice_induk']) }}" target="_blank" class="btn btn-primary">
+                                        ['id' => $parent_id, 'invoice_type' => 'invoice_induk']) }}" target="_blank" class="btn btn-primary">
                             Invoice Induk
                         </a>
                     </x-secondary-button>

@@ -240,11 +240,16 @@ class QuoteController extends Controller
             $newData = $transaction->replicate(); // clone tanpa id, created_at, updated_at
             $newData->status = 'TX_DRAFT'; // misal reset status ke draft
             $newData->model_type = 'TRD';
+
+            $newData->relation_type = 'TX';
+            $newData->relation_id = $transaction->id;
+            
             if($player_id){
                 $newData->sender_id = $player_id;
             }
             $newData->created_at = now();
             $newData->updated_at = now();
+            $newData->sent_time = now();
             $newData->handler_notes = "[from quote " . $transaction->number . "] " . $transaction->handler_notes;
             $newData->save();
             $newData->generateNumber();

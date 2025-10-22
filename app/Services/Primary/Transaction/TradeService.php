@@ -424,6 +424,19 @@ class TradeService
         }
 
 
+
+        // filter status
+        $status_select = $request->get('status_select') ?? 'all';
+        if($status_select == 'exc'){
+            $status_select_options = $this->status_types;
+
+            $query->whereNotIn('status', collect($status_select_options)->keys()->toArray());
+        } else if($status_select != 'all'){
+            $query->where('status', $status_select);
+        }
+
+
+
         return $query;
     }
 

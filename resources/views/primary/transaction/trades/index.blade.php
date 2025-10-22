@@ -35,6 +35,14 @@
             $model_type_select = 'SO';
     }
 
+
+
+    $status_select = $request->get('status_select') ?? null;
+    $status_select_options = $status_select_options ?? [];
+    $status_select_options['all'] = 'Semua Status';
+    $status_select_options['exc'] = 'Status Tidak Diketahui';
+    if($status_select == null)
+        $status_select = 'TX_DRAFT';
 @endphp
 
 <x-crud.index-basic header="Trades" model="trades" table_id="indexTable" 
@@ -46,6 +54,13 @@
             <option value="">-- Filter Model --</option>
             @foreach ($model_type_option as $key => $value)
                 <option value="{{ $key }}" {{ $model_type_select == $key ? 'selected' : '' }}>{{ $value }}</option>
+            @endforeach
+        </x-input-select>
+
+        <x-input-select name="status_select" id="status-select">
+            <option value="">-- Filter Status --</option>
+            @foreach ($status_select_options as $key => $value)
+                <option value="{{ $key }}" {{ $status_select == $key ? 'selected' : '' }}>{{ $value }}</option>
             @endforeach
         </x-input-select>
     </x-slot>
@@ -79,6 +94,7 @@
                     d.return_type = 'DT';
                     d.space_id = {{ $space_id }};
                     d.model_type_select = $('#model-type-select').val() || '';
+                    d.status_select = $('#status-select').val() || '';
                     d.limit = 'all';
                 }
             },
@@ -150,7 +166,11 @@
 
 
         
-        $('#model-type-select').on('change', function() {
+        // filter
+        $('#model-type-select').on('change', function(e) {
+            indexTable.ajax.reload();
+        });
+        $('#status-select').on('change', function(e) {
             indexTable.ajax.reload();
         });
 

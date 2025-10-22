@@ -86,7 +86,11 @@ class TradeController extends Controller
     }
 
 
-    public function index(){ return view('primary.transaction.trades.index'); }
+    public function index(){ 
+        $status_select_options = $this->tradeService->status_types;
+
+        return view('primary.transaction.trades.index', compact('status_select_options')); 
+    }
 
 
 
@@ -377,6 +381,7 @@ class TradeController extends Controller
 
         try {
             $tx = Transaction::with(['details', 'details.detail', 
+                                    'relation', 'relations',
                                     'parent', 'children',
                                     'input', 'outputs',
                                     'sender', 'receiver'])->findOrFail($id);
@@ -399,9 +404,9 @@ class TradeController extends Controller
             $tx_related->push($data->input);
         }
 
-        if($data->parent){
-            $tx_related->push($data->parent);
-        }
+        // if($data->parent){
+        //     $tx_related->push($data->parent);
+        // }
 
         if($data->children){
             $tx_related = $tx_related->merge($data->children);
