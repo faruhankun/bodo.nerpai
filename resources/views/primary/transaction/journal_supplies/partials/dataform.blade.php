@@ -15,10 +15,14 @@
                 required value="{{ date('Y-m-d') }}">
         </div>
 
-        <div class="form-group">
-            <x-input-label for="sender_notes">Sender Notes</x-input-label>
-            <x-input-textarea name="sender_notes" class="form-control" id="{{ $form['mode'] ?? '' }}_sender_notes"></x-input-textarea>
-        </div>
+        <x-div.box-input for="space_id" title="Space Id" label="Space Id">  
+            <x-input-select name="space_id" id="{{ $form['mode'] ?? '' }}_space_id" class="w-full px-4 py-2 border rounded">
+                <option value="">Pilih Space Asal</option>
+                @foreach (($space_with_supplies ?? []) as $space)
+                    <option value="{{ $space->id }}">{{ $space->name }}</option>
+                @endforeach
+            </x-input-select>
+        </x-div.box-input>
     
     
     @elseif($form['mode'] == 'edit')

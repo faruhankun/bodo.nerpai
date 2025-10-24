@@ -1,7 +1,9 @@
 @php
     $layout = session('layout');
 
-    $space_id = session('space_id') ?? null;
+    $request = request();
+
+    $space_id = get_space_id($request);
     $space_parent_id = session('space_parent_id') ?? null;
     if(is_null($space_id)){
         abort(403);
@@ -14,6 +16,11 @@
 
     $spaces_origin = $player?->spaces->where('id', '!=', $space_id) ?? [];
     $input_journal = $journal?->input;
+
+    $data_space_id = $journal->space_id;
+    if(!$data_space_id){
+        abort(404, 'Space id not found');
+    }
 @endphp
 
 
@@ -22,7 +29,7 @@
         <div class=" sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-white">
-                    <h3 class="text-2xl dark:text-white font-bold">Edit Journal: {{ $journal->number }}</h3>
+                    <h3 class="text-2xl dark:text-white font-bold">Edit Journal: {{ $journal->number }} in {{ $journal->space?->name ?? 'space-not-found' }}</h3>
                     <div class="my-6 flex-grow border-t border-gray-300 dark:border-gray-700"></div>
 
                     <form action="{{ route('journal_supplies.update', $journal->id) }}" method="POST" onsubmit="return validateForm()">
@@ -184,7 +191,6 @@
         function initInventorySelect($element, selectedData = null) {
             $element.select2({
                 placeholder: 'Search & Select Supply',
-                minimumInputLength: 2,
                 width: '100%',
                 height: '100%',
                 padding: '20px',
@@ -195,7 +201,7 @@
                     data: function(params) {
                         return {
                             q: params.term,
-                            space: '{{ $space_id }}',
+                            space_id: '{{ $data_space_id }}',
                             page: params.page || 1
                         };
                     },

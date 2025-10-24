@@ -36,7 +36,7 @@
 
 
 
-<div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
+    <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
         <x-div.box-show title="Transaksi Induk">
             @if($data->parent)
                 space: {{ $data?->parent?->space?->name ?? 'space-name' }} <br>

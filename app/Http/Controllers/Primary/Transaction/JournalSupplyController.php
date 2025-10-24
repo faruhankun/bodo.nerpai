@@ -97,14 +97,13 @@ class JournalSupplyController extends Controller
             $validated = $request->validate([
                 'sender_id' => 'required',
                 'sent_time' => 'nullable',
-                'sender_notes' => 'nullable|string|max:255',
             ]);
 
             $data = [
                 'space_id' => $space_id,
                 'sender_id' => $validated['sender_id'],
                 'sent_time' => $validated['sent_time'] ?? now(),
-                'sender_notes' => $validated['sender_notes'],
+                'sender_notes' => $validated['sender_notes'] ?? null,
             ];
 
             $journal = $this->journalSupply->addJournal($data);
@@ -165,7 +164,7 @@ class JournalSupplyController extends Controller
         $inventories = $this->get_inventories();
         $inventories = Item::with('type', 'parent')
                             ->where('model_type', 'PRD')->get();
-        $journal = Transaction::with(['details', 'details.detail', 'relation'])->findOrFail($id);
+        $journal = Transaction::with(['details', 'details.detail', 'relation', 'space'])->findOrFail($id);
         $model_types = $this->model_types;
 
         return view('primary.transaction.journal_supplies.edit', compact('journal', 'inventories', 'model_types'));

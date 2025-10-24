@@ -327,6 +327,9 @@
             <div class="flex gap-3 justify-end mt-8">
                 @if($allow_duplicate)
                     <x-buttons.button-duplicate :route="route('trades.duplicate', $data->id)">Duplicate</x-buttons.button-duplicate>
+
+                    <!-- request outbound from warehouse -->
+                    <x-buttons.button-pass :route="route('journal_supplies.request_trade', $data->id)">Request Kirim (under development)</x-buttons.button-pass>
                 @endif
             </div>
         </div>

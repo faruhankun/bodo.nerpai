@@ -65,6 +65,7 @@ Route::middleware([
     Route::resource('trades', TradeController::class);
 
 
+    Route::post('journal_supplies/request_trade/{id}', [JournalSupplyController::class, 'requestTrade'])->name('journal_supplies.request_trade');
     Route::get('journal_supplies/import', [JournalSupplyController::class, 'importTemplate'])->name('journal_supplies.import_template');
     Route::post('journal_supplies/import', [JournalSupplyController::class, 'importData'])->name('journal_supplies.import');
     Route::get('journal_supplies/export', [JournalSupplyController::class, 'exportData'])->name('journal_supplies.export');

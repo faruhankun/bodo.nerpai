@@ -28,7 +28,10 @@ class JournalSupplyService
     public function addJournal($data, $details = [])
     {
         $player_id = $data['sender_id'] ?? auth()->user()->player->id;
-        $space_id = $data['space_id'] ?? (session('space_id') ?? null);
+        $space_id = $data['space_id'] ?? null;
+        if(is_null($space_id)){
+            abort(403);
+        }
 
         $tx = Transaction::create([
             'space_type' => 'SPACE',
@@ -42,7 +45,7 @@ class JournalSupplyService
             'sender_notes' => $data['sender_notes'] ?? null,
             'total' => $data['total'] ?? 0,
 
-            'status' => 'TX_COMPLETED',
+            'status' => 'TX_READY',
         ]);
 
         $journal_details = [];
@@ -144,6 +147,7 @@ class JournalSupplyService
             $input_tx = $this->addJournal($data);
             $tx->input_type = 'TX';
             $tx->input_id = $input_tx->id;
+            $tx->status = 'TX_READY';
         }
 
         $tx->save();
@@ -310,7 +314,7 @@ class JournalSupplyService
         $space_ids = $space->spaceAndChildren()->pluck('id')->toArray() ?? [];
         $space_ids = array_merge($space_ids, [$space_id]);
 
-        $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item')
+        $query = Transaction::with('input', 'type', 'details', 'details.detail', 'details.detail.item', 'space')
             ->where('model_type', 'JS')
             ->orderBy('sent_time', 'desc');
 

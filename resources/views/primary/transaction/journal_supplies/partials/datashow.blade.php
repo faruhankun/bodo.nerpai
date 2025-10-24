@@ -7,7 +7,7 @@
 @endphp
 
 
-<div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
+    <div class="grid grid-cols-3 sm:grid-cols-3 gap-6">
         <!-- <x-div-box-show title="Number">{{ $data->number }}</x-div-box-show> -->
         <!-- <x-div-box-show title="Date">{{ optional($data?->sent_time)?->format('Y-m-d') ?? '??' }}</x-div-box-show> -->
         <!-- <x-div-box-show title="Source">

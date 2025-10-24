@@ -42,7 +42,7 @@
 @endphp
 
 <x-crud.index-basic header="Journal Supplies" model="journal supplies" table_id="indexTable" 
-                    :thead="['Date', 'Number', 'Description', 'SKU', 'Status', 'Actions']">
+                    :thead="['Date', 'Space', 'Number', 'Description', 'SKU', 'Status', 'Actions']">
     <x-slot name="buttons">
         @include('primary.transaction.journal_supplies.create')
 
@@ -118,6 +118,17 @@
                         let month = String(date.getMonth() + 1).padStart(2, '0');
                         let day = String(date.getDate()).padStart(2, '0');
                         return `${year}-${month}-${day}`;
+                    }
+                },
+
+                {
+                    data: 'space.name',
+                    render: function(data, type, row, meta) {
+                        if (row.space) {
+                            return row.space.name;
+                        } else {
+                            return '??';
+                        }
                     }
                 },
                 

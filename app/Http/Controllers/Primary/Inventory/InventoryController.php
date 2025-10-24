@@ -417,10 +417,7 @@ class InventoryController extends Controller
     {
         $search = $request->q;
 
-        $space_id = $request['space_id'] ?? (session('space_id') ?? null);
-        if(is_null($space_id)){
-            abort(403);
-        }
+        $space_id = get_space_id($request);
 
         $ivts = Inventory::where(function ($query) use ($search) {
             $query->where('name', 'like', "%$search%")
